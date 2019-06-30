@@ -1,0 +1,63 @@
+from cards import Deck, Card, BridgeHand, suits, ranks
+from bidding import Auction
+from cardplay import Cardplay
+
+deck = Deck()
+
+hand_names = ['NORTH','SOUTH','EAST','WEST']
+vulnerabilities = ['NONE','NS','EW','BOTH']
+
+
+class Deal:
+    def __init__(self,dealer,vuln,cards=None):
+        dealer = dealer.upper()
+        vuln = vuln.upper()
+
+        if hand_names.count(dealer) == 0:
+            raise Exception("Dealer must be a direction")
+
+        if vulnerabilities.count(vuln) == 0:
+            raise Exception("Invalid vulnerability")
+
+        self.dealer = dealer
+
+        if vuln == 'NONE':
+            self.ns_vuln = False
+            self.ew_vuln = False
+        elif vuln == 'NS':
+            self.ns_vuln = True
+            self.ew_vuln = False
+        if vuln == 'EW':
+            self.ns_vuln = False
+            self.ew_vuln = True
+        if vuln == 'BOTH':
+            self.ns_vuln = True
+            self.ew_vuln = True
+
+        if not cards:
+            deck.shuffle()
+            cards = deck.cards
+        elif set(cards) != set(range(52)):
+            print("'cards' must be a list of integers from 0 to 51 with each number appearing once.")
+            print("Generating a random deal.")
+            deck.shuffle()
+            cards = deck.cards
+
+        # Weird python indexing, but it's right
+        self.hands = {
+            'NORTH':BridgeHand(cards[0:13]),
+            'EAST': BridgeHand(cards[13:26]),
+            'SOUTH': BridgeHand(cards[26:39]),
+            'WEST': BridgeHand(cards[39:52]),
+        }
+
+        self.dealer_ix = hand_names.index(dealer)
+
+    def play_hand(self):
+        auction = Auction()
+        #TODO: Return the contract
+
+        #For now, assume the contract is 1N by north
+        Cardplay(self.hands['NORTH'],self.hands['EAST'],self.hands['SOUTH'],self.hands['WEST'],"1N",'NORTH')
+
+        #TODO: Score the cardplay
