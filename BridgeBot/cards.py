@@ -1,6 +1,8 @@
 import random
+from enums import INVALID
 
 suits = ['CLUBS','DIAMONDS','HEARTS','SPADES']
+suits_short = {"CLUBS": "C", "DIAMONDS": "D", "HEARTS": "H", "SPADES": "S"}
 ranks = ['2','3','4','5','6','7','8','9','T','J','Q','K','A']
 
 
@@ -39,6 +41,11 @@ class Card:
         else:
             return True
 
+class Card:
+    def __init__(self, index):
+        self.suit = suits[int(index / 13)]
+        self.rank = ranks[index % 13]
+
 
 class Hand:
     hand = {
@@ -48,51 +55,52 @@ class Hand:
         'clubs': set()
     }
 
-    def add_card(self,suit,rank):
-        if ranks.count(rank) == 0:
+    def add_card(self, index):
+        card = Card(index)
+        if ranks.count(card.rank) == 0:
             raise Exception("Unknown Rank")
-        self.hand[suit].add(rank)
+        self.hand[card.suit].add(card.rank)
 
-    def play_card(self,suit,rank):
+    def play_card(self, suit, rank):
         if not rank in self.hand[suit]:
             raise Exception("Hand does not contain " + rank + " of " + suit + ".")
         self.hand[suit].difference_update(rank)
         return Card(suit,rank)
 
     # Take a number from 0 to 51 and map it to suit and rank.
-    def add_card_from_deck_index(self,index):
-        self.add_card(suits[int(index / 13)], ranks[index % 13])
+    def add_card_from_deck_index(self, index):
+        self.add_card(index)
 
     # Take a list of numbers from 0 to 51 and map them to suits and ranks.
-    def fill_from_list(self,deck_indices):
+    def fill_from_list(self, deck_indices):
         for idx in deck_indices:
             self.add_card_from_deck_index(idx)
 
 
 class BridgeHand(Hand):
-    def __init__(self,deck_indices):
+    def __init__(self, deck_indices):
         if len(deck_indices) != 13:
             raise Exception("Bridge hands must contain 13 cards.")
         self.fill_from_list(deck_indices)
 
-    def lead(self,suit,rank):
+    def lead(self, suit,rank):
         if rank not in ranks:
-            return "INVALID"
+            return INVALID
 
         if suit not in suits:
-            return "INVALID"
+            return INVALID
         return self.play_card(suit,rank)
 
     def follow(self,led,suit,rank):
         if rank not in ranks:
-            return "INVALID"
+            return INVALID
 
         if suit not in suits:
-            return "INVALID"
+            return INVALID
 
         if suit != led[suit]:
             if len(self.hand[suit]) != 0:
                 print("Must follow suit if possible.")
-                return "INVALID"
+                return INVALID
             else:
                 return self.play_card(suit,rank)
