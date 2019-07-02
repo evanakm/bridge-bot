@@ -12,7 +12,7 @@ strains = ['CLUBS', 'DIAMONDS', 'HEARTS', 'SPADES', 'NT', 'PASSOUT']
 
 doubles = [None, 'X', 'XX']
 
-ps = 'PASS'
+PASS = 'PASS'
 
 
 class Auction:
@@ -89,15 +89,15 @@ class Auction:
     def pass_bid(self):
         if self.bid_index == -1:
             if self.consecutive_passes == 3: # Passing out
-                self.record[players[self.player_index]].append(ps)
+                self.record[players[self.player_index]].append(PASS)
                 self.contract['strain'] = strains[5]
                 return self.ret_val[0]
             else:  # Passing before an opening bid
-                self.record[players[self.player_index]].append(ps)
+                self.record[players[self.player_index]].append(PASS)
                 self.__increment_player()
                 return self.ret_val[1]  # "CONTINUE"
         elif self.consecutive_passes != 2: # Passing but not finishing
-            self.record[players[self.player_index]].append(ps)
+            self.record[players[self.player_index]].append(PASS)
             self.__increment_player()
             return self.ret_val[1]  # "CONTINUE"
         else:  # Three passes in a row.
@@ -117,7 +117,7 @@ class Auction:
             else:
                 self.contract['declarer'] = self.ew_first_bid[self.contract['strain']]
 
-            self.record[players[self.player_index]].append(ps)
+            self.record[players[self.player_index]].append(PASS)
             return self.ret_val[0]  # "DONE"
 
     def make_bid(self,bid_index):

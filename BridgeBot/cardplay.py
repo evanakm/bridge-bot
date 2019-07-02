@@ -2,6 +2,10 @@ import cards
 from bidding import strains
 from cards import suits, ranks
 
+from enum import Enum
+
+
+
 contracts = ['1C',' 1D', '1H', '1S', '1N',
         '2C', '2D', '2H', '2S', '2N',
         '3C', '3D', '3H', '3S', '3N',
@@ -10,7 +14,13 @@ contracts = ['1C',' 1D', '1H', '1S', '1N',
         '6C', '6D', '6H', '6S', '6N',
         '7C', '7D', '7H', '7S', '7N']
 
-players = ['NORTH', 'EAST', 'SOUTH', 'WEST']
+
+from enums import Players
+
+
+players = [Players.NORTH, Players.EAST, Players.SOUTH, Players.WEST]
+
+INVALID = "INVALID"
 
 
 class Cardplay:
@@ -69,10 +79,10 @@ class Cardplay:
             raise Exception("Invalid contract")
 
         self.hands = {
-            'NORTH':north,
-            'EAST':east,
-            'SOUTH':south,
-            'WEST':west
+            Players.NORTH: north,
+            Players.EAST: east,
+            Players.SOUTH: south,
+            Players.WEST: west
         }
 
         self.on_lead = (players.index(declarer) + 1) % 4
@@ -83,8 +93,8 @@ class Cardplay:
 
         for i in range(13):
             trick = []
-            x = "INVALID"
-            while x == "INVALID":
+            x = INVALID
+            while x == INVALID:
                 suit = input("Enter suit:")
                 rank = input("Enter rank:")
                 x = self.hands[self.on_lead].lead()
@@ -93,15 +103,15 @@ class Cardplay:
 
             for i in range(3):
                 self.on_lead = (self.on_lead + 1) % 4
-                x = "INVALID"
-                while x == "INVALID":
+                x = INVALID
+                while x == INVALID:
                     suit = input("Enter suit:")
                     rank = input("Enter rank:")
                     x = self.hands[self.on_lead].follow()
 
                 trick.append(x)
 
-            self.on_lead = (self.on_lead + self.play_trick(trick,self.strain)) % 4
+            self.on_lead = (self.on_lead + self.play_trick(trick, self.strain)) % 4
             if self.on_lead % 2 == 0:
                 self.ns_tricks = self.ns_tricks + 1
             else:
