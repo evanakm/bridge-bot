@@ -1,4 +1,5 @@
 import cards
+from bidding import strains
 
 contracts = ['1C',' 1D', '1H', '1S', '1N',
         '2C', '2D', '2H', '2S', '2N',
@@ -11,7 +12,7 @@ contracts = ['1C',' 1D', '1H', '1S', '1N',
 players = ['NORTH', 'EAST', 'SOUTH', 'WEST']
 
 suits = cards.suits
-strains = ['CLUBS','DIAMONDS','HEARTS','SPADES','NT']
+
 
 class Cardplay:
     def __init__(self,north,east,south,west,contract,declarer):
