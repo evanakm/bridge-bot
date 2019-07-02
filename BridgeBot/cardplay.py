@@ -62,10 +62,10 @@ class Cardplay:
         return winning_index
 
     def __init__(self,north,east,south,west,contract,declarer):
-        if not declarer in players:
+        if declarer not in players:
             raise Exception("Invalid declarer")
 
-        if not contract in contracts:
+        if contract not in contracts:
             raise Exception("Invalid contract")
 
         self.hands = {
@@ -83,8 +83,8 @@ class Cardplay:
 
         for i in range(13):
             trick = []
-            x = None
-            while x is None:
+            x = "INVALID"
+            while x == "INVALID":
                 suit = input("Enter suit:")
                 rank = input("Enter rank:")
                 x = self.hands[self.on_lead].lead()
@@ -93,8 +93,8 @@ class Cardplay:
 
             for i in range(3):
                 self.on_lead = (self.on_lead + 1) % 4
-                x = None
-                while x is None:
+                x = "INVALID"
+                while x == "INVALID":
                     suit = input("Enter suit:")
                     rank = input("Enter rank:")
                     x = self.hands[self.on_lead].follow()

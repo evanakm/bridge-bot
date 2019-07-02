@@ -76,12 +76,23 @@ class BridgeHand(Hand):
         self.fill_from_list(deck_indices)
 
     def lead(self,suit,rank):
+        if rank not in ranks:
+            return "INVALID"
+
+        if suit not in suits:
+            return "INVALID"
         return self.play_card(suit,rank)
 
     def follow(self,led,suit,rank):
+        if rank not in ranks:
+            return "INVALID"
+
+        if suit not in suits:
+            return "INVALID"
+
         if suit != led[suit]:
             if len(self.hand[suit]) != 0:
                 print("Must follow suit if possible.")
-                return 0
+                return "INVALID"
             else:
                 return self.play_card(suit,rank)

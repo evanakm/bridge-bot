@@ -1,6 +1,7 @@
 from cards import Deck, Card, BridgeHand, suits, ranks
-from bidding import Auction
-from cardplay import Cardplay
+from bidding import Auction, strains
+from cardplay import Cardplay, contracts
+from scoring import score
 
 deck = Deck()
 
@@ -55,9 +56,29 @@ class Deal:
 
     def play_hand(self):
         auction = Auction()
-        #TODO: Return the contract
+        if auction.contract['strain'] == 'PASSOUT':
+            return 0
 
-        #For now, assume the contract is 1N by north
-        Cardplay(self.hands['NORTH'],self.hands['EAST'],self.hands['SOUTH'],self.hands['WEST'],"1N",'NORTH')
+        strain_index = strains.index(auction.contract['strain'])
+        level_index = int(auction.contract['level']) - 1
+        contract = contracts[5*level_index + strain_index]
 
-        #TODO: Score the cardplay
+        cp = Cardplay(self.hands['NORTH'],self.hands['EAST'],self.hands['SOUTH'],self.hands['WEST'],
+                 contract,auction.contract['declarer'])
+
+        bid = int(auction.contract['level'])
+        strain = auction.contract['strain']
+
+        if auction.contract['declarer'] in ['NORTH','SOUTH']:
+            vul = self.vuln in ['NS','BOTH']
+            if cp.ns_tricks < bid + 6:
+                return score(bid,strain,cp.ns_tricks-(bid+6),auction.contract['doubled'],vul)
+            made = cp.ns_tricks - 6
+            return score(bid,strain,made,auction.contract['doubled'],vul)
+        else:
+            vul = self.vuln in ['EW', 'BOTH']
+            if cp.ew_tricks < bid + 6:
+                return score(bid, strain, cp.ew_tricks-(bid+6),auction.contract['doubled'],vul)
+            made = cp.ew_tricks - 6
+            return score(bid, strain, made, auction.contract['doubled'], vul)
+
