@@ -1,5 +1,6 @@
 import cards
 from bidding import strains
+from cards import suits, ranks
 
 contracts = ['1C',' 1D', '1H', '1S', '1N',
         '2C', '2D', '2H', '2S', '2N',
@@ -11,7 +12,53 @@ contracts = ['1C',' 1D', '1H', '1S', '1N',
 
 players = ['NORTH', 'EAST', 'SOUTH', 'WEST']
 
-suits = cards.suits
+
+# played_cards must be an ordered structure
+# notrump corresponds to trump_index == 4,
+def play_trick(played_cards, trump_index):
+
+    lead_card = played_cards[0]
+    following_cards = played_cards[1:len(played_cards)]
+
+    winning_index = 0
+    counter = 0
+    suit_led = lead_card.suit_index
+    trump_played = lead_card.suit_index == trump_index
+    highest = lead_card.rank_index
+
+    for card in following_cards:
+        counter = counter + 1
+        if trump_played:
+            if card.suit_index != trump_index:
+                continue
+            elif card.rank_index <= highest:
+                continue
+            else:
+                winning_index = counter
+                highest = card.rank_index
+        elif card.suit_index == suit_led:
+            if card.rank_index <= highest:
+                continue
+            else:
+                winning_index = counter
+                highest = card.rank_index
+        else:
+            if card.suit_index == trump_index:
+                if (not trump_played):
+                    # first time the lead is trumped
+                    trump_played = True
+                    winning_index = counter
+                    highest = card.rank_index
+                elif card.rank_index <= highest:
+                    continue
+                else:
+                    winning_index = counter
+                    highest = card.rank_index
+            else:
+                # Not following suit, not trumping
+                continue
+
+    return winning_index
 
 
 class Cardplay:
@@ -37,8 +84,8 @@ class Cardplay:
 
         for i in range(13):
             trick = []
-            x = 0
-            while(x != 0):
+            x = None
+            while x is None:
                 suit = input("Enter suit:")
                 rank = input("Enter rank:")
                 x = self.hands[self.on_lead].lead()
@@ -47,12 +94,15 @@ class Cardplay:
 
             for i in range(3):
                 self.on_lead = (self.on_lead + 1) % 4
-                while(x != 0):
+                x = None
+                while x is None:
                     suit = input("Enter suit:")
                     rank = input("Enter rank:")
                     x = self.hands[self.on_lead].follow()
 
-            self.on_lead = (self.on_lead + trick.append(x)) % 4
+                trick.append(x)
+
+            self.on_lead = (self.on_lead + play_trick(trick,self.strain)) % 4
             if self.on_lead % 2 == 0:
                 self.ns_tricks = self.ns_tricks + 1
             else:
