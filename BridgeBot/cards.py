@@ -40,54 +40,6 @@ class Card:
             return True
 
 
-# played_cards must be an ordered structure
-# notrump corresponds to trump_index == 4,
-def trick(played_cards, trump_index):
-
-    lead_card = played_cards[0]
-    following_cards = played_cards[1:len(played_cards)]
-
-    winning_index = 0
-    counter = 0
-    suit_led = lead_card.suit_index
-    trump_played = lead_card.suit_index == trump_index
-    highest = lead_card.rank_index
-
-    for card in following_cards:
-        counter = counter + 1
-        if trump_played:
-            if card.suit_index != trump_index:
-                continue
-            elif card.rank_index <= highest:
-                continue
-            else:
-                winning_index = counter
-                highest = card.rank_index
-        elif card.suit_index == suit_led:
-            if card.rank_index <= highest:
-                continue
-            else:
-                winning_index = counter
-                highest = card.rank_index
-        else:
-            if card.suit_index == trump_index:
-                if (not trump_played):
-                    # first time the lead is trumped
-                    trump_played = True
-                    winning_index = counter
-                    highest = card.rank_index
-                elif card.rank_index <= highest:
-                    continue
-                else:
-                    winning_index = counter
-                    highest = card.rank_index
-            else:
-                # Not following suit, not trumping
-                continue
-
-    return winning_index
-
-
 class Hand:
     hand = {
         'spades': set(),
