@@ -6,13 +6,10 @@ bids = ['1C',' 1D', '1H', '1S', '1N',
         '6C', '6D', '6H', '6S', '6N',
         '7C', '7D', '7H', '7S', '7N']
 
-players = ['NORTH', 'EAST', 'SOUTH', 'WEST']
-
-strains = ['CLUBS', 'DIAMONDS', 'HEARTS', 'SPADES', 'NT', 'PASSOUT']
+from enums import players, strains
 
 doubles = [None, 'X', 'XX']
 
-PASS = 'PASS'
 
 
 class Auction:
