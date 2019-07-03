@@ -1,9 +1,7 @@
 import random
-from enums import INVALID
+from enums import INVALID, Suits, ranks, suits
 
-suits = ['CLUBS','DIAMONDS','HEARTS','SPADES']
-suits_short = {"CLUBS": "C", "DIAMONDS": "D", "HEARTS": "H", "SPADES": "S"}
-ranks = ['2','3','4','5','6','7','8','9','T','J','Q','K','A']
+
 
 
 class Deck:
@@ -48,12 +46,13 @@ class Card:
 
 
 class Hand:
-    hand = {
-        'spades': set(),
-        'hearts':  set(),
-        'diamonds': set(),
-        'clubs': set()
-    }
+    def __init__(self):
+        self.hand = {
+            Suits.SPADES: set(),
+            Suits.HEARTS:  set(),
+            Suits.DIAMONDS: set(),
+            Suits.CLUBS: set()
+        }
 
     def add_card(self, index):
         card = Card(index)
@@ -79,11 +78,12 @@ class Hand:
 
 class BridgeHand(Hand):
     def __init__(self, deck_indices):
+        super().__init__()
         if len(deck_indices) != 13:
             raise Exception("Bridge hands must contain 13 cards.")
         self.fill_from_list(deck_indices)
 
-    def lead(self, suit,rank):
+    def lead(self, suit, rank):
         if rank not in ranks:
             return INVALID
 
@@ -91,7 +91,7 @@ class BridgeHand(Hand):
             return INVALID
         return self.play_card(suit,rank)
 
-    def follow(self,led,suit,rank):
+    def follow(self, led, suit, rank):
         if rank not in ranks:
             return INVALID
 
