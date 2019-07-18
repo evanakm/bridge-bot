@@ -1,5 +1,5 @@
 import random
-from BridgeBot.enums import INVALID, Suits, ranks, suits
+from BridgeBot.enums import INVALID, Suits, Ranks, ranks, suits
 
 class Deck:
     def __init__(self):
@@ -42,6 +42,21 @@ class Card:
         self.rank = ranks[index % 13]
 
 
+class InvalidCardException(Exception):
+    pass
+
+class InvalidRankException(InvalidCardException):
+    pass
+
+class InvalidSuitException(InvalidCardException):
+    pass
+
+class CardNotInHandException(Exception):
+    pass
+
+class CardDoesntFollowSuitException(Exception):
+    pass
+
 class Hand:
     def __init__(self):
         self.hand = {
@@ -54,12 +69,12 @@ class Hand:
     def add_card(self, index):
         card = Card(index)
         if ranks.count(card.rank) == 0:
-            raise Exception("Unknown Rank")
+            raise InvalidCardException("Unknown Rank")
         self.hand[card.suit].add(card.rank)
 
     def play_card(self, suit, rank):
         if not rank in self.hand[suit]:
-            raise Exception("Hand does not contain " + rank + " of " + suit + ".")
+            raise CardNotInHandException("Hand does not contain " + rank.value + " of " + suit.value + ".")
         self.hand[suit].difference_update(rank)
         return Card(suit,rank)
 
@@ -73,6 +88,7 @@ class Hand:
             self.add_card_from_deck_index(idx)
 
 
+
 class BridgeHand(Hand):
     def __init__(self, deck_indices):
         super().__init__()
@@ -80,24 +96,23 @@ class BridgeHand(Hand):
             raise Exception("Bridge hands must contain 13 cards.")
         self.fill_from_list(deck_indices)
 
-    def lead(self, suit, rank):
-        if rank not in ranks:
-            return INVALID
+    def __check_input(self, suit, rank):
+        if not isinstance(rank, Ranks):
+            raise InvalidRankException("Rank not found")
 
-        if suit not in suits:
-            return INVALID
+        if not isinstance(suit, Suits):
+            raise InvalidSuitException("Suit not found")
+
+    def lead(self, suit, rank):
+        self.__check_input(suit, rank)
+
         return self.play_card(suit,rank)
 
     def follow(self, led, suit, rank):
-        if rank not in ranks:
-            return INVALID
-
-        if suit not in suits:
-            return INVALID
+        self.__check_input(suit, rank)
 
         if suit != led[suit]:
             if len(self.hand[suit]) != 0:
-                print("Must follow suit if possible.")
-                return INVALID
+                raise CardDoesntFollowSuitException("Must follow suit if possible.")
             else:
                 return self.play_card(suit,rank)
