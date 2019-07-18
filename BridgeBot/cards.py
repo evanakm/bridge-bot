@@ -1,6 +1,20 @@
 import random
 from BridgeBot.enums import INVALID, Suits, Ranks, ranks, suits
 
+class InvalidCardException(Exception):
+    pass
+
+class InvalidRankException(InvalidCardException):
+    pass
+
+class InvalidSuitException(InvalidCardException):
+    pass
+
+class CardNotInHandException(Exception):
+    pass
+
+class CardDoesntFollowSuitException(Exception):
+    pass
 
 class Deck:
     def __init__(self):
@@ -17,10 +31,10 @@ class Deck:
 class Card:
     def __init__(self, suit, rank):
         if suits.count(suit) == 0:
-            raise Exception("Unknown Suit")
+            raise InvalidSuitException("Suit not found")
 
         if ranks.count(rank) == 0:
-            raise Exception("Unknown Rank")
+            raise InvalidRankException("Rank not found")
 
         self.suit = suit
         self.rank = rank
@@ -42,21 +56,6 @@ class Card:
         self.suit = suits[int(index / 13)]
         self.rank = ranks[index % 13]
 
-
-class InvalidCardException(Exception):
-    pass
-
-class InvalidRankException(InvalidCardException):
-    pass
-
-class InvalidSuitException(InvalidCardException):
-    pass
-
-class CardNotInHandException(Exception):
-    pass
-
-class CardDoesntFollowSuitException(Exception):
-    pass
 
 class Hand:
     def __init__(self):
