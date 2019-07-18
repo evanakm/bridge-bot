@@ -1,4 +1,4 @@
-from BridgeBot.bidding import strains
+from BridgeBot.enums import Strains, strains
 
 contracts = ['1C',' 1D', '1H', '1S', '1N',
         '2C', '2D', '2H', '2S', '2N',
@@ -8,9 +8,7 @@ contracts = ['1C',' 1D', '1H', '1S', '1N',
         '6C', '6D', '6H', '6S', '6N',
         '7C', '7D', '7H', '7S', '7N']
 
-
 from BridgeBot.enums import Players
-
 
 players = [Players.NORTH, Players.EAST, Players.SOUTH, Players.WEST]
 
@@ -20,21 +18,25 @@ INVALID = "INVALID"
 class Cardplay:
     # played_cards must be an ordered structure
     # notrump corresponds to trump_index == 4,
-    def play_trick(self, played_cards, trump_index):
+    def play_trick(self, played_cards):
 
         lead_card = played_cards[0]
         following_cards = played_cards[1:len(played_cards)]
 
+        # Compare suit_index to trump_index so that there's no
+        # edge cases w.r.t. strains. If playing No Trump, trump_index
+        # will be 4, and thus never equal to suit_index (in 0, 1, 2, 3)
+
         winning_index = 0
         counter = 0
-        suit_led = lead_card.suit_index
-        trump_played = lead_card.suit_index == trump_index
-        highest = lead_card.rank_index
+        suit_led = lead_card.suit
+        trump_played = lead_card.suit_index == self.trump_index
+        highest = lead_card.rank_index # Easier to compare indices
 
         for card in following_cards:
             counter = counter + 1
             if trump_played:
-                if card.suit_index != trump_index:
+                if card.suit_index != self.trump_index:
                     continue
                 elif card.rank_index <= highest:
                     continue
@@ -81,6 +83,7 @@ class Cardplay:
 
         self.on_lead = (players.index(declarer) + 1) % 4
         self.strain = strains[contracts.index(contract) % 5]
+        self.trump_index = contracts.index(contract) % 5
 
         self.ns_tricks = 0
         self.ew_tricks = 0
