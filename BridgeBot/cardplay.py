@@ -67,7 +67,7 @@ class Cardplay:
         return winning_index
 
     def __init__(self,north,east,south,west,contract,declarer):
-        if declarer not in players:
+        if not isinstance(declarer, Players):
             raise Exception("Invalid declarer")
 
         if contract not in contracts:
