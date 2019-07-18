@@ -23,8 +23,6 @@ class Deal:
             Players.WEST: BridgeHand(cards[39:52]),
         }
 
-        print(self.hands)
-
         self.dealer_ix = players.index(dealer)
 
     def play_hand(self):
