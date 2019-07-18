@@ -63,19 +63,14 @@ class Cardplay:
 
         return winning_index
 
-    def __init__(self,north,east,south,west,contract,declarer):
+    def __init__(self, hands, contract, declarer):
         if not isinstance(declarer, Players):
             raise Exception("Invalid declarer")
 
         if contract not in contracts:
             raise Exception("Invalid contract")
 
-        self.hands = {
-            Players.NORTH: north,
-            Players.EAST: east,
-            Players.SOUTH: south,
-            Players.WEST: west
-        }
+        self.hands = hands
 
         self.on_lead = (players.index(declarer) + 1) % 4
         self.strain = strains[contracts.index(contract) % 5]
