@@ -1,4 +1,4 @@
-from BridgeBot.bidding import strains
+from BridgeBot.enums import Strains, strains
 
 from BridgeBot.enums import Strains, strains, Players
 
