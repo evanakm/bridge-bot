@@ -26,20 +26,20 @@ class Cardplay:
         # Compare suit_index to trump_index so that there's no
         # edge cases w.r.t. strains. If playing No Trump, trump_index
         # will be 4, and thus never equal to suit_index (in 0, 1, 2, 3)
+        trump_played = lead_card.suit_index == self.trump_index
 
         winning_index = 0
         counter = 0
         suit_led = lead_card.suit
-        trump_played = lead_card.suit_index == self.trump_index
         highest = lead_card.rank_index # Easier to compare indices
 
         for card in following_cards:
             counter = counter + 1
             if trump_played:
                 if card.suit_index != self.trump_index:
-                    continue
+                    continue #Not following trump. Not winning trick.
                 elif card.rank_index <= highest:
-                    continue
+                    continue #Following low.
                 else:
                     winning_index = counter
                     highest = card.rank_index
@@ -50,7 +50,7 @@ class Cardplay:
                     winning_index = counter
                     highest = card.rank_index
             else:
-                if card.suit_index == trump_index:
+                if card.suit_index == self.trump_index:
                     if (not trump_played):
                         # first time the lead is trumped
                         trump_played = True
@@ -108,7 +108,7 @@ class Cardplay:
 
                 trick.append(x)
 
-            self.on_lead = (self.on_lead + self.play_trick(trick, self.strain)) % 4
+            self.on_lead = (self.on_lead + self.play_trick(trick)) % 4
             if self.on_lead % 2 == 0:
                 self.ns_tricks = self.ns_tricks + 1
             else:
