@@ -14,6 +14,7 @@ eight_of_clubs = cards.Card(Suits.CLUBS, Ranks.EIGHT)
 def does_not_raise():
     yield
 
+
 def test_deck():
     print(deck.card_indices) # Will be suppressed unless pytest is called with -s
     assert len(deck.card_indices) == 52
