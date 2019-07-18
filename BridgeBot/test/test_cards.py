@@ -41,7 +41,7 @@ def test_card(suit, rank, expected_result, expected_except):
         card = cards.Card(suit, rank)
         assert card.matches(seven_of_hearts) == expected_result
 
-@pytest.mark.parametrize('index,expected_except', [
+@pytest.mark.parametrize('index, expected_except', [
     (31, does_not_raise()),
     (55, pytest.raises(Exception))
 ])
@@ -49,4 +49,20 @@ def test_map_index_to_card(index, expected_except):
     with expected_except:
         card = cards.map_index_to_card(index)
         assert card.matches(seven_of_hearts)
+
+
+hand = cards.Hand()
+# Generated from a random number generator
+test_list = [13, 29, 7, 25, 43, 24]
+# Corresponds to 2 of diamonds, 5 of hearts, 8 of clubs, ace of diamonds, 5 of spades, and king of diamonds
+
+
+@pytest.mark.parametrize('index, expected_except', [
+    (31, does_not_raise()),
+    (55, pytest.raises(Exception))
+])
+def test_hand():
+    hand.fill_from_list(test_list)
+    with expected_except:
+        assert hand.hand[Suits.CLUBS]
 

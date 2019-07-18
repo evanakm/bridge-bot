@@ -75,7 +75,6 @@ class Hand:
         self.hand[card.suit].add(card.rank)
 
 
-
     def play_card(self, suit, rank):
         if not rank in self.hand[suit]:
             raise CardNotInHandException("Hand does not contain " + rank.value + " of " + suit.value + ".")
