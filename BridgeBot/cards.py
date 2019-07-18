@@ -1,8 +1,5 @@
 import random
-from enums import INVALID, Suits, ranks, suits
-
-
-
+from BridgeBot.enums import INVALID, Suits, ranks, suits
 
 class Deck:
     def __init__(self):

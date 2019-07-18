@@ -6,7 +6,7 @@ bids = ['1C',' 1D', '1H', '1S', '1N',
         '6C', '6D', '6H', '6S', '6N',
         '7C', '7D', '7H', '7S', '7N']
 
-from enums import players, strains
+from BridgeBot.enums import players, strains
 
 doubles = [None, 'X', 'XX']
 
