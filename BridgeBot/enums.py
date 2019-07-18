@@ -25,8 +25,9 @@ class Suits(Enum):
     HEARTS = "HEARTS"
     SPADES = "SPADES"
 
-    def suits(self):
-        return [self.CLUBS, self.DIAMONDS, self.HEARTS, self.SPADES]
+    @staticmethod
+    def suits():
+        return [Suits.CLUBS, Suits.DIAMONDS, Suits.HEARTS, Suits.SPADES]
 
     def __lt__(self, other):
         suits = self.suits()
@@ -40,7 +41,6 @@ class Vulnerabilities(Enum):
     EW = 'EW'
     BOTH = 'BOTH'
 
-
 INVALID = "INVALID"
 
 players = [Players.NORTH, Players.EAST, Players.SOUTH, Players.WEST]
@@ -53,8 +53,9 @@ class Strains(Enum):
     NT = "NT"
     PASSOUT = "PASSOUT"
 
-    def strains(self):
-        return [self.CLUBS, self.DIAMONDS, self.HEARTS, self.SPADES, self.NT, self.PASSOUT]
+    @staticmethod
+    def strains():
+        return [Strains.CLUBS, Strains.DIAMONDS, Strains.HEARTS, Strains.SPADES, Strains.NT, Strains.PASSOUT]
 
     def __lt__(self, other):
         strains = self.strains()
@@ -62,10 +63,6 @@ class Strains(Enum):
 
 
 PASS = 'PASS'
-
-
-suits_short = {Suits.CLUBS: "C", Suits.DIAMONDS: "D", Suits.HEARTS: "H", Suits.SPADES: "S"}
-
 
 class Ranks(Enum):
     TWO = "2"
@@ -82,13 +79,26 @@ class Ranks(Enum):
     KING = "K"
     ACE = "A"
 
+    @staticmethod
+    def ranks():
+        return [Ranks.TWO, Ranks.THREE, Ranks.FOUR, Ranks.FIVE, Ranks.SIX, Ranks.SEVEN, Ranks.EIGHT, Ranks.NINE,
+                Ranks.TEN, Ranks.JACK, Ranks.QUEEN, Ranks.KING, Ranks.ACE]
+
     def __lt__(self, other):
-        ranks = [self.TWO, self.THREE, self.FOUR, self.FIVE, self.SIX, self.SEVEN, self.EIGHT, self.NINE,
-                 self.TEN, self.JACK, self.QUEEN, self.KING, self.ACE]
+        ranks = self.ranks()
         return ranks.index(self) < ranks.index(other)
 
 ranks = [Ranks.TWO, Ranks.THREE, Ranks.FOUR, Ranks.FIVE, Ranks.SIX, Ranks.SEVEN, Ranks.EIGHT, Ranks.NINE, Ranks.TEN,
          Ranks.JACK, Ranks.QUEEN, Ranks.KING, Ranks.ACE]
+
+class ContractNotFound(Exception):
+    pass
+
+
+class Contracts(Enum):
+    ONE_CLUB = (1, Strains.CLUBS)
+    ONE_DIAMOND = (1, Strains.DIAMONDS)
+
 
 contracts = ['1C',' 1D', '1H', '1S', '1N',
         '2C', '2D', '2H', '2S', '2N',
