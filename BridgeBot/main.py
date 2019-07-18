@@ -17,6 +17,7 @@ def check_cards(cards):
 
 
 if __name__ == "__main__":
+    print(Players.WEST.next_player())
     deck = Deck()
     deal = Deal(Players.NORTH, Vulnerabilities.NONE, deck.card_indices)
 

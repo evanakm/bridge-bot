@@ -72,11 +72,13 @@ class Hand:
             raise InvalidCardException("Unknown Rank")
         self.hand[card.suit].add(card.rank)
 
+
+
     def play_card(self, suit, rank):
         if not rank in self.hand[suit]:
             raise CardNotInHandException("Hand does not contain " + rank.value + " of " + suit.value + ".")
-        self.hand[suit].difference_update(rank)
-        return Card(suit,rank)
+        self.hand[suit].difference_update([rank])
+        return suit, rank
 
     # Take a number from 0 to 51 and map it to suit and rank.
     def add_card_from_deck_index(self, index):
@@ -97,11 +99,12 @@ class BridgeHand(Hand):
         self.fill_from_list(deck_indices)
 
     def __check_input(self, suit, rank):
+        if not isinstance(suit, Suits):
+            raise InvalidSuitException("Suit not found")
+
         if not isinstance(rank, Ranks):
             raise InvalidRankException("Rank not found")
 
-        if not isinstance(suit, Suits):
-            raise InvalidSuitException("Suit not found")
 
     def lead(self, suit, rank):
         self.__check_input(suit, rank)
@@ -116,3 +119,13 @@ class BridgeHand(Hand):
                 raise CardDoesntFollowSuitException("Must follow suit if possible.")
             else:
                 return self.play_card(suit,rank)
+
+    def legal_cards(self, led_suit=None):
+        print(led_suit)
+        if not (led_suit is None or isinstance(led_suit, Suits)):
+            raise InvalidRankException("Invalid Rank")
+
+        if not led_suit and len(self.hand[led_suit]) is not 0:
+            return {led_suit: self.hand[led_suit]}
+        else:
+            return self.hand

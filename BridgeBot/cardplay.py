@@ -1,5 +1,7 @@
 from BridgeBot.enums import Strains, strains
 
+import json
+
 from BridgeBot.enums import Strains, strains, Players, contracts, Suits, Ranks
 from BridgeBot.get_input import get_input_enum
 
@@ -17,6 +19,13 @@ def player_name_to_index(name):
 
 def player_index_to_name(index):
     return players[index]
+
+def convert_hand_to_str(hand):
+    hand_string = ""
+    for key in sorted(hand.keys()):
+        hand_string += key.name + ": " + ', '.join(rank.name for rank in sorted(hand[key])) + "   "
+    return hand_string
+
 
 class Cardplay:
     # played_cards must be an ordered structure
@@ -54,7 +63,7 @@ class Cardplay:
                     highest = card.rank_index
             else:
                 if card.suit_index == self.trump_index:
-                    if (not trump_played):
+                    if not trump_played:
                         # first time the lead is trumped
                         trump_played = True
                         winning_index = counter
@@ -94,6 +103,9 @@ class Cardplay:
             print(players[self.on_lead].value + " starts")
             x = INVALID
             while x == INVALID:
+                print("All Cards: " +
+                      convert_hand_to_str(self.hands[player_index_to_name(self.on_lead)].hand)
+                      )
                 suit, rank = play_card()
                 x = self.hands[player_index_to_name(self.on_lead)].lead(suit, rank)
                 print(x)
@@ -105,6 +117,13 @@ class Cardplay:
             for follower_count in range(3):
                 print(players[self.on_lead].value + "'s turn")
                 self.on_lead = self.__determine_next_player(self.on_lead)
+                print("All Cards: " +
+                      convert_hand_to_str(self.hands[player_index_to_name(self.on_lead)].hand)
+                )
+                print("Legal Cards: " +
+                      convert_hand_to_str(self.hands[player_index_to_name(self.on_lead)].legal_cards(self.trump_rank))
+                )
+
                 x = INVALID
                 while x == INVALID:
                     suit, rank = play_card()
