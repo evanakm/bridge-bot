@@ -1,7 +1,8 @@
 from BridgeBot.cards import Deck
 from BridgeBot.deal import Deal
 
-from BridgeBot.enums import Players, Vulnerabilities
+from BridgeBot.enums import Players, Vulnerabilities, contracts
+from BridgeBot.cardplay import Cardplay
 
 def check_cards(cards):
     if not cards:
