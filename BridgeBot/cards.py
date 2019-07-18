@@ -16,6 +16,9 @@ class CardNotInHandException(Exception):
 class CardDoesntFollowSuitException(Exception):
     pass
 
+class WrongSizeHandException(Exception):
+    pass
+
 class Deck:
     def __init__(self):
         self.card_indices = list(range(52))
@@ -55,6 +58,7 @@ class Card:
 def map_index_to_card(index):
     return Card(suits[int(index / 13)], ranks[index % 13])
 
+
 class Hand:
     def __init__(self):
         self.hand = {
@@ -64,11 +68,8 @@ class Hand:
             Suits.CLUBS: set()
         }
 
-    def add_card(self, index):
-        card = map_index_to_card(index)
-        if ranks.count(card.rank) == 0:
-            raise InvalidCardException("Unknown Rank")
-        self.hand[card.suit].add(card.rank)
+    def contains_card(self, suit, rank):
+        return rank in self.hand[suit]
 
     def play_card(self, suit, rank):
         if not rank in self.hand[suit]:
@@ -77,7 +78,10 @@ class Hand:
 
     # Take a number from 0 to 51 and map it to suit and rank.
     def add_card_from_deck_index(self, index):
-        self.add_card(index)
+        card = map_index_to_card(index)
+        if ranks.count(card.rank) == 0:
+            raise InvalidCardException("Unknown Rank")
+        self.hand[card.suit].add(card.rank)
 
     # Take a list of numbers from 0 to 51 and map them to suits and ranks.
     def fill_from_list(self, deck_indices):
@@ -85,12 +89,11 @@ class Hand:
             self.add_card_from_deck_index(idx)
 
 
-
 class BridgeHand(Hand):
     def __init__(self, deck_indices):
         super().__init__()
         if len(deck_indices) != 13:
-            raise Exception("Bridge hands must contain 13 cards.")
+            raise WrongSizeHandException("Bridge hands must contain 13 cards.")
         self.fill_from_list(deck_indices)
 
     def __check_input(self, suit, rank):
