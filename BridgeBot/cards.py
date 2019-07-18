@@ -1,5 +1,5 @@
 import random
-from BridgeBot.enums import INVALID, Suits, Ranks, ranks, suits
+from BridgeBot.enums import Suits, Ranks, ranks, suits
 
 class InvalidCardException(Exception):
     pass
@@ -30,24 +30,20 @@ class Deck:
 
 class Card:
     def __init__(self, suit, rank):
-        if suits.count(suit) == 0:
+        if not isinstance(suit, Suits):
             raise InvalidSuitException("Suit not found")
 
-        if ranks.count(rank) == 0:
+        if not isinstance(rank, Ranks):
             raise InvalidRankException("Rank not found")
 
         self.suit = suit
         self.rank = rank
 
-        #For some things, especially in Cardplay, it is useful to have these indices
-        self.suit_index = suits.index(suit)
-        self.rank_index = ranks.index(rank)
-
     # Mostly for assertions and error checking
     def does_not_match(self, other_card):
-        if self.suit_index != other_card.suit_index:
+        if self.suit != other_card.suit:
             return True
-        elif self.rank_index != other_card.rank_index:
+        elif self.rank != other_card.rank:
             return True
         else:
             return False
@@ -69,17 +65,15 @@ class Hand:
         }
 
     def add_card(self, index):
-        card = Card(index)
+        card = map_index_to_card(index)
         if ranks.count(card.rank) == 0:
             raise InvalidCardException("Unknown Rank")
         self.hand[card.suit].add(card.rank)
-
 
     def play_card(self, suit, rank):
         if not rank in self.hand[suit]:
             raise CardNotInHandException("Hand does not contain " + rank.value + " of " + suit.value + ".")
         self.hand[suit].difference_update([rank])
-        return suit, rank
 
     # Take a number from 0 to 51 and map it to suit and rank.
     def add_card_from_deck_index(self, index):
