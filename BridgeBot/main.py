@@ -18,3 +18,15 @@ def check_cards(cards):
 if __name__ == "__main__":
     deck = Deck()
     deal = Deal(Players.NORTH, Vulnerabilities.NONE, deck.card_indices)
+    contract = None
+    print(str(list(Players)))
+    while contract not in contracts:
+        contract = input("Please enter the contract: ")
+    declarer = None
+
+    while not isinstance(declarer, Players):
+        try:
+            declarer = Players[input("Please enter the declarer: ").upper()]
+        except:
+            pass
+    cardplay = Cardplay(deal.hands, contract, declarer)
