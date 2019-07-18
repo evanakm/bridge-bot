@@ -1,13 +1,11 @@
-from BridgeBot.enums import Strains, strains
+from BridgeBot.enums import Strains
 
 import json
 
-from BridgeBot.enums import Strains, strains, Players, contracts, Suits, Ranks
+from BridgeBot.enums import Strains, Players, contracts, Suits, Ranks, ContractNotFound
 from BridgeBot.get_input import get_input_enum
 
 players = [Players.NORTH, Players.EAST, Players.SOUTH, Players.WEST]
-
-INVALID = "INVALID"
 
 def play_card():
     suit = get_input_enum(Suits, "suit")
@@ -28,6 +26,20 @@ def convert_hand_to_str(hand):
 
 
 class Cardplay:
+    @staticmethod
+    def determine_trick_winner(played_cards, trump_suit):
+        if not isinstance(played_cards, list):
+            raise ValueError("played_cards must be a list of cards")
+
+        highest_card = played_cards[0]
+        suit_led = lead_card.suit
+
+        for card_counter in range(len(played_cards)):
+            if (played_cards[card_counter].suit == trump_suit):
+                highest_card
+
+
+
     # played_cards must be an ordered structure
     # notrump corresponds to trump_index == 4,
     def play_trick(self, played_cards):
@@ -38,19 +50,21 @@ class Cardplay:
         # Compare suit_index to trump_index so that there's no
         # edge cases w.r.t. strains. If playing No Trump, trump_index
         # will be 4, and thus never equal to suit_index (in 0, 1, 2, 3)
-        trump_played = lead_card.suit_index == self.trump_index
+        trump_played = lead_card.suit == self.trump_rank
 
         winning_index = 0
         counter = 0
         suit_led = lead_card.suit
-        highest = lead_card.rank_index # Easier to compare indices
+        highest = lead_card.rank # Easier to compare indices
 
         for card in following_cards:
+
+
             counter = counter + 1
             if trump_played:
                 if card.suit_index != self.trump_index:
                     continue #Not following trump. Not winning trick.
-                elif card.rank_index <= highest:
+                elif card.rank <= highest:
                     continue #Following low.
                 else:
                     winning_index = counter
@@ -79,8 +93,15 @@ class Cardplay:
 
         return winning_index
 
-    def __determine_next_player(self, current_player):
+
+    @staticmethod
+    def __determine_next_player(current_player):
         return (current_player + 1) % 4
+
+    @staticmethod
+    def __determine_trump_rank_from_contract(contract):
+        if contract not in contracts:
+            raise ContractNotFound()
 
     def __init__(self, hands, contract, declarer):
         if not isinstance(declarer, Players):
@@ -92,7 +113,10 @@ class Cardplay:
         self.hands = hands
 
         self.on_lead = self.__determine_next_player(players.index(declarer))
-        self.strain = strains[contracts.index(contract) % 5]
+
+        # TODO I do not think the following line is correct
+        self.strain = Strains.strains()[contracts.index(contract) % 5]
+
         self.trump_index = contracts.index(contract) % 5
 
         self.ns_tricks = 0
@@ -101,14 +125,13 @@ class Cardplay:
         for trick_count in range(13):
             trick = []
             print(players[self.on_lead].value + " starts")
-            x = INVALID
-            while x == INVALID:
-                print("All Cards: " +
-                      convert_hand_to_str(self.hands[player_index_to_name(self.on_lead)].hand)
-                      )
-                suit, rank = play_card()
-                x = self.hands[player_index_to_name(self.on_lead)].lead(suit, rank)
-                print(x)
+
+            print("All Cards: " +
+                  convert_hand_to_str(self.hands[player_index_to_name(self.on_lead)].hand)
+                  )
+            suit, rank = play_card()
+            x = self.hands[player_index_to_name(self.on_lead)].lead(suit, rank)
+
 
             trick.append(x)
 
@@ -124,10 +147,8 @@ class Cardplay:
                       convert_hand_to_str(self.hands[player_index_to_name(self.on_lead)].legal_cards(self.trump_rank))
                 )
 
-                x = INVALID
-                while x == INVALID:
-                    suit, rank = play_card()
-                    x = self.hands[self.on_lead].follow(led_card, suit, rank)
+                suit, rank = play_card()
+                x = self.hands[self.on_lead].follow(led_card, suit, rank)
 
                 trick.append(x)
 
