@@ -24,12 +24,19 @@ def test_deck_shuffle():
     print(deck.card_indices)
     assert len(deck.card_indices) == 52
 
+
+def test_card():
+    card = cards.Card(Suits.HEARTS, Suits.HEARTS)
+    assert not card.does_not_match(seven_of_hearts)
+
+
 @pytest.mark.parametrize('suit,rank,expected_result,expected_except', [
-    ("HEARTS", "7", True, does_not_raise()),
-    ("SPADES", "10", False, does_not_raise()),
-    ("DIAMONDS", "1", ),
-    (0, pytest.raises(ZeroDivisionError)),
+    (Suits.HEARTS, Suits.HEARTS, False, does_not_raise()),
+    (Suits.SPADES, Suits.TEN, True, does_not_raise()),
+    (Suits.DIAMONDS, "1", True, pytest.raises(cards.InvalidRankException)),
+    ("STARS", Suits.FIVE, True, pytest.raises(cards.InvalidSuitException)),
 ])
-def test_card(suit, rank):
-    with pytest.raises(Exception, match="Unknown Suit"):
-        card = cards.Card("STARS", "SEVEN")
+def test_card(suit, rank, expected_result, expected_except):
+    with expected_except:
+        card = cards.Card(suit, rank)
+        assert card.does_not_match(seven_of_hearts) == expected_result
