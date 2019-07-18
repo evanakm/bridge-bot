@@ -1,5 +1,8 @@
 import pytest
-from .. import cards as Cards
+import sys
+sys.path.insert(0,'..')
+
+import BridgeBot.cards as Cards
 
 def test_deck():
     deck = Cards.Deck()
