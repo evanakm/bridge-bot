@@ -12,8 +12,11 @@ class Players(Enum):
 
     def next_player(self):
         players = self.players()
-        print(players)
         return players[(players.index(self) + 1) % 4]
+
+    def partner(self):
+        players = self.players()
+        return players[(players.index(self) + 2) % 4]
 
 
 class Suits(Enum):
