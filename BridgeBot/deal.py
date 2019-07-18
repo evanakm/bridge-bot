@@ -1,4 +1,4 @@
-from BridgeBot.enums import Vulnerabilities, players, Players
+from BridgeBot.enums import Vulnerabilities, players, Players, Strains
 from BridgeBot.cards import BridgeHand
 
 

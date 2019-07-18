@@ -12,12 +12,6 @@ def play_card():
     rank = get_input_enum(Ranks, "rank")
     return suit, rank
 
-def player_name_to_index(name):
-    return players.index(name)
-
-def player_index_to_name(index):
-    return players[index]
-
 def convert_hand_to_str(hand):
     hand_string = ""
     for key in sorted(hand.keys()):
@@ -32,11 +26,18 @@ class Cardplay:
             raise ValueError("played_cards must be a list of cards")
 
         highest_card = played_cards[0]
-        suit_led = lead_card.suit
+        suit_led = played_cards[0].suit
 
         for card_counter in range(len(played_cards)):
-            if (played_cards[card_counter].suit == trump_suit):
-                highest_card
+            if played_cards[card_counter].suit == trump_suit and highest_card != trump_suit:
+                highest_card = played_cards[card_counter]
+            elif played_cards[card_counter].rank > highest_card.rank and (
+                    played_cards[card_counter].suit == suit_led or
+                    played_cards[card_counter].rank == trump_suit
+            ):
+                highest_card = played_cards[card_counter]
+
+        return played_cards.index(highest_card)
 
 
 
@@ -112,39 +113,41 @@ class Cardplay:
 
         self.hands = hands
 
-        self.on_lead = self.__determine_next_player(players.index(declarer))
+        self.on_lead = declarer.next_player()
 
         # TODO I do not think the following line is correct
         self.strain = Strains.strains()[contracts.index(contract) % 5]
 
-        self.trump_index = contracts.index(contract) % 5
+        # TODO I am not sure this line is correct either
+        self.trump_suit = Suits.suits()[contracts.index(contract) % 5]
+
+
 
         self.ns_tricks = 0
         self.ew_tricks = 0
 
         for trick_count in range(13):
             trick = []
-            print(players[self.on_lead].value + " starts")
+            print(self.on_lead.value + " starts")
 
             print("All Cards: " +
-                  convert_hand_to_str(self.hands[player_index_to_name(self.on_lead)].hand)
+                  convert_hand_to_str(self.hands[self.on_lead].hand)
                   )
             suit, rank = play_card()
-            x = self.hands[player_index_to_name(self.on_lead)].lead(suit, rank)
-
+            x = self.hands[self.on_lead].lead(suit, rank)
 
             trick.append(x)
 
             led_card = x
 
             for follower_count in range(3):
-                print(players[self.on_lead].value + "'s turn")
-                self.on_lead = self.__determine_next_player(self.on_lead)
+                print(self.on_lead.value + "'s turn")
+                self.on_lead = self.on_lead.next_player()
                 print("All Cards: " +
-                      convert_hand_to_str(self.hands[player_index_to_name(self.on_lead)].hand)
+                      convert_hand_to_str(self.hands[self.on_lead].hand)
                 )
                 print("Legal Cards: " +
-                      convert_hand_to_str(self.hands[player_index_to_name(self.on_lead)].legal_cards(self.trump_rank))
+                      convert_hand_to_str(self.hands[self.on_lead].legal_cards(self.trump_suit))
                 )
 
                 suit, rank = play_card()
@@ -153,7 +156,7 @@ class Cardplay:
                 trick.append(x)
 
             # Why do we add self.on_lead here? Should this just be self.play_trick(trick)
-            self.on_lead = (self.on_lead + self.play_trick(trick)) % 4
+            self.on_lead = (self.on_lead + self.determine_trick_winner(trick, self.trump_suit)) % 4
 
             # Update the number of tricks won
             if self.on_lead % 2 == 0:
