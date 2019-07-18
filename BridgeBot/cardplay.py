@@ -1,4 +1,5 @@
 from BridgeBot.bidding import strains
+from BridgeBot.enums import Players
 
 contracts = ['1C',' 1D', '1H', '1S', '1N',
         '2C', '2D', '2H', '2S', '2N',
