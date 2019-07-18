@@ -52,6 +52,9 @@ class Card:
         else:
             return False
 
+    def matches(self, other_card):
+        return not self.does_not_match(other_card)
+
 
 def map_index_to_card(index):
     return Card(suits[int(index / 13)], ranks[index % 13])

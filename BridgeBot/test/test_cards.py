@@ -31,12 +31,22 @@ def test_card():
 
 
 @pytest.mark.parametrize('suit,rank,expected_result,expected_except', [
-    (Suits.HEARTS, Suits.HEARTS, False, does_not_raise()),
-    (Suits.SPADES, Suits.TEN, True, does_not_raise()),
-    (Suits.DIAMONDS, "1", True, pytest.raises(cards.InvalidRankException)),
-    ("STARS", Suits.FIVE, True, pytest.raises(cards.InvalidSuitException)),
+    (Suits.HEARTS, Ranks.SEVEN, True, does_not_raise()),
+    (Suits.SPADES, Ranks.TEN, False, does_not_raise()),
+    (Suits.DIAMONDS, "1", False, pytest.raises(cards.InvalidRankException)),
+    ("STARS", Ranks.FIVE, False, pytest.raises(cards.InvalidSuitException)),
 ])
 def test_card(suit, rank, expected_result, expected_except):
     with expected_except:
         card = cards.Card(suit, rank)
-        assert card.does_not_match(seven_of_hearts) == expected_result
+        assert card.matches(seven_of_hearts) == expected_result
+
+@pytest.mark.parametrize('index,expected_except', [
+    (31, does_not_raise()),
+    (55, pytest.raises(Exception))
+])
+def test_map_index_to_card(index, expected_except):
+    with expected_except:
+        card = cards.map_index_to_card(index)
+        assert card.matches(seven_of_hearts)
+
