@@ -1,3 +1,7 @@
+from BridgeBot.enums import players, strains
+
+doubles = [None, 'X', 'XX']
+
 bids = ['1C',' 1D', '1H', '1S', '1N',
         '2C', '2D', '2H', '2S', '2N',
         '3C', '3D', '3H', '3S', '3N',
@@ -5,12 +9,6 @@ bids = ['1C',' 1D', '1H', '1S', '1N',
         '5C', '5D', '5H', '5S', '5N',
         '6C', '6D', '6H', '6S', '6N',
         '7C', '7D', '7H', '7S', '7N']
-
-from BridgeBot.enums import players, strains
-
-doubles = [None, 'X', 'XX']
-
-
 
 class Auction:
     contract = {'level': 0,

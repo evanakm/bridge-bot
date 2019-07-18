@@ -13,18 +13,7 @@ class Deal:
 
         self.dealer = dealer
 
-        if vuln == Vulnerabilities.NONE:
-            self.ns_vuln = False
-            self.ew_vuln = False
-        elif vuln == Vulnerabilities.NS:
-            self.ns_vuln = True
-            self.ew_vuln = False
-        if vuln == Vulnerabilities.EW:
-            self.ns_vuln = False
-            self.ew_vuln = True
-        if vuln == Vulnerabilities.BOTH:
-            self.ns_vuln = True
-            self.ew_vuln = True
+        self.vuln = vuln
 
         # Weird python indexing, but it's right
         self.hands = {
