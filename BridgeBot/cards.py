@@ -1,13 +1,6 @@
 import random
 from BridgeBot.enums import INVALID, Suits, Ranks, ranks, suits
 
-class UnknownSuitError(Exception):
-    pass
-
-
-class UnknownRankError(Exception):
-    pass
-
 
 class Deck:
     def __init__(self):
