@@ -1,10 +1,4 @@
-import cards
-from bidding import strains
-from cards import suits, ranks
-
-from enum import Enum
-
-
+from BridgeBot.bidding import strains
 
 contracts = ['1C',' 1D', '1H', '1S', '1N',
         '2C', '2D', '2H', '2S', '2N',
@@ -15,7 +9,7 @@ contracts = ['1C',' 1D', '1H', '1S', '1N',
         '7C', '7D', '7H', '7S', '7N']
 
 
-from enums import Players
+from BridgeBot.enums import Players
 
 
 players = [Players.NORTH, Players.EAST, Players.SOUTH, Players.WEST]

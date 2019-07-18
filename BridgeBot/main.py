@@ -1,10 +1,7 @@
-from cards import Deck, Card, BridgeHand, suits, ranks
-from bidding import Auction, strains
-from cardplay import Cardplay, contracts
-from scoring import score
-from deal import Deal
+from BridgeBot.cards import Deck
+from BridgeBot.deal import Deal
 
-from enums import Players, Vulnerabilities
+from BridgeBot.enums import Players, Vulnerabilities
 
 def check_cards(cards):
     if not cards:
