@@ -1,5 +1,5 @@
 import pytest
-import BridgeBot.cards as Cards
+from .. import cards as Cards
 
 def test_deck():
     deck = Cards.Deck()
