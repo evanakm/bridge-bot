@@ -1,4 +1,4 @@
-from BridgeBot.enums import players, strains, contracts
+from BridgeBot.enums import contracts, Players, Strains
 
 doubles = [None, 'X', 'XX']
 
@@ -15,29 +15,29 @@ class Auction:
             raise Exception('Invalid dealer.')
 
         self.record = {
-            'NORTH': [],
-            'EAST': [],
-            'SOUTH': [],
-            'WEST': []
+            Players.NORTH: [],
+            Players.EAST: [],
+            Players.SOUTH: [],
+            Players.WEST: []
         }
 
         self.ns_first_bid = {
-            'CLUBS':"",
-            'DIAMONDS':"",
-            'HEARTS':"",
-            'SPADES':"",
-            'NT':""
+            Strains.CLUBS: None,
+            Strains.DIAMONDS: None,
+            Strains.HEARTS: None,
+            Strains.SPADES: None,
+            Strains.NT: None
         }
 
         self.ew_first_bid = {
-            'CLUBS': "",
-            'DIAMONDS': "",
-            'HEARTS': "",
-            'SPADES': "",
-            'NT': ""
+            Strains.CLUBS: None,
+            Strains.DIAMONDS: None,
+            Strains.HEARTS: None,
+            Strains.SPADES: None,
+            Strains.NT: None
         }
 
-        self.player_index = players.index(self.dealer)
+        self.player_index = Players.players().index(self.dealer)
         self.last_bidder_index = None
 
         for i in range(self.player_index):

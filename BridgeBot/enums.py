@@ -88,16 +88,8 @@ class Ranks(Enum):
         ranks = self.ranks()
         return ranks.index(self) < ranks.index(other)
 
-ranks = [Ranks.TWO, Ranks.THREE, Ranks.FOUR, Ranks.FIVE, Ranks.SIX, Ranks.SEVEN, Ranks.EIGHT, Ranks.NINE, Ranks.TEN,
-         Ranks.JACK, Ranks.QUEEN, Ranks.KING, Ranks.ACE]
-
 class ContractNotFound(Exception):
     pass
-
-
-class Contracts(Enum):
-    ONE_CLUB = (1, Strains.CLUBS)
-    ONE_DIAMOND = (1, Strains.DIAMONDS)
 
 
 contracts = ['1C',' 1D', '1H', '1S', '1N',

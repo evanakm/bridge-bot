@@ -1,5 +1,5 @@
 import random
-from BridgeBot.enums import Suits, Ranks, ranks, suits
+from BridgeBot.enums import Suits, Ranks, suits
 
 class InvalidCardException(Exception):
     pass
@@ -52,8 +52,8 @@ class Card:
         return not self.does_not_match(other_card)
 
 
-def map_index_to_card(index):
-    return Card(suits[int(index / 13)], ranks[index % 13])
+def generate_card_from_deck_index(index):
+    return Card(Suits.suits()[int(index / 13)], Ranks.ranks()[index % 13])
 
 class Hand:
     def __init__(self):
@@ -64,10 +64,10 @@ class Hand:
             Suits.CLUBS: set()
         }
 
-    def add_card(self, index):
-        card = map_index_to_card(index)
-        if ranks.count(card.rank) == 0:
+    def add_card(self, card):
+        if not isinstance(card.rank, Ranks):
             raise InvalidCardException("Unknown Rank")
+
         self.hand[card.suit].add(card.rank)
 
     def play_card(self, suit, rank):
@@ -77,7 +77,7 @@ class Hand:
 
     # Take a number from 0 to 51 and map it to suit and rank.
     def add_card_from_deck_index(self, index):
-        self.add_card(index)
+        self.add_card(generate_card_from_deck_index(index))
 
     # Take a list of numbers from 0 to 51 and map them to suits and ranks.
     def fill_from_list(self, deck_indices):
