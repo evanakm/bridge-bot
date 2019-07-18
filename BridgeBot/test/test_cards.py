@@ -6,10 +6,10 @@ import BridgeBot.cards as Cards
 
 def test_deck():
     deck = Cards.Deck()
-    pytest.assume(len(deck) == 52)
-    print(deck)
+    print(deck.card_indices)
+    assert len(deck.card_indices) == 52
 
     deck.shuffle()
-    pytest.assume(len(deck) == 52)
-    print(deck)
+    print(deck.card_indices)
+    assert len(deck.card_indices) == 52
 
