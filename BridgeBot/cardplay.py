@@ -1,5 +1,8 @@
 from BridgeBot.enums import Strains, strains
 
+from BridgeBot.enums import Strains, strains, Players
+
+
 contracts = ['1C',' 1D', '1H', '1S', '1N',
         '2C', '2D', '2H', '2S', '2N',
         '3C', '3D', '3H', '3S', '3N',
@@ -8,12 +11,14 @@ contracts = ['1C',' 1D', '1H', '1S', '1N',
         '6C', '6D', '6H', '6S', '6N',
         '7C', '7D', '7H', '7S', '7N']
 
-from BridgeBot.enums import Players
-
 players = [Players.NORTH, Players.EAST, Players.SOUTH, Players.WEST]
 
 INVALID = "INVALID"
 
+def play_card():
+    suit = input("Enter suit:")
+    rank = input("Enter rank:")
+    return suit, rank
 
 class Cardplay:
     # played_cards must be an ordered structure
@@ -68,7 +73,7 @@ class Cardplay:
         return winning_index
 
     def __init__(self,north,east,south,west,contract,declarer):
-        if declarer not in players:
+        if not isinstance(declarer, Players):
             raise Exception("Invalid declarer")
 
         if contract not in contracts:
@@ -92,8 +97,7 @@ class Cardplay:
             trick = []
             x = INVALID
             while x == INVALID:
-                suit = input("Enter suit:")
-                rank = input("Enter rank:")
+                suit, rank = play_card()
                 x = self.hands[self.on_lead].lead()
 
             trick.append(x)
@@ -102,8 +106,7 @@ class Cardplay:
                 self.on_lead = (self.on_lead + 1) % 4
                 x = INVALID
                 while x == INVALID:
-                    suit = input("Enter suit:")
-                    rank = input("Enter rank:")
+                    suit, rank = play_card()
                     x = self.hands[self.on_lead].follow()
 
                 trick.append(x)
