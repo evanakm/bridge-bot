@@ -1,15 +1,22 @@
 from BridgeBot.enums import Strains, strains
 
-from BridgeBot.enums import Strains, strains, Players, contracts
+from BridgeBot.enums import Strains, strains, Players, contracts, Suits, Ranks
+from BridgeBot.get_input import get_input_enum
 
 players = [Players.NORTH, Players.EAST, Players.SOUTH, Players.WEST]
 
 INVALID = "INVALID"
 
 def play_card():
-    suit = input("Enter suit: ")
-    rank = input("Enter rank: ")
+    suit = get_input_enum(Suits, "suit")
+    rank = get_input_enum(Ranks, "rank")
     return suit, rank
+
+def player_name_to_index(name):
+    return players.index(name)
+
+def player_index_to_name(index):
+    return players[index]
 
 class Cardplay:
     # played_cards must be an ordered structure
@@ -63,6 +70,9 @@ class Cardplay:
 
         return winning_index
 
+    def __determine_next_player(self, current_player):
+        return (current_player + 1) % 4
+
     def __init__(self, hands, contract, declarer):
         if not isinstance(declarer, Players):
             raise Exception("Invalid declarer")
@@ -72,26 +82,29 @@ class Cardplay:
 
         self.hands = hands
 
-        self.on_lead = (players.index(declarer) + 1) % 4
+        self.on_lead = self.__determine_next_player(players.index(declarer))
         self.strain = strains[contracts.index(contract) % 5]
         self.trump_index = contracts.index(contract) % 5
 
         self.ns_tricks = 0
         self.ew_tricks = 0
 
-        for i in range(13):
+        for trick_count in range(13):
             trick = []
+            print(players[self.on_lead].value + " starts")
             x = INVALID
             while x == INVALID:
                 suit, rank = play_card()
-                x = self.hands[self.on_lead].lead(suit, rank)
+                x = self.hands[player_index_to_name(self.on_lead)].lead(suit, rank)
+                print(x)
 
             trick.append(x)
 
             led_card = x
 
-            for i in range(3):
-                self.on_lead = (self.on_lead + 1) % 4
+            for follower_count in range(3):
+                print(players[self.on_lead].value + "'s turn")
+                self.on_lead = self.__determine_next_player(self.on_lead)
                 x = INVALID
                 while x == INVALID:
                     suit, rank = play_card()
@@ -99,7 +112,10 @@ class Cardplay:
 
                 trick.append(x)
 
+            # Why do we add self.on_lead here? Should this just be self.play_trick(trick)
             self.on_lead = (self.on_lead + self.play_trick(trick)) % 4
+
+            # Update the number of tricks won
             if self.on_lead % 2 == 0:
                 self.ns_tricks = self.ns_tricks + 1
             else:
