@@ -84,16 +84,18 @@ class Cardplay:
             x = INVALID
             while x == INVALID:
                 suit, rank = play_card()
-                x = self.hands[self.on_lead].lead()
+                x = self.hands[self.on_lead].lead(suit, rank)
 
             trick.append(x)
+
+            led_card = x
 
             for i in range(3):
                 self.on_lead = (self.on_lead + 1) % 4
                 x = INVALID
                 while x == INVALID:
                     suit, rank = play_card()
-                    x = self.hands[self.on_lead].follow()
+                    x = self.hands[self.on_lead].follow(led_card, suit, rank)
 
                 trick.append(x)
 
