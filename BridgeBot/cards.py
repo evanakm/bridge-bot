@@ -39,23 +39,22 @@ class Card:
         self.suit = suit
         self.rank = rank
 
+        #For some things, especially in Cardplay, it is useful to have these indices
         self.suit_index = suits.index(suit)
         self.rank_index = ranks.index(rank)
 
     # Mostly for assertions and error checking
     def does_not_match(self, other_card):
         if self.suit_index != other_card.suit_index:
-            return False
-        elif self.rank_index != other_card.rank_index:
-            return False
-        else:
             return True
+        elif self.rank_index != other_card.rank_index:
+            return True
+        else:
+            return False
 
-class Card:
-    def __init__(self, index):
-        self.suit = suits[int(index / 13)]
-        self.rank = ranks[index % 13]
 
+def map_index_to_card(index):
+    return Card(suits[int(index / 13)], ranks[index % 13])
 
 class Hand:
     def __init__(self):
