@@ -1,5 +1,5 @@
 import random
-from BridgeBot.enums import Suits, Ranks, ranks, suits
+from BridgeBot.enums import Suits, Ranks, ranks, suits, Status
 
 class InvalidCardException(Exception):
     pass
@@ -10,6 +10,9 @@ class InvalidRankException(InvalidCardException):
 class InvalidSuitException(InvalidCardException):
     pass
 
+class InvalidIndexException(Exception):
+    pass
+
 class CardNotInHandException(Exception):
     pass
 
@@ -18,6 +21,7 @@ class CardDoesntFollowSuitException(Exception):
 
 class WrongSizeHandException(Exception):
     pass
+
 
 class Deck:
     def __init__(self):
@@ -56,7 +60,9 @@ class Card:
 
 
 def map_index_to_card(index):
-    return Card(suits[int(index / 13)], ranks[index % 13])
+    if index not in range(52):
+        raise InvalidIndexException("Index must be an integer between 0 and 51 inclusive.")
+    return suits[int(index / 13)], ranks[index % 13]
 
 
 class Hand:
@@ -68,25 +74,37 @@ class Hand:
             Suits.CLUBS: set()
         }
 
+    def __check_input(self, suit, rank):
+        if not isinstance(suit, Suits):
+            raise InvalidSuitException("Suit not found")
+
+        if not isinstance(rank, Ranks):
+            raise InvalidRankException("Rank not found")
+
     def contains_card(self, suit, rank):
+        self.__check_input(suit, rank)
         return rank in self.hand[suit]
 
     def play_card(self, suit, rank):
-        if not rank in self.hand[suit]:
+        self.__check_input(suit, rank)
+        if not self.contains_card(suit, rank):
             raise CardNotInHandException("Hand does not contain " + rank.value + " of " + suit.value + ".")
         self.hand[suit].difference_update([rank])
+        return Status.VALID
 
     # Take a number from 0 to 51 and map it to suit and rank.
     def add_card_from_deck_index(self, index):
-        card = map_index_to_card(index)
-        if ranks.count(card.rank) == 0:
-            raise InvalidCardException("Unknown Rank")
-        self.hand[card.suit].add(card.rank)
+        if index not in range(52):
+            raise InvalidIndexException("Index must be an integer between 0 and 51 inclusive.")
+        suit, rank = map_index_to_card(index)
+        self.hand[suit].add(rank)
+        return Status.VALID
 
     # Take a list of numbers from 0 to 51 and map them to suits and ranks.
     def fill_from_list(self, deck_indices):
         for idx in deck_indices:
             self.add_card_from_deck_index(idx)
+        return Status.VALID
 
 
 class BridgeHand(Hand):
@@ -96,21 +114,47 @@ class BridgeHand(Hand):
             raise WrongSizeHandException("Bridge hands must contain 13 cards.")
         self.fill_from_list(deck_indices)
 
-    def __check_input(self, suit, rank):
-        if not isinstance(suit, Suits):
-            raise InvalidSuitException("Suit not found")
-
-        if not isinstance(rank, Ranks):
-            raise InvalidRankException("Rank not found")
-
-
     def lead(self, suit, rank):
+        """
+        Returns
+        -------
+        Status
+            If the card is found, it is removed from the hand and the function returns Status.VALID
+        """
+
         self.__check_input(suit, rank)
+
+        if not self.contains_card(suit, rank):
+            raise CardNotInHandException("Hand does not contain " + rank.value + " of " + suit.value + ".")
 
         return self.play_card(suit,rank)
 
     def follow(self, led, suit, rank):
+        """
+        Parameters
+        -------
+        led: 2-tuple
+            A suit and rank representing the first card played to the trick
+        suit:
+            The suit of the card to be played
+        rank:
+            The rank of the card to be played
+
+        Returns
+        -------
+        Status
+            If the card is found and is legal, it is removed from the hand and the function returns Status.VALID
+        """
+
         self.__check_input(suit, rank)
+
+        if not isinstance(led,tuple):
+            raise Exception("led must be a 2-tuple")
+
+        if len(led) != 2:
+            raise Exception("led must be a 2-tuple")
+
+        self.__check_input(led[0],led[1])
 
         if suit != led[suit]:
             if len(self.hand[suit]) != 0:

@@ -4,7 +4,7 @@ sys.path.insert(0,'..')
 from contextlib import contextmanager
 
 import BridgeBot.cards as cards
-from BridgeBot.enums import INVALID, Ranks, Suits
+from BridgeBot.enums import Status, Ranks, Suits
 
 deck = cards.Deck()
 seven_of_hearts = cards.Card(Suits.HEARTS, Ranks.SEVEN)
