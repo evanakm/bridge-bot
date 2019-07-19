@@ -41,7 +41,11 @@ class Vulnerabilities(Enum):
     EW = 'EW'
     BOTH = 'BOTH'
 
-INVALID = "INVALID"
+
+class Status(Enum):
+    INVALID = "INVALID"
+    VALID = "VALID"
+
 
 players = [Players.NORTH, Players.EAST, Players.SOUTH, Players.WEST]
 
