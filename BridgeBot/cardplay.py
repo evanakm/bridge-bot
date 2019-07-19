@@ -159,6 +159,9 @@ class Cardplay:
                 trick.append(Card(suit, rank))
 
             # Why do we add self.on_lead here? Should this just be self.play_trick(trick)
+            # Answer: self.play_trick determines the index of the winner relative to the index of the leader
+            # it also makes the code re-usable in case we want to use it for another trick-taking game, because
+            # they all have the same mechanic, even if they don't have four players.
             self.on_lead = (self.on_lead + self.play_trick(trick)) % 4
 
             # Update the number of tricks won
