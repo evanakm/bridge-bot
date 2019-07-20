@@ -107,7 +107,7 @@ class Auction:
             self.record[players[self.player_index]].append(PASS)
             return self.ret_val[0]  # "DONE"
 
-    def make_bid(self,bid_index):
+    def make_bid(self, bid_index):
         if bid_index not in range(35):
             return self.ret_val[2]  # "INVALID"
 
