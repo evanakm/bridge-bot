@@ -1,4 +1,4 @@
-from BridgeBot.enums import Vulnerabilities, players, Players, Strains
+from BridgeBot.enums import Vulnerabilities, Players, Strains
 from BridgeBot.cards import BridgeHand
 
 
@@ -22,9 +22,6 @@ class Deal:
             Players.SOUTH: BridgeHand(cards[26:39]),
             Players.WEST: BridgeHand(cards[39:52]),
         }
-
-
-        self.dealer_ix = players.index(dealer)
 
     def play_hand(self):
         auction = Auction()
