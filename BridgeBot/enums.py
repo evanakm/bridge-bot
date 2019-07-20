@@ -46,8 +46,6 @@ class Status(Enum):
     VALID = "VALID"
 
 
-players = [Players.NORTH, Players.EAST, Players.SOUTH, Players.WEST]
-
 class Strains(Enum):
     CLUBS = "CLUBS"
     DIAMONDS = "DIAMONDS"
