@@ -13,7 +13,7 @@ class Deal:
 
         self.dealer = dealer
 
-        self.vuln = vuln
+        self.vulnerability = vuln
 
         # Weird python indexing, but it's right
         self.hands = {
@@ -39,13 +39,13 @@ class Deal:
         strain = auction.contract['strain']
 
         if auction.contract['declarer'] in [Players.NORTH, Players.SOUTH]:
-            vul = self.vuln in [Vulnerabilities.NS, Vulnerabilities.BOTH]
+            vul = self.vulnerability in [Vulnerabilities.NS, Vulnerabilities.BOTH]
             if cp.ns_tricks < bid + 6:
                 return score(bid,strain,cp.ns_tricks-(bid+6),auction.contract['doubled'],vul)
             made = cp.ns_tricks - 6
             return score(bid,strain,made,auction.contract['doubled'],vul)
         else:
-            vul = self.vuln in [Vulnerabilities.EW, Vulnerabilities.BOTH]
+            vul = self.vulnerability in [Vulnerabilities.EW, Vulnerabilities.BOTH]
             if cp.ew_tricks < bid + 6:
                 return score(bid, strain, cp.ew_tricks-(bid+6),auction.contract['doubled'],vul)
             made = cp.ew_tricks - 6

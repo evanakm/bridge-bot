@@ -2,11 +2,11 @@ from bidding import strains
 
 dbl = ["","X","XX"]
 
-def contract_bonus(bid_trick_score, vuln):
+def contract_bonus(bid_trick_score, vulnerability):
     if bid_trick_score < 100:
         return 50
 
-    if vuln:
+    if vulnerability:
         return 500
 
     return 300
@@ -19,16 +19,16 @@ def doubled_bonus(doubled):
         return 0
 
 
-def slam_bonus(level,vuln):
+def slam_bonus(level, vulnerability):
     if level == 6:
-        return 750 if vuln else 500
+        return 750 if vulnerability else 500
     if level == 7:
-        return 1500 if vuln else 1000
+        return 1500 if vulnerability else 1000
 
     return 0
 
 
-def no_trump(bid,made,doubled,vuln):
+def no_trump(bid,made,doubled, vulnerability):
     if doubled not in dbl:
         return "INVALID"
 
@@ -44,12 +44,12 @@ def no_trump(bid,made,doubled,vuln):
 
     bid_trick_score = (30 * bid + 10) * multiplier
     overtrick_score = (30 * (made - bid)) * multiplier
-    bonus = contract_bonus(bid_trick_score,vuln) + doubled_bonus(doubled) + slam_bonus(bid,vuln)
+    bonus = contract_bonus(bid_trick_score, vulnerability) + doubled_bonus(doubled) + slam_bonus(bid, vulnerability)
 
     return bid_trick_score + overtrick_score + bonus
 
 
-def major(bid,made,doubled,vuln):
+def major(bid, made, doubled, vulnerability):
     if doubled not in dbl:
         return "INVALID"
 
@@ -65,12 +65,12 @@ def major(bid,made,doubled,vuln):
 
     bid_trick_score = 30 * bid * multiplier
     overtrick_score = (30 * (made - bid)) * multiplier
-    bonus = contract_bonus(bid_trick_score, vuln) + doubled_bonus(doubled) + slam_bonus(bid,vuln)
+    bonus = contract_bonus(bid_trick_score, vulnerability) + doubled_bonus(doubled) + slam_bonus(bid, vulnerability)
 
     return bid_trick_score + overtrick_score + bonus
 
 
-def minor(bid,made,doubled,vuln):
+def minor(bid,made, doubled, vulnerability):
     if doubled not in dbl:
         return "INVALID"
 
@@ -86,12 +86,12 @@ def minor(bid,made,doubled,vuln):
 
     bid_trick_score = 20 * bid * multiplier
     overtrick_score = (20 * (made - bid)) * multiplier
-    bonus = contract_bonus(bid_trick_score, vuln) + doubled_bonus(doubled) + slam_bonus(bid,vuln)
+    bonus = contract_bonus(bid_trick_score, vulnerability) + doubled_bonus(doubled) + slam_bonus(bid, vulnerability)
 
     return bid_trick_score + overtrick_score + bonus
 
 
-def penalty(down,doubled,vuln):
+def penalty(down, doubled, vulnerability):
     if doubled not in dbl:
         return "INVALID"
 
@@ -99,30 +99,30 @@ def penalty(down,doubled,vuln):
         return "INVALID"
 
     if doubled == "":
-        return (down * 100) if vuln else (down * 50)
+        return (down * 100) if vulnerability else (down * 50)
     elif doubled == "X":
         if down == 1:
-            return 200 if vuln else 100
+            return 200 if vulnerability else 100
         elif down == 2:
-            return 500 if vuln else 300
+            return 500 if vulnerability else 300
         elif down == 3:
-            return 800 if vuln else 500
+            return 800 if vulnerability else 500
         else:
-            base = 800 if vuln else 500
+            base = 800 if vulnerability else 500
             return base + (down - 3)*300
     else: # redoubled
         if down == 1:
-            return 400 if vuln else 200
+            return 400 if vulnerability else 200
         elif down == 2:
-            return 1000 if vuln else 600
+            return 1000 if vulnerability else 600
         elif down == 3:
-            return 1600 if vuln else 1000
+            return 1600 if vulnerability else 1000
         else:
-            base = 1600 if vuln else 1000
+            base = 1600 if vulnerability else 1000
             return base + (down - 3)*600
 
 
-def score(bid,strain,result,doubled,vuln):
+def score(bid, strain, result, doubled, vulnerability):
     if strain not in strains:
         return "INVALID"
 
@@ -136,11 +136,11 @@ def score(bid,strain,result,doubled,vuln):
         return "INVALID"
 
     if result < 0:
-        return penalty(-1*result,doubled,vuln)
+        return penalty(-1*result, doubled, vulnerability)
     elif strain in ["CLUBS","DIAMONDS"]:
-        return minor(bid,result,doubled,vuln)
+        return minor(bid,result, doubled, vulnerability)
     elif strain in ["HEARTS","SPADES"]:
-        return major(bid,result,doubled,vuln)
+        return major(bid, result, doubled, vulnerability)
     else:
-        return no_trump(bid,result,doubled,vuln)
+        return no_trump(bid, result, doubled, vulnerability)
 
