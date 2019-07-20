@@ -1,10 +1,10 @@
-from BridgeBot.enums import Strains
+from enums import Strains
 
 import json
 
-from BridgeBot.enums import Strains, Players, contracts, Suits, Ranks, Status, ContractNotFound
-from BridgeBot.get_input import get_input_enum
-from BridgeBot.cards import Card
+from enums import Strains, Players, contracts, Suits, Ranks, Status, ContractNotFound
+from get_input import get_input_enum
+from cards import Card
 
 players = [Players.NORTH, Players.EAST, Players.SOUTH, Players.WEST]
 

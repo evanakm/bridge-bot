@@ -1,5 +1,5 @@
-from BridgeBot.enums import Vulnerabilities, Players, Strains
-from BridgeBot.cards import BridgeHand
+from enums import Vulnerabilities, Players, Strains
+from cards import BridgeHand
 
 
 class Deal:

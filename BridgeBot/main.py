@@ -1,9 +1,9 @@
-from BridgeBot.cards import Deck
-from BridgeBot.deal import Deal
+from cards import Deck
+from deal import Deal
 
-from BridgeBot.enums import Players, Vulnerabilities, contracts
-from BridgeBot.cardplay import CardPlay
-from BridgeBot.get_input import get_input_enum
+from enums import Players, Vulnerabilities, contracts
+from cardplay import CardPlay
+from get_input import get_input_enum
 
 def check_cards(cards):
     if not cards:

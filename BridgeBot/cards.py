@@ -1,6 +1,6 @@
 import random
 
-from BridgeBot.enums import Suits, Ranks, Status
+from enums import Suits, Ranks, Status
 
 
 class InvalidCardException(Exception):
