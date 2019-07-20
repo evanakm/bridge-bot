@@ -33,7 +33,6 @@ class Suits(Enum):
         suits = self.suits()
         return suits.index(self) < suits.index(other)
 
-suits = [Suits.CLUBS, Suits.DIAMONDS, Suits.HEARTS, Suits.SPADES]
 
 class Vulnerabilities(Enum):
     NONE = 'NONE'
@@ -41,7 +40,11 @@ class Vulnerabilities(Enum):
     EW = 'EW'
     BOTH = 'BOTH'
 
-INVALID = "INVALID"
+
+class Status(Enum):
+    INVALID = "INVALID"
+    VALID = "VALID"
+
 
 players = [Players.NORTH, Players.EAST, Players.SOUTH, Players.WEST]
 
