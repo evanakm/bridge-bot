@@ -75,7 +75,7 @@ class Hand:
             Suits.CLUBS: set()
         }
 
-    def __check_input(self, suit, rank):
+    def _check_input(self, suit, rank):
         if not isinstance(suit, Suits):
             raise InvalidSuitException("Suit not found")
 
@@ -83,11 +83,11 @@ class Hand:
             raise InvalidRankException("Rank not found")
 
     def contains_card(self, suit, rank):
-        self.__check_input(suit, rank)
+        self._check_input(suit, rank)
         return rank in self.hand[suit]
 
     def play_card(self, suit, rank):
-        self.__check_input(suit, rank)
+        self._check_input(suit, rank)
         if not self.contains_card(suit, rank):
             raise CardNotInHandException("Hand does not contain " + rank.value + " of " + suit.value + ".")
         self.hand[suit].difference_update([rank])
@@ -123,7 +123,7 @@ class BridgeHand(Hand):
             If the card is found, it is removed from the hand and the function returns Status.VALID
         """
 
-        self.__check_input(suit, rank)
+        self._check_input(suit, rank)
 
         if not self.contains_card(suit, rank):
             raise CardNotInHandException("Hand does not contain " + rank.value + " of " + suit.value + ".")
@@ -147,7 +147,7 @@ class BridgeHand(Hand):
             If the card is found and is legal, it is removed from the hand and the function returns Status.VALID
         """
 
-        self.__check_input(suit, rank)
+        self._check_input(suit, rank)
 
         if not isinstance(led,tuple):
             raise Exception("led must be a 2-tuple")
@@ -155,7 +155,7 @@ class BridgeHand(Hand):
         if len(led) != 2:
             raise Exception("led must be a 2-tuple")
 
-        self.__check_input(led[0],led[1])
+        self._check_input(led[0],led[1])
 
         if suit != led[suit]:
             if len(self.hand[suit]) != 0:
