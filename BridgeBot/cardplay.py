@@ -52,7 +52,7 @@ class CardPlay:
         # Compare suit_index to trump_index so that there's no
         # edge cases with respect to strains. If playing No Trump, trump_index
         # will be 4, and thus never equal to suit_index (in 0, 1, 2, 3)
-        trump_played = lead_card.suit == self.trump_rank
+        trump_played = lead_card.suit == self.trump_suit
 
         winning_index = 0
         counter = 0
@@ -63,7 +63,7 @@ class CardPlay:
 
             counter = counter + 1
             if trump_played:
-                if card.suit_index != self.trump_index:
+                if card.suit != self.trump:
                     continue #Not following trump. Not winning trick.
                 elif card.rank <= highest:
                     continue #Following low.
@@ -77,7 +77,7 @@ class CardPlay:
                     winning_index = counter
                     highest = card.rank_index
             else:
-                if card.suit_index == self.trump_index:
+                if card.suit == self.trump_suit:
                     if not trump_played:
                         # first time the lead is trumped
                         trump_played = True
@@ -160,7 +160,7 @@ class CardPlay:
                           convert_hand_to_str(self.hands[self.on_lead].hand)
                     )
                     print("Legal Cards: " +
-                          convert_hand_to_str(self.hands[self.on_lead].legal_cards(self.trump_rank))
+                          convert_hand_to_str(self.hands[self.on_lead].legal_cards(self.trump_suit))
                     )
 
                     suit, rank = get_card_from_user()
