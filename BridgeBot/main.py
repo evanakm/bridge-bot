@@ -2,7 +2,7 @@ from BridgeBot.cards import Deck
 from BridgeBot.deal import Deal
 
 from BridgeBot.enums import Players, Vulnerabilities, contracts
-from BridgeBot.cardplay import Cardplay
+from BridgeBot.cardplay import CardPlay
 from BridgeBot.get_input import get_input_enum
 
 def check_cards(cards):
@@ -26,4 +26,4 @@ if __name__ == "__main__":
 
     declarer = get_input_enum(Players, "declarer")
 
-    cardplay = Cardplay(deal.hands, contract, declarer)
+    cardPlay = CardPlay(deal.hands, contract, declarer)

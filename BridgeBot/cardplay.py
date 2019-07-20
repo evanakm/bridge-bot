@@ -20,7 +20,7 @@ def convert_hand_to_str(hand):
     return hand_string
 
 
-class Cardplay:
+class CardPlay:
     @staticmethod
     def determine_trick_winner(played_cards, trump_suit):
         if not isinstance(played_cards, list):
