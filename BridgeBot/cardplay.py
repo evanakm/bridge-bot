@@ -2,12 +2,13 @@ from BridgeBot.enums import Strains
 
 import json
 
-from BridgeBot.enums import Strains, Players, contracts, Suits, Ranks, ContractNotFound
+from BridgeBot.enums import Strains, Players, contracts, Suits, Ranks, Status, ContractNotFound
 from BridgeBot.get_input import get_input_enum
+from BridgeBot.cards import Card
 
 players = [Players.NORTH, Players.EAST, Players.SOUTH, Players.WEST]
 
-def play_card():
+def get_card_from_user():
     suit = get_input_enum(Suits, "suit")
     rank = get_input_enum(Ranks, "rank")
     return suit, rank
@@ -49,7 +50,7 @@ class Cardplay:
         following_cards = played_cards[1:len(played_cards)]
 
         # Compare suit_index to trump_index so that there's no
-        # edge cases w.r.t. strains. If playing No Trump, trump_index
+        # edge cases with respect to strains. If playing No Trump, trump_index
         # will be 4, and thus never equal to suit_index (in 0, 1, 2, 3)
         trump_played = lead_card.suit == self.trump_rank
 
@@ -59,7 +60,6 @@ class Cardplay:
         highest = lead_card.rank # Easier to compare indices
 
         for card in following_cards:
-
 
             counter = counter + 1
             if trump_played:
@@ -133,12 +133,15 @@ class Cardplay:
             print("All Cards: " +
                   convert_hand_to_str(self.hands[self.on_lead].hand)
                   )
-            suit, rank = play_card()
-            x = self.hands[self.on_lead].lead(suit, rank)
 
-            trick.append(x)
+            x = Status.INVALID
+            while x != Status.VALID:
+                led_suit, led_rank = get_card_from_user()
+                x = self.hands[self.on_lead].lead(led_suit, led_rank)
+                # end while loop
 
-            led_card = x
+            trick.append(Card(led_suit, led_rank))
+            led_card_tuple = (led_suit, led_rank)
 
             for follower_count in range(3):
                 print(self.on_lead.value + "'s turn")
@@ -150,13 +153,27 @@ class Cardplay:
                       convert_hand_to_str(self.hands[self.on_lead].legal_cards(self.trump_suit))
                 )
 
-                suit, rank = play_card()
-                x = self.hands[self.on_lead].follow(led_card, suit, rank)
+                x = Status.INVALID
+                while x != Status.VALID:
 
-                trick.append(x)
+                    print("All Cards: " +
+                          convert_hand_to_str(self.hands[self.on_lead].hand)
+                    )
+                    print("Legal Cards: " +
+                          convert_hand_to_str(self.hands[self.on_lead].legal_cards(self.trump_rank))
+                    )
+
+                    suit, rank = get_card_from_user()
+                    x = self.hands[self.on_lead].follow(led_card_tuple, suit, rank)
+                    #end while loop
+
+                trick.append(Card(suit, rank))
 
             # Why do we add self.on_lead here? Should this just be self.play_trick(trick)
-            self.on_lead = (self.on_lead + self.determine_trick_winner(trick, self.trump_suit)) % 4
+            # Answer: self.play_trick determines the index of the winner relative to the index of the leader
+            # it also makes the code re-usable in case we want to use it for another trick-taking game, because
+            # they all have the same mechanic, even if they don't have four players.
+            self.on_lead = (self.on_lead + self.play_trick(trick)) % 4
 
             # Update the number of tricks won
             if self.on_lead % 2 == 0:
