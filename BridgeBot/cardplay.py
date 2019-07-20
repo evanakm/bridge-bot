@@ -139,8 +139,8 @@ class CardPlay:
             led_card_tuple = (led_suit, led_rank)
 
             for follower_count in range(3):
-                print(self.on_lead.value + "'s turn")
                 self.on_lead = self.on_lead.next_player()
+                print(self.on_lead.value + "'s turn")
                 print("All Cards: " +
                       convert_hand_to_str(self.hands[self.on_lead].hand)
                 )
