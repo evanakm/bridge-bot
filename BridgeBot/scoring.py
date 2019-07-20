@@ -1,4 +1,4 @@
-from BridgeBot.bidding import strains
+from bidding import strains
 
 dbl = ["","X","XX"]
 

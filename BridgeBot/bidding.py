@@ -1,4 +1,4 @@
-from BridgeBot.enums import contracts, Players, Strains
+from enums import contracts, Players, Strains
 
 doubles = [None, 'X', 'XX']
 
