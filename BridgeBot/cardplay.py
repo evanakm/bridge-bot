@@ -94,11 +94,6 @@ class CardPlay:
 
         return winning_index
 
-
-    @staticmethod
-    def __determine_next_player(current_player):
-        return (current_player + 1) % 4
-
     @staticmethod
     def __determine_trump_rank_from_contract(contract):
         if contract not in contracts:
