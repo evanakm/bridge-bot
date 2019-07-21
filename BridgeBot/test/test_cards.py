@@ -1,6 +1,9 @@
 import pytest
 import sys
+
+sys.path.insert(0,'../BridgeBot')
 sys.path.insert(0,'..')
+
 from contextlib import contextmanager
 
 import cards as cards
