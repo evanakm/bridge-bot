@@ -1,10 +1,13 @@
 import pytest
 import sys
+
+sys.path.insert(0,'../bridgebot')
 sys.path.insert(0,'..')
+
 from contextlib import contextmanager
 
-import BridgeBot.cards as cards
-from BridgeBot.enums import Status, Ranks, Suits
+import cards as cards
+from enums import Ranks, Suits
 
 deck = cards.Deck()
 seven_of_hearts = cards.Card(Suits.HEARTS, Ranks.SEVEN)
@@ -26,8 +29,8 @@ def test_deck_shuffle():
 
 
 def test_card():
-    card = cards.Card(Suits.HEARTS, Suits.HEARTS)
-    assert not card.does_not_match(seven_of_hearts)
+    card = cards.Card(Suits.HEARTS, Ranks.SEVEN)
+    assert card == seven_of_hearts
 
 
 @pytest.mark.parametrize('suit,rank,expected_result,expected_except', [
@@ -39,16 +42,17 @@ def test_card():
 def test_card(suit, rank, expected_result, expected_except):
     with expected_except:
         card = cards.Card(suit, rank)
-        assert card.matches(seven_of_hearts) == expected_result
+        assert (card == seven_of_hearts) == expected_result
 
 @pytest.mark.parametrize('index, expected_except', [
     (31, does_not_raise()),
     (55, pytest.raises(Exception))
 ])
+
 def test_map_index_to_card(index, expected_except):
     with expected_except:
         card = cards.map_index_to_card(index)
-        assert card.matches(seven_of_hearts)
+        assert card == seven_of_hearts
 
 
 # Generated from a random number generator
@@ -65,22 +69,22 @@ test_list = [13, 29, 7, 25, 43, 24]
 def test_hand_fill_and_contains(suit, rank, expected):
     hand = cards.Hand()
     hand.fill_from_list(test_list)
-    assert hand.contains_card(suit,rank) == expected
+    assert hand.contains_card(cards.Card(suit,rank)) == expected
 
 
 def test_play_card():
     hand = cards.Hand()
     hand.fill_from_list(test_list)
-    hand.play_card(Suits.DIAMONDS, Ranks.KING)
-    assert not hand.contains_card(Suits.DIAMONDS, Ranks.KING)
+    hand.play_card(cards.Card(Suits.DIAMONDS, Ranks.KING))
+    assert not hand.contains_card(cards.Card(Suits.DIAMONDS, Ranks.KING))
 
 
 def test_play_card_when_card_is_missing():
     hand = cards.Hand()
     hand.fill_from_list(test_list)
     with pytest.raises(cards.CardNotInHandException):
-        hand.play_card(Suits.SPADES, Ranks.ACE)
-        assert not hand.contains_card(Suits.DIAMONDS, Ranks.KING)
+        hand.play_card(cards.Card(Suits.SPADES, Ranks.ACE))
+        assert not hand.contains_card(cards.Card(Suits.DIAMONDS, Ranks.KING))
 
 
 def test_bridge_hand():
