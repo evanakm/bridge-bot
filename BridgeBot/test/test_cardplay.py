@@ -109,7 +109,7 @@ def test_determine_trick_winner():
             Card(Suits.DIAMONDS, Ranks.ACE),
         ],
         Suits.DIAMONDS
-    ) == 2
+    ) == 3
 
     assert cardplay.CardPlay.determine_trick_winner(
         [

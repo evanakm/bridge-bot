@@ -41,11 +41,11 @@ class CardPlay:
         suit_led = played_cards[0].suit
 
         for card_counter in range(len(played_cards)):
-            if played_cards[card_counter].suit == trump_suit and highest_card != trump_suit:
+            if played_cards[card_counter].suit == trump_suit and highest_card.suit != trump_suit:
                 highest_card = played_cards[card_counter]
             elif played_cards[card_counter].rank > highest_card.rank and (
                     played_cards[card_counter].suit == suit_led or
-                    played_cards[card_counter].rank == trump_suit
+                    played_cards[card_counter].suit == trump_suit
             ):
                 highest_card = played_cards[card_counter]
 
@@ -71,7 +71,6 @@ class CardPlay:
         highest = lead_card.rank # Easier to compare indices
 
         for card in following_cards:
-
             counter = counter + 1
             if trump_played:
                 if card.suit != self.trump:
