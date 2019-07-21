@@ -103,7 +103,7 @@ class Auction:
             else:
                 self.contract.doubled = Doubles.NONE
 
-            self.contract.strain = strains[self.bid_index % 5]
+            self.contract.strain = Strains.strains()[self.bid_index % 5]
             self.contract.level = int( 1 + (self.bid_index / 5) )
 
             # Kept track of who was the first to bid a strain
