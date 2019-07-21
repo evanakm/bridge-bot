@@ -126,6 +126,8 @@ class Vulnerabilities(Enum):
     EW = 'EW'
     BOTH = 'BOTH'
 
+class InvalidSuitOrStrainException(Exception):
+    pass
 
 class Strains(Enum):
     CLUBS = "CLUBS"
@@ -161,7 +163,13 @@ class Strains(Enum):
             return Suits.SPADES
         return None
 
-
+    def __eq__(self, other):
+        if isinstance(other, Strains):
+            return other == self
+        elif isinstance(other, Suits):
+            return self.determine_suit() == other
+        else:
+            raise InvalidSuitOrStrainException("Invalid Suit or Strain")
 
 PASS = 'PASS'
 
