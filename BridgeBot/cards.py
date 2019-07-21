@@ -120,7 +120,7 @@ class BridgeHand(Hand):
     def lead(self, card):
         """
         Parameters
-        -------
+        ----------
         card: Card
             The Card that was played
         """
@@ -134,7 +134,7 @@ class BridgeHand(Hand):
     def follow(self, led_suit, card_played):
         """
         Parameters
-        -------
+        ----------
         led_suit: Suits
             A suit representing the first card played to the trick
         card_played: Card
@@ -153,6 +153,19 @@ class BridgeHand(Hand):
                 self.play_card(card_played)
 
     def legal_cards(self, led_suit=None):
+        """
+        Get a list of all of a players playable cards.
+
+        Parameters
+        ----------
+        led_suit: Suits or None
+            The suit lead
+
+        Returns
+        -------
+        playable_cards: list of Card
+            A list of all of the playable cards
+        """
         print(led_suit)
         if not (led_suit is None or isinstance(led_suit, Suits)):
             raise InvalidRankException("Invalid Rank")
