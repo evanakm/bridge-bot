@@ -75,7 +75,8 @@ class Hand:
             Suits.CLUBS: set()
         }
 
-    def _check_input(self, suit, rank):
+    @staticmethod
+    def _check_input(suit, rank):
         if not isinstance(suit, Suits):
             raise InvalidSuitException("Suit not found")
 
@@ -128,7 +129,7 @@ class BridgeHand(Hand):
         if not self.contains_card(suit, rank):
             raise CardNotInHandException("Hand does not contain " + rank.value + " of " + suit.value + ".")
 
-        return self.play_card(suit,rank)
+        return self.play_card(suit, rank)
 
     def follow(self, led, suit, rank):
         """

@@ -99,12 +99,28 @@ class Suits(Enum):
 
         return Suits.suits()[Contracts.contracts().index(contract) % 5]
 
+class InvalidTeam(Exception):
+    pass
+
+class Team(Enum):
+    NS = 'NS'
+    EW = 'EW'
+
+    @staticmethod
+    def team_to_set_of_players(team):
+        if not isinstance(team, Team):
+            raise InvalidTeam("Invalid Team")
+        if team == Team.NS:
+            return set([Players.NORTH, Players.SOUTH])
+        if team == Team.EW:
+            return set([Players.EAST, Players.WEST])
+        raise InvalidTeam("Invalid Team")
+
 class Vulnerabilities(Enum):
     NONE = 'NONE'
     NS = 'NS'
     EW = 'EW'
     BOTH = 'BOTH'
-
 
 class Status(Enum):
     INVALID = "INVALID"
