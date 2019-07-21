@@ -48,18 +48,6 @@ class Card:
         self.suit = suit
         self.rank = rank
 
-    # Mostly for assertions and error checking
-    def does_not_match(self, other_card):
-        if self.suit != other_card.suit:
-            return True
-        elif self.rank != other_card.rank:
-            return True
-        else:
-            return False
-
-    def matches(self, other_card):
-        return not self.does_not_match(other_card)
-
     def __eq__(self, other):
         return self.suit == other.suit and self.rank == other.rank
 
