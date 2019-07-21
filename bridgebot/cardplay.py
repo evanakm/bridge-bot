@@ -2,6 +2,7 @@ from enums import Strains, Players, Suits, Ranks, Contracts, ContractNotFound, T
 from get_input import get_input_enum
 from cards import Card
 
+
 def get_card_from_user(playable_cards):
     while True:
         suit = get_input_enum(Suits, "suit")
@@ -14,6 +15,7 @@ def get_card_from_user(playable_cards):
                 print("That card is not legal. Please try again.")
         else:
             print("That suit is not legal. Please try again.")
+
 
 def convert_hand_to_str(hand):
     hand_string = ""

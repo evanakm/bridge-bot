@@ -29,6 +29,18 @@ def contract_bonus(bid_trick_score, vulnerability):
 
 
 def doubled_bonus(doubled):
+    """
+    Calculate doubled bonus
+
+    Parameters
+    ----------
+    doubled: Doubles
+
+    Returns
+    -------
+    points: int
+
+    """
     if not isinstance(doubled, Doubles):
         raise InvalidDoublesException("Invalid Doubles")
 
@@ -39,8 +51,21 @@ def doubled_bonus(doubled):
 
 
 def slam_bonus(level, vulnerability):
-    if not isinstance(bid_trick_score, int):
-        raise ValueError("Invalid bid_trick_score")
+    """
+    Calculate slam bonus
+
+    Parameters
+    ----------
+    level: int
+    vulnerability: bool
+
+    Returns
+    -------
+    bonus: int
+
+    """
+    if not isinstance(level, int):
+        raise ValueError("Invalid level")
 
     if not isinstance(vulnerability, bool):
         raise ValueError("vulnerability must be a bool")
