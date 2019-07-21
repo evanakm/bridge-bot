@@ -2,7 +2,7 @@ from cards import Deck
 from deal import Deal
 
 from enums import Players, Vulnerabilities, Contracts
-from cardplay import CardPlay
+import cardplay
 from get_input import get_input_enum
 
 if __name__ == "__main__":
@@ -13,4 +13,4 @@ if __name__ == "__main__":
 
     declarer = get_input_enum(Players, "declarer")
 
-    trick_winners = CardPlay.play(deal.hands, contract, declarer)
+    trick_winners = cardplay.play(deal.hands, contract, declarer)
