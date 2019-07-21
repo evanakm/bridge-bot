@@ -7,7 +7,7 @@ sys.path.insert(0,'..')
 from contextlib import contextmanager
 
 import cards as cards
-from enums import Status, Ranks, Suits
+from enums import Ranks, Suits
 
 deck = cards.Deck()
 seven_of_hearts = cards.Card(Suits.HEARTS, Ranks.SEVEN)
