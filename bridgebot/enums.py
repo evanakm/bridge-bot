@@ -17,6 +17,10 @@ class Players(Enum):
         players = self.players()
         return players[(players.index(self) + 1) % 4]
 
+    def increment_by(self, steps):
+        players = self.players()
+        return players[(players.index(self) + steps) % 4]
+
     def partner(self):
         players = self.players()
         return players[(players.index(self) + 2) % 4]
@@ -166,13 +170,14 @@ class Strains(Enum):
             return Suits.SPADES
         return None
 
-    def __eq__(self, other):
-        if isinstance(other, Strains):
-            return other == self
-        elif isinstance(other, Suits):
-            return self.determine_suit() == other
+    def compare_to_suit(self, suit):
+        if not isinstance(suit, Suits):
+            raise InvalidSuitOrStrainException("Invalid Suit")
         else:
-            raise InvalidSuitOrStrainException("Invalid Suit or Strain")
+            strains = self.strains()
+            suits = Suits.suits()
+            return strains.index(self) == suits.index(suit)
+
 
 PASS = 'PASS'
 
