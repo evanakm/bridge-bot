@@ -60,6 +60,9 @@ class Card:
     def matches(self, other_card):
         return not self.does_not_match(other_card)
 
+    def __eq__(self, other):
+        return self.suit == other.suit and self.rank == other.rank
+
 
 def map_index_to_card(index):
     if index not in range(52):
@@ -79,22 +82,22 @@ class Hand:
         }
 
     @staticmethod
-    def _check_input(suit, rank):
-        if not isinstance(suit, Suits):
+    def _check_input(card):
+        if not isinstance(card.suit, Suits):
             raise InvalidSuitException("Suit not found")
 
-        if not isinstance(rank, Ranks):
+        if not isinstance(card.rank, Ranks):
             raise InvalidRankException("Rank not found")
 
-    def contains_card(self, suit, rank):
-        self._check_input(suit, rank)
-        return rank in self.hand[suit]
+    def contains_card(self, card):
+        self._check_input(card)
+        return card.rank in self.hand[card.suit]
 
-    def play_card(self, suit, rank):
-        self._check_input(suit, rank)
-        if not self.contains_card(suit, rank):
-            raise CardNotInHandException("Hand does not contain " + rank.value + " of " + suit.value + ".")
-        self.hand[suit].difference_update([rank])
+    def play_card(self, card):
+        self._check_input(card)
+        if not self.contains_card(card):
+            raise CardNotInHandException("Hand does not contain " + card.rank.name + " of " + card.suit.name + ".")
+        self.hand[card.suit].difference_update([card.rank])
 
     # Take a number from 0 to 51 and map it to suit and rank.
     def add_card_from_deck_index(self, index):
@@ -119,43 +122,40 @@ class BridgeHand(Hand):
             raise WrongSizeHandException("Bridge hands must contain 13 cards.")
         self.fill_from_list(deck_indices)
 
-    def lead(self, suit, rank):
-
-        self._check_input(suit, rank)
-
-        if not self.contains_card(suit, rank):
-            raise CardNotInHandException("Hand does not contain " + rank.value + " of " + suit.value + ".")
-
-        self.play_card(suit, rank)
-
-    def follow(self, led, suit, rank):
+    def lead(self, card):
         """
         Parameters
         -------
-        led: 2-tuple
-            A suit and rank representing the first card played to the trick
-        suit:
-            The suit of the card to be played
-        rank:
-            The rank of the card to be played
+        card: Card
+            The Card that was played
+        """
+        self._check_input(card)
+
+        if not self.contains_card(card):
+            raise CardNotInHandException("Hand does not contain " + card.rank.name + " of " + card.suit.name + ".")
+
+        self.play_card(card)
+
+    def follow(self, led_suit, card_played):
+        """
+        Parameters
+        -------
+        led_suit: Suits
+            A suit representing the first card played to the trick
+        card_played: Card
+            The Card that was played
         """
 
+        if not isinstance(led_suit, Suits):
+            raise InvalidSuitException("Invalid trump_suit")
 
-        self._check_input(suit, rank)
+        self._check_input(card_played)
 
-        if not isinstance(led, tuple):
-            raise Exception("led must be a 2-tuple")
-
-        if len(led) != 2:
-            raise Exception("led must be a 2-tuple")
-
-        self._check_input(led[0],led[1])
-
-        if suit != led[suit]:
-            if len(self.hand[suit]) != 0:
+        if card_played.suit != led_suit:
+            if len(self.hand.suit) != 0:
                 raise CardDoesntFollowSuitException("Must follow suit if possible.")
             else:
-                self.play_card(suit,rank)
+                self.play_card(card_played)
 
     def legal_cards(self, led_suit=None):
         print(led_suit)

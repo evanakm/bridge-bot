@@ -11,7 +11,7 @@ def get_card_from_user(playable_cards):
         if suit in playable_cards:
             playable_cards_of_suit = playable_cards[suit]
             if rank in playable_cards_of_suit:
-                return suit, rank
+                return Card(suit, rank)
             else:
                 print("That card is not legal. Please try again.")
         else:
@@ -84,12 +84,11 @@ class CardPlay:
             )
 
 
-            led_suit, led_rank = get_card_from_user(all_cards)
-            self.hands[self.on_lead].lead(led_suit, led_rank)
+            led_card = get_card_from_user(all_cards)
 
+            self.hands[self.on_lead].lead(led_card)
 
-            trick.append(Card(led_suit, led_rank))
-            led_card_tuple = (led_suit, led_rank)
+            trick.append(led_card)
 
             for follower_count in range(3):
                 self.on_lead = self.on_lead.next_player()
@@ -104,7 +103,7 @@ class CardPlay:
                 )
 
                 suit, rank = get_card_from_user(legal_cards)
-                self.hands[self.on_lead].follow(led_card_tuple, suit, rank)
+                self.hands[self.on_lead].follow(led_card, suit, rank)
                 #end while loop
 
                 trick.append(Card(suit, rank))
