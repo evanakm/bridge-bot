@@ -1,4 +1,4 @@
-from enums import Players, Strains, AuctionStatus, Doubles, Contracts, PASS
+from enums import Players, Strains, AuctionStatus, Doubles, Contracts, PASS, Team
 
 
 class InvalidDealerException(Exception):
@@ -13,11 +13,6 @@ class Contract:
         self.declarer = None
 
 class Auction:
-    contract = {'level': 0,
-                'strain': None,
-                'doubled': None,
-                'declarer': None}
-
     def __init__(self, dealer):
         self.dealer = dealer.upper()
 
@@ -131,28 +126,28 @@ class Auction:
             return AuctionStatus.INVALID
         elif self.redoubled:
             return AuctionStatus.INVALID
-        elif self.player_index % 2 == 0 and self.doubled_by == "NS":  # Already doubled
+        elif self.player_index % 2 == 0 and self.doubled_by == Team.NS:  # Already doubled
             return AuctionStatus.INVALID
-        elif self.player_index % 2 == 1 and self.doubled_by == "EW":  # Already doubled
+        elif self.player_index % 2 == 1 and self.doubled_by == Team.EW:  # Already doubled
             return AuctionStatus.INVALID
         elif self.last_bidder_index % 2 == self.player_index % 2:  # Can't double yourself
             return AuctionStatus.INVALID
         else:
             if self.player_index % 2 == 0:
-                self.doubled_by = "NS"
+                self.doubled_by = Team.NS
                 self.record[self.player].append(Doubles.DOUBLE)
                 return AuctionStatus.CONTINUE
             else:
-                self.doubled_by = "EW"
+                self.doubled_by = Team.EW
                 self.record[self.player].append(Doubles.DOUBLE)
                 return AuctionStatus.CONTINUE
 
     def redouble(self):
         if not self.doubled_by:  # Can't redouble unless first doubled
             return AuctionStatus.INVALID
-        elif self.doubled_by == "NS" and self.player_index % 2 == 0:  # Can only redouble opponent's double
+        elif self.doubled_by == Team.NS and self.player_index % 2 == 0:  # Can only redouble opponent's double
             return AuctionStatus.INVALID
-        elif self.doubled_by == "EW" and self.player_index % 2 == 1:  # Can only redouble opponent's double
+        elif self.doubled_by == Team.EW and self.player_index % 2 == 1:  # Can only redouble opponent's double
             return AuctionStatus.INVALID
         else:
             self.doubled_by = None

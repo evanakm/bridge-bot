@@ -85,8 +85,8 @@ class CardPlay:
 
 
             led_suit, led_rank = get_card_from_user(all_cards)
-            x = self.hands[self.on_lead].lead(led_suit, led_rank)
-                # end while loop
+            self.hands[self.on_lead].lead(led_suit, led_rank)
+
 
             trick.append(Card(led_suit, led_rank))
             led_card_tuple = (led_suit, led_rank)
