@@ -12,6 +12,7 @@ class Contract:
         self.doubled = Doubles.NONE
         self.declarer = None
 
+
 class Auction:
     def __init__(self, dealer):
         self.dealer = dealer.upper()

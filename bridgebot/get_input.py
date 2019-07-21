@@ -41,4 +41,4 @@ def get_input(values, name):
     if isinstance(values, Enum):
         return get_input_enum(values, name)
     else:
-        raise ValueError("Input Error")
+        raise TypeError("Input Error")
