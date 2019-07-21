@@ -1,6 +1,4 @@
-from bidding import strains
-
-dbl = ["","X","XX"]
+from enums import Strains, Doubles, InvalidDoublesException, InvalidStrainException
 
 def contract_bonus(bid_trick_score, vulnerability):
     if bid_trick_score < 100:
@@ -13,7 +11,11 @@ def contract_bonus(bid_trick_score, vulnerability):
 
 
 def doubled_bonus(doubled):
-    if doubled in ["X","XX"]:
+
+    if not isinstance(doubled, Doubles):
+        raise InvalidDoublesException("Invalid Doubles")
+
+    if doubled in [Doubles.DOUBLE, Doubles.DOUBLE_DOWN]:
         return 50
     else:
         return 0
@@ -58,9 +60,9 @@ def major(bid, made, doubled, vulnerability):
 
     multiplier = 1
 
-    if doubled == "X":
+    if doubled == Doubles.DOUBLE:
         multiplier = 2
-    elif doubled == "XX":
+    elif doubled == Doubles.DOUBLE_DOWN:
         multiplier = 4
 
     bid_trick_score = 30 * bid * multiplier
@@ -123,23 +125,23 @@ def penalty(down, doubled, vulnerability):
 
 
 def score(bid, strain, result, doubled, vulnerability):
-    if strain not in strains:
-        return "INVALID"
+    if not isinstance(strain, Strains):
+        raise InvalidStrainException()
 
-    if doubled not in dbl:
-        return "INVALID"
+    if not isinstance(doubled, Doubles):
+        raise InvalidDoublesException()
 
     if result not in range(-13,8):
-        return "INVALID"
+        raise ValueError("result must be between -13 and 8")
 
     if result == 0:
-        return "INVALID"
+        raise ValueError("result must not be 0")
 
     if result < 0:
         return penalty(-1*result, doubled, vulnerability)
-    elif strain in ["CLUBS","DIAMONDS"]:
+    elif strain in [Strains.CLUBS, Strains.DIAMONDS]:
         return minor(bid,result, doubled, vulnerability)
-    elif strain in ["HEARTS","SPADES"]:
+    elif strain in [Strains.HEARTS, Strains.SPADES]:
         return major(bid, result, doubled, vulnerability)
     else:
         return no_trump(bid, result, doubled, vulnerability)

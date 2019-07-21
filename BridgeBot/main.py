@@ -13,4 +13,4 @@ if __name__ == "__main__":
 
     declarer = get_input_enum(Players, "declarer")
 
-    cardPlay = CardPlay(deal.hands, contract, declarer)
+    trick_winners = CardPlay.play(deal.hands, contract, declarer)
