@@ -3,17 +3,17 @@ from cards import BridgeHand
 
 
 class Deal:
-    def __init__(self, dealer, vuln, cards):
+    def __init__(self, dealer, vulnerability, cards):
 
         if not isinstance(dealer, Players):
             raise Exception("Dealer must be a direction")
 
-        if not isinstance(vuln, Vulnerabilities):
+        if not isinstance(vulnerability, Vulnerabilities):
             raise Exception("Invalid vulnerability")
 
         self.dealer = dealer
 
-        self.vulnerability = vuln
+        self.vulnerability = vulnerability
 
         # Weird python indexing, but it's right
         self.hands = {
