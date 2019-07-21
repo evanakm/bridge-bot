@@ -57,7 +57,7 @@ class CardPlay:
             raise ContractNotFound("Invalid Contract")
 
         leading_player = declarer.next_player()
-        
+
         strain = Strains.determine_strain_from_contract(contract)
 
         trump_suit = Suits.determine_suit_from_contract(contract)
@@ -81,14 +81,16 @@ class CardPlay:
 
             trick.append(led_card)
 
+            current_player = leading_player
+
             for follower_count in range(3):
-                current_player = leading_player.next_player()
+                current_player = current_player.next_player()
                 print(current_player.name + "'s turn")
                 print("All Cards: " +
-                      convert_hand_to_str(hands[leading_player].hand)
+                      convert_hand_to_str(hands[current_player].hand)
                 )
 
-                legal_cards = hands[leading_player].legal_cards(trump_suit)
+                legal_cards = hands[current_player].legal_cards(trump_suit)
                 print("Legal Cards: " +
                     convert_hand_to_str(legal_cards)
                 )
