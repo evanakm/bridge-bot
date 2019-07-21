@@ -122,10 +122,6 @@ class Vulnerabilities(Enum):
     EW = 'EW'
     BOTH = 'BOTH'
 
-class Status(Enum):
-    INVALID = "INVALID"
-    VALID = "VALID"
-
 
 class Strains(Enum):
     CLUBS = "CLUBS"

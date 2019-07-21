@@ -1,4 +1,4 @@
-from enums import Strains, Players, Suits, Ranks, Status, Contracts, ContractNotFound
+from enums import Strains, Players, Suits, Ranks, Contracts, ContractNotFound
 from get_input import get_input_enum
 from cards import Card
 
@@ -104,7 +104,7 @@ class CardPlay:
                 )
 
                 suit, rank = get_card_from_user(legal_cards)
-                x = self.hands[self.on_lead].follow(led_card_tuple, suit, rank)
+                self.hands[self.on_lead].follow(led_card_tuple, suit, rank)
                 #end while loop
 
                 trick.append(Card(suit, rank))

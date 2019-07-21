@@ -1,6 +1,6 @@
 import random
 
-from enums import Suits, Ranks, Status
+from enums import Suits, Ranks
 
 
 class InvalidCardException(Exception):
@@ -66,6 +66,9 @@ def map_index_to_card(index):
         raise InvalidIndexException("Index must be an integer between 0 and 51 inclusive.")
     return Suits.suits()[int(index / 13)], Ranks.ranks()[index % 13]
 
+class DeckListNotValid(Exception):
+    pass
+
 class Hand:
     def __init__(self):
         self.hand = {
@@ -92,7 +95,6 @@ class Hand:
         if not self.contains_card(suit, rank):
             raise CardNotInHandException("Hand does not contain " + rank.value + " of " + suit.value + ".")
         self.hand[suit].difference_update([rank])
-        return Status.VALID
 
     # Take a number from 0 to 51 and map it to suit and rank.
     def add_card_from_deck_index(self, index):
@@ -100,13 +102,14 @@ class Hand:
             raise InvalidIndexException("Index must be an integer between 0 and 51 inclusive.")
         suit, rank = map_index_to_card(index)
         self.hand[suit].add(rank)
-        return Status.VALID
 
     # Take a list of numbers from 0 to 51 and map them to suits and ranks.
     def fill_from_list(self, deck_indices):
+        if not isinstance(deck_indices, list):
+            raise DeckListNotValid("deck_indices is not a list")
+
         for idx in deck_indices:
             self.add_card_from_deck_index(idx)
-        return Status.VALID
 
 
 class BridgeHand(Hand):
@@ -117,19 +120,13 @@ class BridgeHand(Hand):
         self.fill_from_list(deck_indices)
 
     def lead(self, suit, rank):
-        """
-        Returns
-        -------
-        Status
-            If the card is found, it is removed from the hand and the function returns Status.VALID
-        """
 
         self._check_input(suit, rank)
 
         if not self.contains_card(suit, rank):
             raise CardNotInHandException("Hand does not contain " + rank.value + " of " + suit.value + ".")
 
-        return self.play_card(suit, rank)
+        self.play_card(suit, rank)
 
     def follow(self, led, suit, rank):
         """
@@ -141,12 +138,8 @@ class BridgeHand(Hand):
             The suit of the card to be played
         rank:
             The rank of the card to be played
-
-        Returns
-        -------
-        Status
-            If the card is found and is legal, it is removed from the hand and the function returns Status.VALID
         """
+
 
         self._check_input(suit, rank)
 
@@ -162,7 +155,7 @@ class BridgeHand(Hand):
             if len(self.hand[suit]) != 0:
                 raise CardDoesntFollowSuitException("Must follow suit if possible.")
             else:
-                return self.play_card(suit,rank)
+                self.play_card(suit,rank)
 
     def legal_cards(self, led_suit=None):
         print(led_suit)
