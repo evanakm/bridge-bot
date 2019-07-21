@@ -163,9 +163,12 @@ class BridgeHand:
         """
         print(led_suit)
         if not (led_suit is None or isinstance(led_suit, Suits)):
-            raise InvalidRankException("Invalid Rank")
+            raise InvalidSuitException("Invalid Suit")
 
-        if not led_suit and len(self.hand[led_suit]) is not 0:
+        if not led_suit:
+            return self.hand
+
+        if len(self.hand[led_suit]) is not 0:
             return {led_suit: self.hand[led_suit]}
         else:
             return self.hand

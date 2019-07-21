@@ -24,7 +24,7 @@ def __convert_hand_to_str(hand):
     return hand_string
 
 
-def determine_trick_winner(played_cards, trump_suit):
+def determine_trick_winner(played_cards, strain):
     if not isinstance(played_cards, list):
         raise TypeError("played_cards must be a list of cards")
 
@@ -33,17 +33,17 @@ def determine_trick_winner(played_cards, trump_suit):
             raise TypeError("played_cards must be a list of cards")
 
     if not len(played_cards) == 4:
-        raise ValueError("played_cards must 4 cards")
+        raise ValueError("played_cards must contain 4 cards")
 
     highest_card = played_cards[0]
     suit_led = played_cards[0].suit
 
     for card_counter in range(len(played_cards)):
-        if played_cards[card_counter].suit == trump_suit and highest_card.suit != trump_suit:
+        if strain.compare_to_suit(played_cards[card_counter].suit) and not strain.compare_to_suit(highest_card.suit):
             highest_card = played_cards[card_counter]
         elif played_cards[card_counter].rank > highest_card.rank and (
                 played_cards[card_counter].suit == suit_led or
-                played_cards[card_counter].suit == trump_suit
+                strain.compare_to_suit(played_cards[card_counter].suit)
         ):
             highest_card = played_cards[card_counter]
 
@@ -60,8 +60,6 @@ def play(hands, contract, declarer):
     leading_player = declarer.next_player()
 
     strain = Strains.determine_strain_from_contract(contract)
-
-    trump_suit = Suits.determine_suit_from_contract(contract)
 
     ns_tricks = 0
     ew_tricks = 0
@@ -91,19 +89,19 @@ def play(hands, contract, declarer):
                   __convert_hand_to_str(hands[current_player].hand)
                   )
 
-            legal_cards = hands[current_player].legal_cards(trump_suit)
+            legal_cards = hands[current_player].legal_cards(led_card.suit)
             print("Legal Cards: " +
                   __convert_hand_to_str(legal_cards)
                   )
 
             card = __get_card_from_user(legal_cards)
-            hands[current_player].follow(led_card, card)
+            hands[current_player].follow(led_card.suit, card)
             trick.append(card)
 
         # self.play_trick determines the index of the winner relative to the index of the leader
         # it also makes the code re-usable in case we want to use it for another trick-taking game, because
         # they all have the same mechanic, even if they don't have four players.
-        winning_player = (leading_player + determine_trick_winner(trick, trump_suit)) % 4
+        winning_player = leading_player.increment_by(determine_trick_winner(trick, strain))
 
         # Update the number of tricks won
         if leading_player in Team.team_to_set_of_players(Team.NS):
