@@ -8,10 +8,18 @@ from cards import Card
 
 players = [Players.NORTH, Players.EAST, Players.SOUTH, Players.WEST]
 
-def get_card_from_user():
-    suit = get_input_enum(Suits, "suit")
-    rank = get_input_enum(Ranks, "rank")
-    return suit, rank
+def get_card_from_user(playable_cards):
+    while True:
+        suit = get_input_enum(Suits, "suit")
+        rank = get_input_enum(Ranks, "rank")
+        if suit in playable_cards:
+            playable_cards_of_suit = playable_cards[suit]
+            if rank in playable_cards_of_suit:
+                return suit, rank
+            else:
+                print("That card is not legal. Please try again.")
+        else:
+            print("That suit is not legal. Please try again.")
 
 def convert_hand_to_str(hand):
     hand_string = ""
@@ -123,14 +131,15 @@ class CardPlay:
             trick = []
             print(self.on_lead.value + " starts")
 
-            print("All Cards: " +
-                  convert_hand_to_str(self.hands[self.on_lead].hand)
-                  )
 
-            x = Status.INVALID
-            while x != Status.VALID:
-                led_suit, led_rank = get_card_from_user()
-                x = self.hands[self.on_lead].lead(led_suit, led_rank)
+            all_cards = self.hands[self.on_lead].hand
+            print("All Cards: " +
+                  convert_hand_to_str(all_cards)
+            )
+
+
+            led_suit, led_rank = get_card_from_user(all_cards)
+            x = self.hands[self.on_lead].lead(led_suit, led_rank)
                 # end while loop
 
             trick.append(Card(led_suit, led_rank))
@@ -142,23 +151,15 @@ class CardPlay:
                 print("All Cards: " +
                       convert_hand_to_str(self.hands[self.on_lead].hand)
                 )
+
+                legal_cards = self.hands[self.on_lead].legal_cards(self.trump_suit)
                 print("Legal Cards: " +
-                      convert_hand_to_str(self.hands[self.on_lead].legal_cards(self.trump_suit))
+                    convert_hand_to_str(legal_cards)
                 )
 
-                x = Status.INVALID
-                while x != Status.VALID:
-
-                    print("All Cards: " +
-                          convert_hand_to_str(self.hands[self.on_lead].hand)
-                    )
-                    print("Legal Cards: " +
-                          convert_hand_to_str(self.hands[self.on_lead].legal_cards(self.trump_suit))
-                    )
-
-                    suit, rank = get_card_from_user()
-                    x = self.hands[self.on_lead].follow(led_card_tuple, suit, rank)
-                    #end while loop
+                suit, rank = get_card_from_user(legal_cards)
+                x = self.hands[self.on_lead].follow(led_card_tuple, suit, rank)
+                #end while loop
 
                 trick.append(Card(suit, rank))
 
