@@ -1,7 +1,3 @@
-from enums import Strains
-
-import json
-
 from enums import Strains, Players, Suits, Ranks, Status, Contracts, ContractNotFound
 from get_input import get_input_enum
 from cards import Card
@@ -33,6 +29,13 @@ class CardPlay:
     def determine_trick_winner(played_cards, trump_suit):
         if not isinstance(played_cards, list):
             raise ValueError("played_cards must be a list of cards")
+
+        for card in played_cards:
+            if not isinstance(card, Card):
+                raise ValueError("played_cards must be a list of cards")
+
+        if not len(played_cards) == 4:
+            raise ValueError("played_cards must 4 cards")
 
         highest_card = played_cards[0]
         suit_led = played_cards[0].suit
@@ -101,11 +104,6 @@ class CardPlay:
                     continue
 
         return winning_index
-
-    @staticmethod
-    def __determine_trump_rank_from_contract(contract):
-        if not isinstance(contract, Contracts):
-            raise ContractNotFound("Invalid Contract")
 
     def __init__(self, hands, contract, declarer):
         if not isinstance(declarer, Players):
