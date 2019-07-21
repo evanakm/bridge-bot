@@ -48,6 +48,7 @@ def test_card(suit, rank, expected_result, expected_except):
     (31, does_not_raise()),
     (55, pytest.raises(Exception))
 ])
+
 def test_map_index_to_card(index, expected_except):
     with expected_except:
         card = cards.map_index_to_card(index)
@@ -68,22 +69,22 @@ test_list = [13, 29, 7, 25, 43, 24]
 def test_hand_fill_and_contains(suit, rank, expected):
     hand = cards.Hand()
     hand.fill_from_list(test_list)
-    assert hand.contains_card(suit,rank) == expected
+    assert hand.contains_card(cards.Card(suit,rank)) == expected
 
 
 def test_play_card():
     hand = cards.Hand()
     hand.fill_from_list(test_list)
-    hand.play_card(Suits.DIAMONDS, Ranks.KING)
-    assert not hand.contains_card(Suits.DIAMONDS, Ranks.KING)
+    hand.play_card(cards.Card(Suits.DIAMONDS, Ranks.KING))
+    assert not hand.contains_card(cards.Card(Suits.DIAMONDS, Ranks.KING))
 
 
 def test_play_card_when_card_is_missing():
     hand = cards.Hand()
     hand.fill_from_list(test_list)
     with pytest.raises(cards.CardNotInHandException):
-        hand.play_card(Suits.SPADES, Ranks.ACE)
-        assert not hand.contains_card(Suits.DIAMONDS, Ranks.KING)
+        hand.play_card(cards.Card(Suits.SPADES, Ranks.ACE))
+        assert not hand.contains_card(cards.Card(Suits.DIAMONDS, Ranks.KING))
 
 
 def test_bridge_hand():

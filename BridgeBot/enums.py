@@ -1,5 +1,7 @@
 from enum import Enum
 
+class InvalidPlayerException(Exception):
+    pass
 
 class Players(Enum):
     NORTH = "NORTH"
@@ -110,6 +112,14 @@ class Team(Enum):
             return set([Players.EAST, Players.WEST])
         raise InvalidTeam("Invalid Team")
 
+    def to_set_of_players(self):
+        return Team.team_to_set_of_players(self)
+
+    def is_player_in_team(self, player):
+        if not isinstance(player, Players):
+            raise InvalidPlayerException("Invalid Player")
+        return player in self.to_set_of_players()
+
 class Vulnerabilities(Enum):
     NONE = 'NONE'
     NS = 'NS'
@@ -139,6 +149,17 @@ class Strains(Enum):
             raise ContractNotFound("Invalid Contract")
 
         return Strains.strains()[Contracts.contracts().index(contract) % 5]
+
+    def determine_suit(self):
+        if self == Strains.CLUBS:
+            return Suits.CLUBS
+        elif self == Strains.DIAMONDS:
+            return Suits.DIAMONDS
+        elif self == Strains.HEARTS:
+            return Suits.HEARTS
+        elif self == Strains.SPADES:
+            return Suits.SPADES
+        return None
 
 
 
