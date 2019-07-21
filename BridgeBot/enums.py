@@ -7,8 +7,9 @@ class Players(Enum):
     SOUTH = "SOUTH"
     WEST = "WEST"
 
-    def players(self):
-        return [self.NORTH, self.EAST, self.SOUTH, self.WEST]
+    @staticmethod
+    def players():
+        return [Players.NORTH, Players.EAST, Players.SOUTH, Players.WEST]
 
     def next_player(self):
         players = self.players()
@@ -100,3 +101,15 @@ contracts = ['1C',' 1D', '1H', '1S', '1N',
         '5C', '5D', '5H', '5S', '5N',
         '6C', '6D', '6H', '6S', '6N',
         '7C', '7D', '7H', '7S', '7N']
+
+
+class Doubles(Enum):
+    NONE = "NONE"
+    DOUBLE = "X"
+    DOUBLE_DOWN = "XX"
+
+class AuctionStatus(Enum):
+    DONE = "DONE"
+    CONTINUE = "CONTINUE"
+    INVALID = "INVALID"
+
