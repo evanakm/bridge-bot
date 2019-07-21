@@ -51,7 +51,7 @@ class CardPlay:
 
         return played_cards.index(highest_card)
 
-    
+
     def play_trick(self, played_cards):
         return self.determine_trick_winner(played_cards, self.trump_suit)
 
