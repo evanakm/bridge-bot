@@ -5,6 +5,15 @@ class InvalidDealerException(Exception):
     pass
 
 
+class Contract:
+    def __init__(self):
+        self.level = 0
+        self.strain = Strains.NT
+        self.doubled = Doubles.NONE
+        self.declarer = None
+
+
+
 
 
 class Auction:
@@ -56,10 +65,7 @@ class Auction:
 
     # For debugging purposes, easier to reset than to create a new Auction
     def reset(self):
-        contract = {'level': 0,
-                    'strain': None,
-                    'doubled': None,
-                    'declarer': None}
+        contract = Contract()
 
         self.player_index = players.index(self.dealer)
         self.last_bidder_index = None
@@ -79,7 +85,7 @@ class Auction:
         if self.bid_index == -1:
             if self.consecutive_passes == 3: # Passing out
                 self.record[self.player].append(PASS)
-                self.contract['strain'] = strains[5]
+                self.contract.strain = Strains.NT
                 return AuctionStatus.DONE
             else:  # Passing before an opening bid
                 self.record[self.player].append(PASS)
@@ -91,20 +97,20 @@ class Auction:
             return AuctionStatus.CONTINUE
         else:  # Three passes in a row.
             if self.redoubled:
-                self.contract['doubled'] = Doubles.DOUBLE_DOWN
+                self.contract.doubled = Doubles.DOUBLE_DOWN
             elif self.doubled_by:
-                self.contract['doubled'] = Doubles.DOUBLE
+                self.contract.doubled = Doubles.DOUBLE
             else:
-                self.contract['doubled'] = Doubles.NONE
+                self.contract.doubled = Doubles.NONE
 
-            self.contract['strain'] = strains[self.bid_index % 5]
-            self.contract['level'] = int( 1 + (self.bid_index / 5) )
+            self.contract.strain = strains[self.bid_index % 5]
+            self.contract.level = int( 1 + (self.bid_index / 5) )
 
             # Kept track of who was the first to bid a strain
             if self.last_bidder_index % 2 == 0:
-                self.contract['declarer'] = self.ns_first_bid[self.contract['strain']]
+                self.contract.declarer = self.ns_first_bid[self.contract.strain]
             else:
-                self.contract['declarer'] = self.ew_first_bid[self.contract['strain']]
+                self.contract.declarer = self.ew_first_bid[self.contract.strain]
 
             self.record[self.player].append(PASS)
             return AuctionStatus.DONE
