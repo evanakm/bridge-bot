@@ -1,5 +1,6 @@
 from enums import Strains, Doubles, InvalidDoublesException, InvalidStrainException
 
+
 def contract_bonus(bid_trick_score, vulnerability):
     """
     Determine the contract bonus
@@ -14,10 +15,10 @@ def contract_bonus(bid_trick_score, vulnerability):
 
     """
     if not isinstance(bid_trick_score, int):
-        raise ValueError("Invalid bid_trick_score")
+        raise TypeError("Invalid bid_trick_score")
 
     if not isinstance(vulnerability, bool):
-        raise ValueError("vulnerability must be a bool")
+        raise TypeError("vulnerability must be a bool")
 
     if bid_trick_score < 100:
         return 50
@@ -65,10 +66,10 @@ def slam_bonus(level, vulnerability):
 
     """
     if not isinstance(level, int):
-        raise ValueError("Invalid level")
+        raise TypeError("Invalid level")
 
     if not isinstance(vulnerability, bool):
-        raise ValueError("vulnerability must be a bool")
+        raise TypeError("vulnerability must be a bool")
 
     if level == 6:
         return 750 if vulnerability else 500
@@ -78,33 +79,81 @@ def slam_bonus(level, vulnerability):
     return 0
 
 
-def no_trump(bid,made,doubled, vulnerability):
-    if doubled not in dbl:
-        return "INVALID"
+def no_trump(bid, made, doubled, vulnerability):
+    """
+    TODO Something for No Trump
 
-    if made < bid or made not in range(1,8):
-        return "INVALID"
+    Parameters
+    ----------
+    bid: int
+    made: int
+    doubled: Doubles
+    vulnerability: bool
+
+    Returns
+    -------
+    score: int
+
+    """
+    if not isinstance(bid, int):
+        raise TypeError("bid must be an int")
+
+    if not isinstance(made, int):
+        raise TypeError("made must be an int")
+
+    if not isinstance(doubled, Doubles):
+        raise InvalidDoublesException()
+
+    if not isinstance(vulnerability, bool):
+        raise TypeError("vulnerability must be a bool")
+
+    if made < bid or made not in range(1, 8):
+        raise ValueError("made must be between 1 and 8 and be less than bid")
 
     multiplier = 1
 
-    if doubled == "X":
+    if doubled == Doubles.DOUBLE:
         multiplier = 2
-    elif doubled == "XX":
+    elif doubled == Doubles.DOUBLE_DOWN:
         multiplier = 4
 
     bid_trick_score = (30 * bid + 10) * multiplier
-    overtrick_score = (30 * (made - bid)) * multiplier
+    over_trick_score = (30 * (made - bid)) * multiplier
     bonus = contract_bonus(bid_trick_score, vulnerability) + doubled_bonus(doubled) + slam_bonus(bid, vulnerability)
 
-    return bid_trick_score + overtrick_score + bonus
+    return bid_trick_score + over_trick_score + bonus
 
 
 def major(bid, made, doubled, vulnerability):
-    if doubled not in dbl:
-        return "INVALID"
+    """
+    TODO Something for Major
+
+    Parameters
+    ----------
+    bid: int
+    made: int
+    doubled: Doubles
+    vulnerability: bool
+
+    Returns
+    -------
+    score: int
+
+    """
+    if not isinstance(bid, int):
+        raise TypeError("bid must be an int")
+
+    if not isinstance(made, int):
+        raise TypeError("made must be an int")
+
+    if not isinstance(doubled, Doubles):
+        raise InvalidDoublesException()
+
+    if not isinstance(vulnerability, bool):
+        raise TypeError("vulnerability must be a bool")
 
     if made < bid or made not in range(1, 8):
-        return "INVALID"
+        raise ValueError("made must be between 1 and 8 and be less than bid")
 
     multiplier = 1
 
@@ -120,18 +169,42 @@ def major(bid, made, doubled, vulnerability):
     return bid_trick_score + overtrick_score + bonus
 
 
-def minor(bid,made, doubled, vulnerability):
-    if doubled not in dbl:
-        return "INVALID"
+def minor(bid, made, doubled, vulnerability):
+    """
+    TODO Something for minor
+
+    Parameters
+    ----------
+    bid: int
+    made: int
+    doubled: Doubles
+    vulnerability: bool
+
+    Returns
+    -------
+    score: int
+
+    """
+    if not isinstance(bid, int):
+        raise TypeError("bid must be an int")
+
+    if not isinstance(made, int):
+        raise TypeError("made must be an int")
+
+    if not isinstance(doubled, Doubles):
+        raise InvalidDoublesException()
+
+    if not isinstance(vulnerability, bool):
+        raise TypeError("vulnerability must be a bool")
 
     if made < bid or made not in range(1, 8):
-        return "INVALID"
+        raise ValueError("made must be between 1 and 8 and be less than bid")
 
     multiplier = 1
 
-    if doubled == "X":
+    if doubled == Doubles.DOUBLE:
         multiplier = 2
-    elif doubled == "XX":
+    elif doubled == Doubles.DOUBLE_DOWN:
         multiplier = 4
 
     bid_trick_score = 20 * bid * multiplier
@@ -142,15 +215,35 @@ def minor(bid,made, doubled, vulnerability):
 
 
 def penalty(down, doubled, vulnerability):
-    if doubled not in dbl:
-        return "INVALID"
+    """
+    TODO Something for penalty
+
+    Parameters
+    ----------
+    down: int
+    doubled: Doubles
+    vulnerability: bool
+
+    Returns
+    -------
+    penelty: int
+
+    """
+    if not isinstance(down, int):
+        raise TypeError("down must be of type int")
 
     if down not in range(1, 14):
-        return "INVALID"
+        raise ValueError("down must be between 1 and 14")
 
-    if doubled == "":
+    if not isinstance(doubled, Doubles):
+        raise InvalidDoublesException()
+
+    if not isinstance(vulnerability, bool):
+        raise TypeError("vulnerability must be a bool")
+
+    if doubled == Doubles.NONE:
         return (down * 100) if vulnerability else (down * 50)
-    elif doubled == "X":
+    elif doubled == Doubles.DOUBLE:
         if down == 1:
             return 200 if vulnerability else 100
         elif down == 2:
@@ -173,11 +266,36 @@ def penalty(down, doubled, vulnerability):
 
 
 def score(bid, strain, result, doubled, vulnerability):
+    """
+    TODO Something for score
+
+    Parameters
+    ----------
+    bid: int
+    strain: Strains
+    result: int
+    doubled: Doubles
+    vulnerability: bool
+
+    Returns
+    -------
+    score: int
+
+    """
+    if not isinstance(bid, int):
+        raise TypeError("bid must be an int")
+
     if not isinstance(strain, Strains):
         raise InvalidStrainException()
 
+    if not isinstance(result, int):
+        raise TypeError("result must be an int")
+
     if not isinstance(doubled, Doubles):
         raise InvalidDoublesException()
+
+    if not isinstance(vulnerability, bool):
+        raise TypeError("vulnerability must be a bool")
 
     if result not in range(-13,8):
         raise ValueError("result must be between -13 and 8")
