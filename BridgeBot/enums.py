@@ -94,13 +94,60 @@ class ContractNotFound(Exception):
     pass
 
 
-contracts = ['1C',' 1D', '1H', '1S', '1N',
-        '2C', '2D', '2H', '2S', '2N',
-        '3C', '3D', '3H', '3S', '3N',
-        '4C', '4D', '4H', '4S', '4N',
-        '5C', '5D', '5H', '5S', '5N',
-        '6C', '6D', '6H', '6S', '6N',
-        '7C', '7D', '7H', '7S', '7N']
+class Contracts(Enum):
+    ONE_CLUB = "1C"
+    ONE_DIAMOND = "1D"
+    ONE_HEART = "1H"
+    ONE_SPADE = "1S"
+    ONE_NO_TRUMP = "1N"
+
+    TWO_CLUBS = "1C"
+    TWO_DIAMONDS = "1D"
+    TWO_HEARTS = "1H"
+    TWO_SPADES = "1S"
+    TWO_NO_TRUMP = "1N"
+
+    THREE_CLUBS = "1C"
+    THREE_DIAMONDS = "1D"
+    THREE_HEARTS = "1H"
+    THREE_SPADES = "1S"
+    THREE_NO_TRUMP = "1N"
+
+    FOUR_CLUBS = "1C"
+    FOUR_DIAMONDS = "1D"
+    FOUR_HEARTS = "1H"
+    FOUR_SPADES = "1S"
+    FOUR_NO_TRUMP = "1N"
+
+    FIVE_CLUBS = "1C"
+    FIVE_DIAMONDS = "1D"
+    FIVE_HEARTS = "1H"
+    FIVE_SPADES = "1S"
+    FIVE_NO_TRUMP = "1N"
+
+    SIX_CLUBS = "1C"
+    SIX_DIAMONDS = "1D"
+    SIX_HEARTS = "1H"
+    SIX_SPADES = "1S"
+    SIX_NO_TRUMP = "1N"
+
+    SEVEN_CLUBS = "1C"
+    SEVEN_DIAMONDS = "1D"
+    SEVEN_HEARTS = "1H"
+    SEVEN_SPADES = "1S"
+    SEVEN_NO_TRUMP = "1N"
+
+    @staticmethod
+    def contracts():
+        return [
+            Contracts.ONE_CLUB,    Contracts.ONE_DIAMOND,    Contracts.ONE_HEART,    Contracts.ONE_SPADE,    Contracts.ONE_NO_TRUMP,
+            Contracts.TWO_CLUBS,   Contracts.TWO_DIAMONDS,   Contracts.TWO_HEARTS,   Contracts.TWO_SPADES,   Contracts.TWO_NO_TRUMP,
+            Contracts.THREE_CLUBS, Contracts.THREE_DIAMONDS, Contracts.THREE_HEARTS, Contracts.THREE_SPADES, Contracts.THREE_NO_TRUMP,
+            Contracts.FOUR_CLUBS,  Contracts.FOUR_DIAMONDS,  Contracts.FOUR_HEARTS,  Contracts.FOUR_SPADES,  Contracts.FOUR_NO_TRUMP,
+            Contracts.FIVE_CLUBS,  Contracts.FIVE_DIAMONDS,  Contracts.FIVE_HEARTS,  Contracts.FIVE_SPADES,  Contracts.FIVE_NO_TRUMP,
+            Contracts.SIX_CLUBS,   Contracts.SIX_DIAMONDS,   Contracts.SIX_HEARTS,   Contracts.SIX_SPADES,   Contracts.SIX_NO_TRUMP,
+            Contracts.SEVEN_CLUBS, Contracts.SEVEN_DIAMONDS, Contracts.SEVEN_HEARTS, Contracts.SEVEN_SPADES, Contracts.SEVEN_NO_TRUMP,
+        ]
 
 
 class Doubles(Enum):
