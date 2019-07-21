@@ -1,9 +1,9 @@
-.. BridgeBot documentation master file, created by
-   sphinx-quickstart on Sun Jul 21 00:09:04 2019.
+.. bridgebot documentation master file, created by
+   sphinx-quickstart on Sun Jul 21 09:17:35 2019.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to BridgeBot's documentation!
+Welcome to bridgebot's documentation!
 =====================================
 
 .. toctree::
