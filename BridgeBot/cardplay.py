@@ -49,7 +49,8 @@ class CardPlay:
 
         return played_cards.index(highest_card)
 
-    def __init__(self, hands, contract, declarer):
+    @staticmethod
+    def play(hands, contract, declarer):
         if not isinstance(declarer, Players):
             raise Exception("Invalid declarer")
 
@@ -111,3 +112,5 @@ class CardPlay:
                 ew_tricks = ew_tricks + 1
 
             leading_player = winning_player
+
+        return {Team.NS: ns_tricks, Team.EW: ew_tricks}

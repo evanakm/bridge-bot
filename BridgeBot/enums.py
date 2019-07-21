@@ -129,6 +129,9 @@ class Vulnerabilities(Enum):
 class InvalidSuitOrStrainException(Exception):
     pass
 
+class InvalidStrainException(Exception):
+    pass
+
 class Strains(Enum):
     CLUBS = "CLUBS"
     DIAMONDS = "DIAMONDS"
@@ -196,6 +199,10 @@ class Ranks(Enum):
     def __lt__(self, other):
         ranks = self.ranks()
         return ranks.index(self) < ranks.index(other)
+
+
+class InvalidDoublesException(Exception):
+    pass
 
 
 class Doubles(Enum):
