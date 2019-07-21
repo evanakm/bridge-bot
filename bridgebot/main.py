@@ -6,6 +6,7 @@ from get_input import get_input_enum
 
 if __name__ == "__main__":
     deck = Deck()
+    deck.shuffle()
 
     contract = get_input_enum(Contracts, "contract")
 
