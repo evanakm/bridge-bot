@@ -103,7 +103,7 @@ def play(hands, contract, declarer):
         # self.play_trick determines the index of the winner relative to the index of the leader
         # it also makes the code re-usable in case we want to use it for another trick-taking game, because
         # they all have the same mechanic, even if they don't have four players.
-        winning_player = (leading_player + CardPlay.determine_trick_winner(trick, trump_suit)) % 4
+        winning_player = (leading_player + determine_trick_winner(trick, trump_suit)) % 4
 
         # Update the number of tricks won
         if leading_player in Team.team_to_set_of_players(Team.NS):
