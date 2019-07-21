@@ -2,7 +2,7 @@ from enums import Strains
 
 import json
 
-from enums import Strains, Players, contracts, Suits, Ranks, Status, ContractNotFound
+from enums import Strains, Players, Suits, Ranks, Status, Contracts, ContractNotFound
 from get_input import get_input_enum
 from cards import Card
 
@@ -96,27 +96,25 @@ class CardPlay:
 
     @staticmethod
     def __determine_trump_rank_from_contract(contract):
-        if contract not in contracts:
-            raise ContractNotFound()
+        if not isinstance(contract, Contracts):
+            raise ContractNotFound("Invalid Contract")
 
     def __init__(self, hands, contract, declarer):
         if not isinstance(declarer, Players):
             raise Exception("Invalid declarer")
 
-        if contract not in contracts:
-            raise Exception("Invalid contract")
+        if not isinstance(contract, Contracts):
+            raise ContractNotFound("Invalid Contract")
 
         self.hands = hands
 
         self.on_lead = declarer.next_player()
 
         # TODO I do not think the following line is correct
-        self.strain = Strains.strains()[contracts.index(contract) % 5]
+        self.strain = Strains.strains()[Contracts.contracts().index(contract) % 5]
 
         # TODO I am not sure this line is correct either
-        self.trump_suit = Suits.suits()[contracts.index(contract) % 5]
-
-
+        self.trump_suit = Suits.suits()[Contracts.contracts().index(contract) % 5]
 
         self.ns_tricks = 0
         self.ew_tricks = 0
