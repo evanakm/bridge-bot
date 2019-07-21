@@ -163,9 +163,6 @@ class Ranks(Enum):
         return ranks.index(self) < ranks.index(other)
 
 
-
-
-
 class Doubles(Enum):
     NONE = "NONE"
     DOUBLE = "X"
