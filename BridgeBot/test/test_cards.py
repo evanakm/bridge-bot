@@ -29,8 +29,8 @@ def test_deck_shuffle():
 
 
 def test_card():
-    card = cards.Card(Suits.HEARTS, Suits.HEARTS)
-    assert not card.does_not_match(seven_of_hearts)
+    card = cards.Card(Suits.HEARTS, Ranks.SEVEN)
+    assert card == seven_of_hearts
 
 
 @pytest.mark.parametrize('suit,rank,expected_result,expected_except', [
@@ -42,7 +42,7 @@ def test_card():
 def test_card(suit, rank, expected_result, expected_except):
     with expected_except:
         card = cards.Card(suit, rank)
-        assert card.matches(seven_of_hearts) == expected_result
+        assert (card == seven_of_hearts) == expected_result
 
 @pytest.mark.parametrize('index, expected_except', [
     (31, does_not_raise()),
@@ -52,7 +52,7 @@ def test_card(suit, rank, expected_result, expected_except):
 def test_map_index_to_card(index, expected_except):
     with expected_except:
         card = cards.map_index_to_card(index)
-        assert card.matches(seven_of_hearts)
+        assert card == seven_of_hearts
 
 
 # Generated from a random number generator
