@@ -67,7 +67,7 @@ class Card:
 def map_index_to_card(index):
     if index not in range(52):
         raise InvalidIndexException("Index must be an integer between 0 and 51 inclusive.")
-    return Suits.suits()[int(index / 13)], Ranks.ranks()[index % 13]
+    return Card(Suits.suits()[int(index / 13)], Ranks.ranks()[index % 13])
 
 class DeckListNotValid(Exception):
     pass
@@ -99,12 +99,19 @@ class Hand:
             raise CardNotInHandException("Hand does not contain " + card.rank.name + " of " + card.suit.name + ".")
         self.hand[card.suit].difference_update([card.rank])
 
+    def add_card(self, card):
+        if not isinstance(card, Card):
+            raise InvalidCardException("Invalid Card")
+        self.hand[card.suit].add(card.rank)
+
     # Take a number from 0 to 51 and map it to suit and rank.
     def add_card_from_deck_index(self, index):
         if index not in range(52):
             raise InvalidIndexException("Index must be an integer between 0 and 51 inclusive.")
-        suit, rank = map_index_to_card(index)
-        self.hand[suit].add(rank)
+        card = map_index_to_card(index)
+        self.add_card(card)
+
+
 
     # Take a list of numbers from 0 to 51 and map them to suits and ranks.
     def fill_from_list(self, deck_indices):

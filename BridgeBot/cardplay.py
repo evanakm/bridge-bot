@@ -1,8 +1,6 @@
-from enums import Strains, Players, Suits, Ranks, Contracts, ContractNotFound
+from enums import Strains, Players, Suits, Ranks, Contracts, ContractNotFound, Team
 from get_input import get_input_enum
 from cards import Card
-
-players = [Players.NORTH, Players.EAST, Players.SOUTH, Players.WEST]
 
 def get_card_from_user(playable_cards):
     while True:
@@ -51,10 +49,6 @@ class CardPlay:
 
         return played_cards.index(highest_card)
 
-
-    def play_trick(self, played_cards):
-        return self.determine_trick_winner(played_cards, self.trump_suit)
-
     def __init__(self, hands, contract, declarer):
         if not isinstance(declarer, Players):
             raise Exception("Invalid declarer")
@@ -62,61 +56,56 @@ class CardPlay:
         if not isinstance(contract, Contracts):
             raise ContractNotFound("Invalid Contract")
 
-        self.hands = hands
-
-        self.on_lead = declarer.next_player()
+        leading_player = declarer.next_player()
         
-        self.strain = Strains.determine_strain_from_contract(contract)
+        strain = Strains.determine_strain_from_contract(contract)
 
-        self.trump_suit = Suits.determine_suit_from_contract(contract)
+        trump_suit = Suits.determine_suit_from_contract(contract)
 
-        self.ns_tricks = 0
-        self.ew_tricks = 0
+        ns_tricks = 0
+        ew_tricks = 0
 
         for trick_count in range(13):
             trick = []
-            print(self.on_lead.value + " starts")
+            print(leading_player.value + " starts")
 
 
-            all_cards = self.hands[self.on_lead].hand
+            all_cards = hands[leading_player].hand
             print("All Cards: " +
                   convert_hand_to_str(all_cards)
             )
 
-
             led_card = get_card_from_user(all_cards)
 
-            self.hands[self.on_lead].lead(led_card)
+            hands[leading_player].lead(led_card)
 
             trick.append(led_card)
 
             for follower_count in range(3):
-                self.on_lead = self.on_lead.next_player()
-                print(self.on_lead.value + "'s turn")
+                current_player = leading_player.next_player()
+                print(current_player.name + "'s turn")
                 print("All Cards: " +
-                      convert_hand_to_str(self.hands[self.on_lead].hand)
+                      convert_hand_to_str(hands[leading_player].hand)
                 )
 
-                legal_cards = self.hands[self.on_lead].legal_cards(self.trump_suit)
+                legal_cards = hands[leading_player].legal_cards(trump_suit)
                 print("Legal Cards: " +
                     convert_hand_to_str(legal_cards)
                 )
 
-                suit, rank = get_card_from_user(legal_cards)
-                self.hands[self.on_lead].follow(led_card, suit, rank)
-                #end while loop
+                card = get_card_from_user(legal_cards)
+                hands[current_player].follow(led_card, card)
+                trick.append(card)
 
-                trick.append(Card(suit, rank))
-
-            # Why do we add self.on_lead here? Should this just be self.play_trick(trick)
-            # Answer: self.play_trick determines the index of the winner relative to the index of the leader
+            # self.play_trick determines the index of the winner relative to the index of the leader
             # it also makes the code re-usable in case we want to use it for another trick-taking game, because
             # they all have the same mechanic, even if they don't have four players.
-            self.on_lead = (self.on_lead + self.play_trick(trick)) % 4
+            winning_player = (leading_player + CardPlay.determine_trick_winner(trick, trump_suit)) % 4
 
             # Update the number of tricks won
-            if self.on_lead % 2 == 0:
-                self.ns_tricks = self.ns_tricks + 1
+            if leading_player in Team.team_to_set_of_players(Team.NS):
+                ns_tricks = ns_tricks + 1
             else:
-                self.ew_tricks = self.ew_tricks + 1
+                ew_tricks = ew_tricks + 1
 
+            leading_player = winning_player
