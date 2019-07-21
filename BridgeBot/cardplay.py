@@ -73,7 +73,7 @@ class CardPlay:
         for card in following_cards:
             counter = counter + 1
             if trump_played:
-                if card.suit != self.trump:
+                if card.suit != self.trump_suit:
                     continue #Not following trump. Not winning trick.
                 elif card.rank <= highest:
                     continue #Following low.
