@@ -1,4 +1,4 @@
-from enums import contracts, Players, Strains, AuctionStatus, Doubles
+from enums import Players, Strains, AuctionStatus, Doubles, Contracts, PASS
 
 
 class InvalidDealerException(Exception):
@@ -11,10 +11,6 @@ class Contract:
         self.strain = Strains.NT
         self.doubled = Doubles.NONE
         self.declarer = None
-
-
-
-
 
 class Auction:
     contract = {'level': 0,
@@ -127,7 +123,7 @@ class Auction:
         self.redoubled = False
         self.consecutive_passes = 0
 
-        self.record[self.player].append(contracts[bid_index])
+        self.record[self.player].append(Contracts.contracts()[bid_index])
         return AuctionStatus.CONTINUE
 
     def double(self):
