@@ -149,7 +149,7 @@ class BridgeHand(Hand):
 
         self._check_input(suit, rank)
 
-        if not isinstance(led,tuple):
+        if not isinstance(led, tuple):
             raise Exception("led must be a 2-tuple")
 
         if len(led) != 2:
