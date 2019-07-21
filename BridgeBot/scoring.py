@@ -1,6 +1,24 @@
 from enums import Strains, Doubles, InvalidDoublesException, InvalidStrainException
 
 def contract_bonus(bid_trick_score, vulnerability):
+    """
+    Determine the contract bonus
+    Parameters
+    ----------
+    bid_trick_score: int
+    vulnerability: bool
+
+    Returns
+    -------
+    contract_bonus: int
+
+    """
+    if not isinstance(bid_trick_score, int):
+        raise ValueError("Invalid bid_trick_score")
+
+    if not isinstance(vulnerability, bool):
+        raise ValueError("vulnerability must be a bool")
+
     if bid_trick_score < 100:
         return 50
 
@@ -11,7 +29,6 @@ def contract_bonus(bid_trick_score, vulnerability):
 
 
 def doubled_bonus(doubled):
-
     if not isinstance(doubled, Doubles):
         raise InvalidDoublesException("Invalid Doubles")
 
@@ -22,6 +39,12 @@ def doubled_bonus(doubled):
 
 
 def slam_bonus(level, vulnerability):
+    if not isinstance(bid_trick_score, int):
+        raise ValueError("Invalid bid_trick_score")
+
+    if not isinstance(vulnerability, bool):
+        raise ValueError("vulnerability must be a bool")
+
     if level == 6:
         return 750 if vulnerability else 500
     if level == 7:
