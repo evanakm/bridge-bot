@@ -117,12 +117,10 @@ class CardPlay:
         self.hands = hands
 
         self.on_lead = declarer.next_player()
+        
+        self.strain = Strains.determine_strain_from_contract(contract)
 
-        # TODO I do not think the following line is correct
-        self.strain = Strains.strains()[Contracts.contracts().index(contract) % 5]
-
-        # TODO I am not sure this line is correct either
-        self.trump_suit = Suits.suits()[Contracts.contracts().index(contract) % 5]
+        self.trump_suit = Suits.determine_suit_from_contract(contract)
 
         self.ns_tricks = 0
         self.ew_tricks = 0

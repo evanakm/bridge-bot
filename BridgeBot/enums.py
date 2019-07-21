@@ -19,80 +19,8 @@ class Players(Enum):
         players = self.players()
         return players[(players.index(self) + 2) % 4]
 
-
-class Suits(Enum):
-    CLUBS = "CLUBS"
-    DIAMONDS = "DIAMONDS"
-    HEARTS = "HEARTS"
-    SPADES = "SPADES"
-
-    @staticmethod
-    def suits():
-        return [Suits.CLUBS, Suits.DIAMONDS, Suits.HEARTS, Suits.SPADES]
-
-    def __lt__(self, other):
-        suits = self.suits()
-        return suits.index(self) < suits.index(other)
-
-
-class Vulnerabilities(Enum):
-    NONE = 'NONE'
-    NS = 'NS'
-    EW = 'EW'
-    BOTH = 'BOTH'
-
-
-class Status(Enum):
-    INVALID = "INVALID"
-    VALID = "VALID"
-
-
-class Strains(Enum):
-    CLUBS = "CLUBS"
-    DIAMONDS = "DIAMONDS"
-    HEARTS = "HEARTS"
-    SPADES = "SPADES"
-    NT = "NT"
-    PASSOUT = "PASSOUT"
-
-    @staticmethod
-    def strains():
-        return [Strains.CLUBS, Strains.DIAMONDS, Strains.HEARTS, Strains.SPADES, Strains.NT, Strains.PASSOUT]
-
-    def __lt__(self, other):
-        strains = self.strains()
-        return strains.index(self) < strains.index(other)
-
-
-PASS = 'PASS'
-
-class Ranks(Enum):
-    TWO = "2"
-    THREE = "3"
-    FOUR = "4"
-    FIVE = "5"
-    SIX = "6"
-    SEVEN = "7"
-    EIGHT = "8"
-    NINE = "9"
-    TEN = "10"
-    JACK = "J"
-    QUEEN = "Q"
-    KING = "K"
-    ACE = "A"
-
-    @staticmethod
-    def ranks():
-        return [Ranks.TWO, Ranks.THREE, Ranks.FOUR, Ranks.FIVE, Ranks.SIX, Ranks.SEVEN, Ranks.EIGHT, Ranks.NINE,
-                Ranks.TEN, Ranks.JACK, Ranks.QUEEN, Ranks.KING, Ranks.ACE]
-
-    def __lt__(self, other):
-        ranks = self.ranks()
-        return ranks.index(self) < ranks.index(other)
-
 class ContractNotFound(Exception):
     pass
-
 
 class Contracts(Enum):
     ONE_CLUB = "1C"
@@ -148,6 +76,94 @@ class Contracts(Enum):
             Contracts.SIX_CLUBS,   Contracts.SIX_DIAMONDS,   Contracts.SIX_HEARTS,   Contracts.SIX_SPADES,   Contracts.SIX_NO_TRUMP,
             Contracts.SEVEN_CLUBS, Contracts.SEVEN_DIAMONDS, Contracts.SEVEN_HEARTS, Contracts.SEVEN_SPADES, Contracts.SEVEN_NO_TRUMP,
         ]
+
+class Suits(Enum):
+    CLUBS = "CLUBS"
+    DIAMONDS = "DIAMONDS"
+    HEARTS = "HEARTS"
+    SPADES = "SPADES"
+
+    @staticmethod
+    def suits():
+        return [Suits.CLUBS, Suits.DIAMONDS, Suits.HEARTS, Suits.SPADES]
+
+    def __lt__(self, other):
+        suits = self.suits()
+        return suits.index(self) < suits.index(other)
+
+
+    @staticmethod
+    def determine_suit_from_contract(contract):
+        if not isinstance(contract, Contracts):
+            raise ContractNotFound("Invalid Contract")
+
+        return Suits.suits()[Contracts.contracts().index(contract) % 5]
+
+class Vulnerabilities(Enum):
+    NONE = 'NONE'
+    NS = 'NS'
+    EW = 'EW'
+    BOTH = 'BOTH'
+
+
+class Status(Enum):
+    INVALID = "INVALID"
+    VALID = "VALID"
+
+
+class Strains(Enum):
+    CLUBS = "CLUBS"
+    DIAMONDS = "DIAMONDS"
+    HEARTS = "HEARTS"
+    SPADES = "SPADES"
+    NT = "NT"
+    PASSOUT = "PASSOUT"
+
+    @staticmethod
+    def strains():
+        return [Strains.CLUBS, Strains.DIAMONDS, Strains.HEARTS, Strains.SPADES, Strains.NT, Strains.PASSOUT]
+
+    def __lt__(self, other):
+        strains = self.strains()
+        return strains.index(self) < strains.index(other)
+
+    @staticmethod
+    def determine_strain_from_contract(contract):
+        if not isinstance(contract, Contracts):
+            raise ContractNotFound("Invalid Contract")
+
+        return Strains.strains()[Contracts.contracts().index(contract) % 5]
+
+
+
+PASS = 'PASS'
+
+class Ranks(Enum):
+    TWO = "2"
+    THREE = "3"
+    FOUR = "4"
+    FIVE = "5"
+    SIX = "6"
+    SEVEN = "7"
+    EIGHT = "8"
+    NINE = "9"
+    TEN = "10"
+    JACK = "J"
+    QUEEN = "Q"
+    KING = "K"
+    ACE = "A"
+
+    @staticmethod
+    def ranks():
+        return [Ranks.TWO, Ranks.THREE, Ranks.FOUR, Ranks.FIVE, Ranks.SIX, Ranks.SEVEN, Ranks.EIGHT, Ranks.NINE,
+                Ranks.TEN, Ranks.JACK, Ranks.QUEEN, Ranks.KING, Ranks.ACE]
+
+    def __lt__(self, other):
+        ranks = self.ranks()
+        return ranks.index(self) < ranks.index(other)
+
+
+
 
 
 class Doubles(Enum):
