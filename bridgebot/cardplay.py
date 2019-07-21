@@ -28,11 +28,11 @@ class CardPlay:
     @staticmethod
     def determine_trick_winner(played_cards, trump_suit):
         if not isinstance(played_cards, list):
-            raise ValueError("played_cards must be a list of cards")
+            raise TypeError("played_cards must be a list of cards")
 
         for card in played_cards:
             if not isinstance(card, Card):
-                raise ValueError("played_cards must be a list of cards")
+                raise TypeError("played_cards must be a list of cards")
 
         if not len(played_cards) == 4:
             raise ValueError("played_cards must 4 cards")
