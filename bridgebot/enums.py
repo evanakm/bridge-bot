@@ -77,6 +77,43 @@ class Contracts(Enum):
             Contracts.SEVEN_CLUBS, Contracts.SEVEN_DIAMONDS, Contracts.SEVEN_HEARTS, Contracts.SEVEN_SPADES, Contracts.SEVEN_NO_TRUMP,
         ]
 
+    @staticmethod
+    def no_trump_contracts():
+        return [
+            Contracts.ONE_NO_TRUMP,
+            Contracts.TWO_NO_TRUMP,
+            Contracts.THREE_NO_TRUMP,
+            Contracts.FOUR_NO_TRUMP,
+            Contracts.FIVE_NO_TRUMP,
+            Contracts.SIX_NO_TRUMP,
+            Contracts.SEVEN_NO_TRUMP,
+        ]
+
+    @staticmethod
+    def major_contracts():
+        return [
+            Contracts.ONE_HEART,    Contracts.ONE_SPADE,
+            Contracts.TWO_HEARTS,   Contracts.TWO_SPADES,
+            Contracts.THREE_HEARTS, Contracts.THREE_SPADES,
+            Contracts.FOUR_HEARTS,  Contracts.FOUR_SPADES,
+            Contracts.FIVE_HEARTS,  Contracts.FIVE_SPADES,
+            Contracts.SIX_HEARTS,   Contracts.SIX_SPADES,
+            Contracts.SEVEN_HEARTS, Contracts.SEVEN_SPADES,
+        ]
+
+    @staticmethod
+    def minor_contracts():
+        return [
+            Contracts.ONE_CLUB,    Contracts.ONE_DIAMOND,
+            Contracts.TWO_CLUBS,   Contracts.TWO_DIAMONDS,
+            Contracts.THREE_CLUBS, Contracts.THREE_DIAMONDS,
+            Contracts.FOUR_CLUBS,  Contracts.FOUR_DIAMONDS,
+            Contracts.FIVE_CLUBS,  Contracts.FIVE_DIAMONDS,
+            Contracts.SIX_CLUBS,   Contracts.SIX_DIAMONDS,
+            Contracts.SEVEN_CLUBS, Contracts.SEVEN_DIAMONDS,
+        ]
+
+
 class Suits(Enum):
     CLUBS = "CLUBS"
     DIAMONDS = "DIAMONDS"
@@ -213,7 +250,7 @@ class InvalidDoublesException(Exception):
 class Doubles(Enum):
     NONE = "NONE"
     DOUBLE = "X"
-    DOUBLE_DOWN = "XX"
+    REDOUBLE = "XX"
 
 class AuctionStatus(Enum):
     DONE = "DONE"

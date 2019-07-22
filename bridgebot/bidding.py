@@ -89,7 +89,7 @@ class Auction:
             return AuctionStatus.CONTINUE
         else:  # Three passes in a row.
             if self.redoubled:
-                self.contract.doubled = Doubles.DOUBLE_DOWN
+                self.contract.doubled = Doubles.REDOUBLE
             elif self.doubled_by:
                 self.contract.doubled = Doubles.DOUBLE
             else:
@@ -153,6 +153,6 @@ class Auction:
         else:
             self.doubled_by = None
             self.redoubled = True
-            self.record[players[self.player_index]].append(Doubles.DOUBLE_DOWN)
+            self.record[players[self.player_index]].append(Doubles.REDOUBLE)
             return AuctionStatus.CONTINUE
 
