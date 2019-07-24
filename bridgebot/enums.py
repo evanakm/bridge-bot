@@ -105,8 +105,10 @@ class Suits(Enum):
 
         return Suits.suits()[Contracts.contracts().index(contract) % 5]
 
+
 class InvalidTeam(Exception):
     pass
+
 
 class Team(Enum):
     NS = 'NS'
@@ -130,11 +132,26 @@ class Team(Enum):
             raise InvalidPlayerException("Invalid Player")
         return player in self.to_set_of_players()
 
+
 class Vulnerabilities(Enum):
     NONE = 'NONE'
     NS = 'NS'
     EW = 'EW'
     BOTH = 'BOTH'
+
+    def is_declarer_vulnerable(self, declarer):
+        if not isinstance(declarer, Players):
+            raise InvalidPlayerException("Invalid Declarer")
+
+        if self == Vulnerabilities.NONE:
+            return False
+        elif self == Vulnerabilities.BOTH:
+            return True
+        elif self == Vulnerabilities.NS:
+            return declarer == Players.NORTH or declarer == Players.SOUTH
+        else:
+            return declarer == Players.EAST or declarer == Players.WEST
+
 
 class InvalidSuitOrStrainException(Exception):
     pass
@@ -148,7 +165,7 @@ class Strains(Enum):
     HEARTS = "HEARTS"
     SPADES = "SPADES"
     NT = "NT"
-    PASSOUT = "PASSOUT"
+    PASSOUT = "PASSOUT" #Including this as a strain is somewhat of a ninja fix
 
     @staticmethod
     def strains():
@@ -182,6 +199,7 @@ class Strains(Enum):
         else:
             strains = self.strains()
             suits = Suits.suits()
+            # If No_Trump, this will be False because strain index will be 4, and suit index will be 0, 1, 2, or 3
             return strains.index(self) == suits.index(suit)
 
 
