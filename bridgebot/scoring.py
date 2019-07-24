@@ -304,7 +304,7 @@ def calculate_score(bid, strain, result, doubled, vulnerability):
         raise ValueError("result must not be 0")
 
     if result < 0:
-        return penalty(-1*result, doubled, vulnerability)
+        return -1 * penalty(-1*result, doubled, vulnerability)
     elif strain in [Strains.CLUBS, Strains.DIAMONDS]:
         return minor(bid,result, doubled, vulnerability)
     elif strain in [Strains.HEARTS, Strains.SPADES]:

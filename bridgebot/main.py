@@ -10,11 +10,13 @@ if __name__ == "__main__":
     deck.shuffle()
 
     contract = get_input_enum(Contracts, "contract")
-
+    doubled = get_input_enum(Doubles, "doubled status")
     declarer = get_input_enum(Players, "declarer")
+    vulnerability = get_input_enum(Vulnerabilities, "vulnerability")
+    vulnerability = vulnerability.is_declarer_vulnerable(declarer)
 
     trick_winners = cardplay.play(deck.deal(), contract, declarer)
 
-    score = get_score_from_result(contract, Doubles.NONE, trick_winners, False)
+    score = get_score_from_result(contract, doubled, trick_winners, vulnerability)
 
     print(score)
