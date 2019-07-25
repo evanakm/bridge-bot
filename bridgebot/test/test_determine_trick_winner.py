@@ -1,15 +1,16 @@
 import pytest
 import sys
+import os
 
-sys.path.insert(0,'../bridgebot')
-sys.path.insert(0,'..')
+# sys.path.insert(0, os.path.abspath('../bridgebot'))
+sys.path.insert(0, os.path.abspath('..'))
 
 import cardplay
-from enums import Suits, Ranks
+from enums import Strains, Suits, Ranks
 from cards import Card
 
 
-@pytest.mark.parametrize('played_cards, trump_suit, expected', [
+@pytest.mark.parametrize('played_cards, trump_strain, expected', [
     (
             [
                 Card(Suits.SPADES, Ranks.FOUR),
@@ -17,7 +18,7 @@ from cards import Card
                 Card(Suits.CLUBS, Ranks.ACE),
                 Card(Suits.DIAMONDS, Ranks.ACE)
             ],
-            Suits.SPADES,
+            Strains.SPADES,
             0
     ),
     (
@@ -27,7 +28,7 @@ from cards import Card
                 Card(Suits.CLUBS, Ranks.ACE),
                 Card(Suits.DIAMONDS, Ranks.ACE)
             ],
-            Suits.SPADES,
+            Strains.SPADES,
             1
     ),
     (
@@ -37,7 +38,7 @@ from cards import Card
                 Card(Suits.DIAMONDS, Ranks.ACE),
                 Card(Suits.SPADES, Ranks.FOUR)
             ],
-            Suits.SPADES,
+            Strains.SPADES,
             3
     ),
     (
@@ -47,7 +48,7 @@ from cards import Card
                 Card(Suits.CLUBS, Ranks.ACE),
                 Card(Suits.DIAMONDS, Ranks.ACE)
             ],
-            Suits.HEARTS,
+            Strains.HEARTS,
             1
     ),
     (
@@ -57,7 +58,7 @@ from cards import Card
                 Card(Suits.CLUBS, Ranks.ACE),
                 Card(Suits.DIAMONDS, Ranks.ACE)
             ],
-            Suits.DIAMONDS,
+            Strains.DIAMONDS,
             3
     ),
     (
@@ -67,7 +68,7 @@ from cards import Card
                 Card(Suits.CLUBS, Ranks.ACE),
                 Card(Suits.DIAMONDS, Ranks.ACE)
             ],
-            Suits.DIAMONDS,
+            Strains.DIAMONDS,
             3
     ),
     (
@@ -77,7 +78,7 @@ from cards import Card
                 Card(Suits.DIAMONDS, Ranks.FIVE),
                 Card(Suits.CLUBS, Ranks.ACE),
             ],
-            Suits.DIAMONDS,
+            Strains.DIAMONDS,
             0
     ),
     (
@@ -87,7 +88,7 @@ from cards import Card
                 Card(Suits.DIAMONDS, Ranks.FIVE),
                 Card(Suits.CLUBS, Ranks.ACE),
             ],
-            Suits.DIAMONDS,
+            Strains.DIAMONDS,
             1
     ),
     (
@@ -97,7 +98,7 @@ from cards import Card
                 Card(Suits.DIAMONDS, Ranks.ACE),
                 Card(Suits.CLUBS, Ranks.ACE),
             ],
-            Suits.DIAMONDS,
+            Strains.DIAMONDS,
             2
     ),
     (
@@ -107,7 +108,7 @@ from cards import Card
                 Card(Suits.DIAMONDS, Ranks.FIVE),
                 Card(Suits.DIAMONDS, Ranks.ACE),
             ],
-            Suits.DIAMONDS,
+            Strains.DIAMONDS,
             3
     ),
     (
@@ -117,9 +118,9 @@ from cards import Card
                 Card(Suits.DIAMONDS, Ranks.ACE),
                 Card(Suits.DIAMONDS, Ranks.FIVE),
             ],
-            Suits.DIAMONDS,
+            Strains.DIAMONDS,
             2
     )
 ])
-def test_determine_trick_winner(played_cards, trump_suit, expected):
-    assert cardplay.CardPlay.determine_trick_winner(played_cards, trump_suit) == expected
+def test_determine_trick_winner(played_cards, trump_strain, expected):
+    assert cardplay.determine_trick_winner(played_cards, trump_strain) == expected

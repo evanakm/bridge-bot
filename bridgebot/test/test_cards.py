@@ -6,10 +6,12 @@ sys.path.insert(0,'..')
 
 from contextlib import contextmanager
 
-import cards as cards
+import deck
+import cards
+
 from enums import Ranks, Suits
 
-deck = cards.Deck()
+deck = deck.Deck()
 seven_of_hearts = cards.Card(Suits.HEARTS, Ranks.SEVEN)
 eight_of_clubs = cards.Card(Suits.CLUBS, Ranks.EIGHT)
 
@@ -19,13 +21,13 @@ def does_not_raise():
 
 
 def test_deck():
-    print(deck.card_indices) # Will be suppressed unless pytest is called with -s
-    assert len(deck.card_indices) == 52
+    print(deck.__card_indices) # Will be suppressed unless pytest is called with -s
+    assert len(deck.__card_indices) == 52
 
 def test_deck_shuffle():
     deck.shuffle()
-    print(deck.card_indices)
-    assert len(deck.card_indices) == 52
+    print(deck.__card_indices)
+    assert len(deck.__card_indices) == 52
 
 
 def test_card():
@@ -67,21 +69,18 @@ test_list = [13, 29, 7, 25, 43, 24]
     (Suits.SPADES, Ranks.TEN, False)
 ])
 def test_hand_fill_and_contains(suit, rank, expected):
-    hand = cards.Hand()
-    hand.fill_from_list(test_list)
-    assert hand.contains_card(cards.Card(suit,rank)) == expected
+    hand = cards.BridgeHand.generate_incomplete_hand_from_list(test_list)
+    assert hand.contains_card(cards.Card(suit, rank)) == expected
 
 
 def test_play_card():
-    hand = cards.Hand()
-    hand.fill_from_list(test_list)
+    hand = cards.BridgeHand.generate_incomplete_hand_from_list(test_list)
     hand.play_card(cards.Card(Suits.DIAMONDS, Ranks.KING))
     assert not hand.contains_card(cards.Card(Suits.DIAMONDS, Ranks.KING))
 
 
 def test_play_card_when_card_is_missing():
-    hand = cards.Hand()
-    hand.fill_from_list(test_list)
+    hand = cards.BridgeHand.generate_incomplete_hand_from_list(test_list)
     with pytest.raises(cards.CardNotInHandException):
         hand.play_card(cards.Card(Suits.SPADES, Ranks.ACE))
         assert not hand.contains_card(cards.Card(Suits.DIAMONDS, Ranks.KING))
