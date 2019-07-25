@@ -114,4 +114,8 @@ def play(hands, contract, declarer):
 
         leading_player = winning_player
 
-    return {Team.NS: ns_tricks, Team.EW: ew_tricks}
+    if declarer in [Players.NORTH, Players.SOUTH]:
+        return ns_tricks
+    if declarer in [Players.EAST, Players.WEST]:
+        return ew_tricks
+
