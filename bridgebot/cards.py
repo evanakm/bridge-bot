@@ -146,6 +146,8 @@ class BridgeHand:
                 raise CardDoesntFollowSuitException("Must follow suit if possible.")
             else:
                 self.__play_card(card_played)
+        else:
+            self.__play_card(card_played)
 
     def legal_cards(self, led_suit=None):
         """

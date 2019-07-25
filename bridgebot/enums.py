@@ -77,6 +77,12 @@ class Contracts(Enum):
             Contracts.SEVEN_CLUBS, Contracts.SEVEN_DIAMONDS, Contracts.SEVEN_HEARTS, Contracts.SEVEN_SPADES, Contracts.SEVEN_NO_TRUMP,
         ]
 
+    @staticmethod
+    def determine_level_from_contract(contract):
+        contracts = Contracts.contracts()
+        return 1 + int(contracts.index(contract) / 5) #Add one since indexing starts from zero
+
+
 class Suits(Enum):
     CLUBS = "CLUBS"
     DIAMONDS = "DIAMONDS"
@@ -99,8 +105,10 @@ class Suits(Enum):
 
         return Suits.suits()[Contracts.contracts().index(contract) % 5]
 
+
 class InvalidTeam(Exception):
     pass
+
 
 class Team(Enum):
     NS = 'NS'
@@ -124,11 +132,26 @@ class Team(Enum):
             raise InvalidPlayerException("Invalid Player")
         return player in self.to_set_of_players()
 
+
 class Vulnerabilities(Enum):
     NONE = 'NONE'
     NS = 'NS'
     EW = 'EW'
     BOTH = 'BOTH'
+
+    def is_declarer_vulnerable(self, declarer):
+        if not isinstance(declarer, Players):
+            raise InvalidPlayerException("Invalid Declarer")
+
+        if self == Vulnerabilities.NONE:
+            return False
+        elif self == Vulnerabilities.BOTH:
+            return True
+        elif self == Vulnerabilities.NS:
+            return declarer == Players.NORTH or declarer == Players.SOUTH
+        else:
+            return declarer == Players.EAST or declarer == Players.WEST
+
 
 class InvalidSuitOrStrainException(Exception):
     pass
@@ -142,7 +165,7 @@ class Strains(Enum):
     HEARTS = "HEARTS"
     SPADES = "SPADES"
     NT = "NT"
-    PASSOUT = "PASSOUT"
+    PASSOUT = "PASSOUT" #Including this as a strain is somewhat of a ninja fix
 
     @staticmethod
     def strains():
@@ -176,6 +199,7 @@ class Strains(Enum):
         else:
             strains = self.strains()
             suits = Suits.suits()
+            # If No_Trump, this will be False because strain index will be 4, and suit index will be 0, 1, 2, or 3
             return strains.index(self) == suits.index(suit)
 
 
@@ -213,7 +237,7 @@ class InvalidDoublesException(Exception):
 class Doubles(Enum):
     NONE = "NONE"
     DOUBLE = "X"
-    DOUBLE_DOWN = "XX"
+    REDOUBLE = "XX"
 
 class AuctionStatus(Enum):
     DONE = "DONE"

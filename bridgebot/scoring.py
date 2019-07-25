@@ -1,4 +1,4 @@
-from enums import Strains, Doubles, InvalidDoublesException, InvalidStrainException
+from enums import Strains, Doubles, Contracts, InvalidDoublesException, InvalidStrainException, ContractNotFound
 
 
 def contract_bonus(bid_trick_score, vulnerability):
@@ -45,7 +45,7 @@ def doubled_bonus(doubled):
     if not isinstance(doubled, Doubles):
         raise InvalidDoublesException("Invalid Doubles")
 
-    if doubled in [Doubles.DOUBLE, Doubles.DOUBLE_DOWN]:
+    if doubled in [Doubles.DOUBLE, Doubles.REDOUBLE]:
         return 50
     else:
         return 0
@@ -81,7 +81,7 @@ def slam_bonus(level, vulnerability):
 
 def no_trump(bid, made, doubled, vulnerability):
     """
-    TODO Something for No Trump
+    Points for making a no trump contract
 
     Parameters
     ----------
@@ -114,7 +114,7 @@ def no_trump(bid, made, doubled, vulnerability):
 
     if doubled == Doubles.DOUBLE:
         multiplier = 2
-    elif doubled == Doubles.DOUBLE_DOWN:
+    elif doubled == Doubles.REDOUBLE:
         multiplier = 4
 
     bid_trick_score = (30 * bid + 10) * multiplier
@@ -126,7 +126,7 @@ def no_trump(bid, made, doubled, vulnerability):
 
 def major(bid, made, doubled, vulnerability):
     """
-    TODO Something for Major
+    Points for making a major contract
 
     Parameters
     ----------
@@ -159,7 +159,7 @@ def major(bid, made, doubled, vulnerability):
 
     if doubled == Doubles.DOUBLE:
         multiplier = 2
-    elif doubled == Doubles.DOUBLE_DOWN:
+    elif doubled == Doubles.REDOUBLE:
         multiplier = 4
 
     bid_trick_score = 30 * bid * multiplier
@@ -171,7 +171,7 @@ def major(bid, made, doubled, vulnerability):
 
 def minor(bid, made, doubled, vulnerability):
     """
-    TODO Something for minor
+    Points for making a minor contract
 
     Parameters
     ----------
@@ -204,7 +204,7 @@ def minor(bid, made, doubled, vulnerability):
 
     if doubled == Doubles.DOUBLE:
         multiplier = 2
-    elif doubled == Doubles.DOUBLE_DOWN:
+    elif doubled == Doubles.REDOUBLE:
         multiplier = 4
 
     bid_trick_score = 20 * bid * multiplier
@@ -216,7 +216,7 @@ def minor(bid, made, doubled, vulnerability):
 
 def penalty(down, doubled, vulnerability):
     """
-    TODO Something for penalty
+    Points for setting a contract
 
     Parameters
     ----------
@@ -265,9 +265,9 @@ def penalty(down, doubled, vulnerability):
             return base + (down - 3)*600
 
 
-def score(bid, strain, result, doubled, vulnerability):
+def calculate_score(bid, strain, result, doubled, vulnerability):
     """
-    TODO Something for score
+    Calculating the score from a contract and result
 
     Parameters
     ----------
@@ -304,7 +304,7 @@ def score(bid, strain, result, doubled, vulnerability):
         raise ValueError("result must not be 0")
 
     if result < 0:
-        return penalty(-1*result, doubled, vulnerability)
+        return -1 * penalty(-1*result, doubled, vulnerability)
     elif strain in [Strains.CLUBS, Strains.DIAMONDS]:
         return minor(bid,result, doubled, vulnerability)
     elif strain in [Strains.HEARTS, Strains.SPADES]:
@@ -312,3 +312,22 @@ def score(bid, strain, result, doubled, vulnerability):
     else:
         return no_trump(bid, result, doubled, vulnerability)
 
+
+def get_score_from_result(contract, doubled, tricks_taken, vulnerability):
+    contracts = Contracts.contracts()
+    strains = Strains.strains()
+
+    if contract not in contracts:
+        raise ContractNotFound("Invalid contract")
+
+    bid = Contracts.determine_level_from_contract(contract)
+    strain = Strains.determine_strain_from_contract(contract)
+
+    required_number_of_tricks = bid + 6
+
+    if tricks_taken >= required_number_of_tricks:
+        result = tricks_taken - 6
+    else:
+        result = tricks_taken - required_number_of_tricks #Should be a negative number
+
+    return calculate_score(bid, strain, result, doubled, vulnerability)
