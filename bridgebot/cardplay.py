@@ -35,6 +35,9 @@ def determine_trick_winner(played_cards, strain):
     if not len(played_cards) == 4:
         raise ValueError("played_cards must contain 4 cards")
 
+    if not isinstance(strain, Strains):
+        raise TypeError("strain must be of type Strains")
+
     highest_card = played_cards[0]
     suit_led = played_cards[0].suit
 
@@ -101,7 +104,7 @@ def play(hands, contract, declarer):
         # self.play_trick determines the index of the winner relative to the index of the leader
         # it also makes the code re-usable in case we want to use it for another trick-taking game, because
         # they all have the same mechanic, even if they don't have four players.
-        winning_player = leading_player.increment_by(determine_trick_winner(trick, strain))
+        winning_player = leading_player.determine_nth_player_to_the_right(determine_trick_winner(trick, strain))
 
         # Update the number of tricks won
         if leading_player in Team.team_to_set_of_players(Team.NS):
