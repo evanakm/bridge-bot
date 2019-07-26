@@ -1,27 +1,13 @@
 from enums import Strains, Players, Suits, Ranks, Contracts, ContractNotFound, Team
-from get_input import get_input_enum
+from get_input import get_input_enum, get_input_card
 from cards import Card
 
 
-def __get_card_from_user(playable_cards):
-    while True:
-        suit = get_input_enum(Suits, "suit")
-        rank = get_input_enum(Ranks, "rank")
-        if suit in playable_cards:
-            playable_cards_of_suit = playable_cards[suit]
-            if rank in playable_cards_of_suit:
-                return Card(suit, rank)
-            else:
-                print("That card is not legal. Please try again.")
-        else:
-            print("That suit is not legal. Please try again.")
-
-
-def __convert_hand_to_str(hand):
-    hand_string = ""
-    for key in sorted(hand.keys()):
-        hand_string += key.name + ": " + ', '.join(rank.name for rank in sorted(hand[key])) + "   "
-    return hand_string
+def __convert_hand_to_str(cards):
+    card_string = ""
+    for card in sorted(cards):
+        card_string += str(card) + " "
+    return card_string
 
 
 def determine_trick_winner(played_cards, strain):
@@ -71,13 +57,12 @@ def play(hands, contract, declarer):
         trick = []
         print(leading_player.value + " starts")
 
-
-        all_cards = hands[leading_player].hand
+        all_cards = hands[leading_player].cards
         print("All Cards: " +
               __convert_hand_to_str(all_cards)
               )
 
-        led_card = __get_card_from_user(all_cards)
+        led_card = get_input_card(all_cards)
 
         hands[leading_player].lead(led_card)
 
@@ -89,7 +74,7 @@ def play(hands, contract, declarer):
             current_player = current_player.next_player()
             print(current_player.name + "'s turn")
             print("All Cards: " +
-                  __convert_hand_to_str(hands[current_player].hand)
+                  __convert_hand_to_str(hands[current_player].cards)
                   )
 
             legal_cards = hands[current_player].legal_cards(led_card.suit)
@@ -97,7 +82,7 @@ def play(hands, contract, declarer):
                   __convert_hand_to_str(legal_cards)
                   )
 
-            card = __get_card_from_user(legal_cards)
+            card = get_input_card(legal_cards)
             hands[current_player].follow(led_card.suit, card)
             trick.append(card)
 

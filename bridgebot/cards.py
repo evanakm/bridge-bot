@@ -21,7 +21,8 @@ class BridgeHand:
     def get_cards_of_suit(self, suit):
         if not isinstance(suit, Suits):
             raise TypeError("suit is not of type Suits")
-        return set([i for i in self.cards])
+
+        return set(card for card in self.cards if card.suit == suit)
 
     @staticmethod
     def __add_cards_to_bridge_hand(bridge_hand, cards):
@@ -40,13 +41,16 @@ class BridgeHand:
     def generate_complete_hand(cards):
         if len(cards) != 13:
             raise WrongSizeHandException("cards must contain 13 cards")
+        for card in cards:
+            if not isinstance(card, Card):
+                raise TypeError("card is not of type Card")
         return BridgeHand(cards)
 
     def __init__(self, cards):
         if not isinstance(cards, list):
             raise DeckListNotValid("cards is not a list")
 
-        self.cards = cards
+        self.cards = set(cards)
         if len(cards) > 13:
             raise WrongSizeHandException("cards must contain 13 cards or less")
 
@@ -70,7 +74,7 @@ class BridgeHand:
         if not isinstance(card, Card):
             raise TypeError("card is not of type Card")
 
-        return card.rank in self.cards[card.suit]
+        return card in self.cards
 
     def __play_card(self, card):
         if not isinstance(card, Card):
@@ -78,12 +82,12 @@ class BridgeHand:
 
         if not self.contains_card(card):
             raise CardNotInHandException("Hand does not contain " + card.rank.name + " of " + card.suit.name + ".")
-        self.cards[card.suit].difference_update([card.rank])
+        self.cards.remove(card)
 
     def __add_card(self, card):
         if not isinstance(card, Card):
             raise TypeError("card is not of type Card")
-        self.cards[card.suit].add(card.rank)
+        self.cards.add(card)
 
     def lead(self, card):
         """
@@ -117,7 +121,7 @@ class BridgeHand:
             raise TypeError("card_played is not of type Card")
 
         if card_played.suit != led_suit:
-            if len(self.cards[led_suit]) != 0:
+            if len(self.get_cards_of_suit(led_suit)) != 0:
                 raise CardDoesntFollowSuitException("Must follow suit if possible.")
             else:
                 self.__play_card(card_played)
@@ -145,7 +149,9 @@ class BridgeHand:
         if not led_suit:
             return self.cards
 
-        if len(self.cards[led_suit]) is not 0:
-            return {led_suit: self.cards[led_suit]}
+        cards_of_lead_suit = self.get_cards_of_suit(led_suit)
+
+        if len(cards_of_lead_suit) is not 0:
+            return cards_of_lead_suit
         else:
             return self.cards

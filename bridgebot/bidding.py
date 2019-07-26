@@ -42,34 +42,24 @@ class Record:
             Strains.NT: None
         }
 
+
 class Auction:
     def __init__(self, dealer):
-        self.dealer = dealer.upper()
-
         if not isinstance(dealer, Players):
             raise InvalidDealerException('Invalid dealer')
 
+        self.dealer = dealer
+
+        self.reset()
+
+    # For debugging purposes, easier to reset than to create a new Auction
+    def reset(self):
         self.player_index = Players.players().index(self.dealer)
         self.last_bidder_index = None
 
         # Not sure about the following line
         for player in Players.players():
             self.record[player].append("-")
-
-        self.bid_index = -1
-        self.doubled_by = None
-        self.redoubled = False
-        self.consecutive_passes = 0
-
-    # For debugging purposes, easier to reset than to create a new Auction
-    def reset(self):
-        contract = Contract()
-
-        self.player_index = Players.players().index(self.dealer)
-        self.last_bidder_index = None
-
-        for i in range(Players.players().index(self.dealer)):
-            self.record[Players.players()[i]].append("-")
 
         self.bid_index = -1
         self.doubled_by = None # Redundant with contract dictionary, but makes the logic below much cleaner.
@@ -81,7 +71,7 @@ class Auction:
 
     def pass_bid(self):
         if self.bid_index == -1:
-            if self.consecutive_passes == 3: # Passing out
+            if self.consecutive_passes == 3:  # Passing out
                 self.record[self.player].append(Strains.PASSOUT)
                 self.contract.strain = Strains.NT
                 return AuctionStatus.DONE
@@ -89,7 +79,7 @@ class Auction:
                 self.record[self.player].append(Strains.PASSOUT)
                 self.__increment_player()
                 return AuctionStatus.CONTINUE
-        elif self.consecutive_passes != 2: # Passing but not finishing
+        elif self.consecutive_passes != 2:  # Passing but not finishing
             self.record[self.player].append(Strains.PASSOUT)
             self.__increment_player()
             return AuctionStatus.CONTINUE
@@ -159,6 +149,6 @@ class Auction:
         else:
             self.doubled_by = None
             self.redoubled = True
-            self.record[players[self.player_index]].append(Doubles.REDOUBLE)
+            self.record[Players.players()[self.player_index]].append(Doubles.REDOUBLE)
             return AuctionStatus.CONTINUE
 
