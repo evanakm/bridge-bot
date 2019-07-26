@@ -1,5 +1,6 @@
 ONE_CLUB
-north
-clubs
-three
+NORTH
+CLUBS
+THREE
+
 
