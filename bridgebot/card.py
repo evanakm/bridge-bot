@@ -1,5 +1,6 @@
 from enums import Suits, Ranks
 
+
 class InvalidCardException(Exception):
     pass
 
@@ -9,10 +10,6 @@ class InvalidRankException(InvalidCardException):
 
 
 class InvalidSuitException(InvalidCardException):
-    pass
-
-
-class InvalidIndexException(Exception):
     pass
 
 

@@ -4,6 +4,7 @@ from enums import Suits, Ranks
 
 from card import Card
 
+
 class CardDoesntFollowSuitException(Exception):
     pass
 
@@ -12,23 +13,25 @@ class WrongSizeHandException(Exception):
     pass
 
 
-
-
 class DeckListNotValid(Exception):
     pass
 
 
 class BridgeHand:
+    def get_cards_of_suit(self, suit):
+        if not isinstance(suit, Suits):
+            raise TypeError("suit is not of type Suits")
+        return set([i for i in self.cards])
+
     @staticmethod
-    def __add_cards_by_index_to_bridge_hand(bridge_hand, deck_indices):
-        if not isinstance(deck_indices, list):
+    def __add_cards_to_bridge_hand(bridge_hand, cards):
+        if not isinstance(cards, list):
             raise DeckListNotValid("deck_indices is not a list")
 
-        if len(deck_indices) > 13:
+        if len(cards) > 13:
             raise WrongSizeHandException("Bridge hands must contain 13 cards.")
 
-        for index in deck_indices:
-            card = Card.generate_card_from_index(index)
+        for card in cards:
             bridge_hand.__add_card(card)
 
         return bridge_hand
@@ -40,14 +43,14 @@ class BridgeHand:
         return BridgeHand(cards)
 
     def __init__(self, cards):
-        if not isinstance(cards, set):
-            raise DeckListNotValid("deck_indices is not a list")
+        if not isinstance(cards, list):
+            raise DeckListNotValid("cards is not a list")
 
         self.cards = cards
         if len(cards) > 13:
             raise WrongSizeHandException("cards must contain 13 cards or less")
 
-        BridgeHand.__add_cards_by_index_to_bridge_hand(self, deck_indices)
+        BridgeHand.__add_cards_to_bridge_hand(self, cards)
 
     def contains_card(self, card):
         """
@@ -65,9 +68,9 @@ class BridgeHand:
 
         """
         if not isinstance(card, Card):
-            raise InvalidSuitException("Suit not found")
+            raise TypeError("card is not of type Card")
 
-        return card.rank in self.hand[card.suit]
+        return card.rank in self.cards[card.suit]
 
     def __play_card(self, card):
         if not isinstance(card, Card):
@@ -75,12 +78,12 @@ class BridgeHand:
 
         if not self.contains_card(card):
             raise CardNotInHandException("Hand does not contain " + card.rank.name + " of " + card.suit.name + ".")
-        self.hand[card.suit].difference_update([card.rank])
+        self.cards[card.suit].difference_update([card.rank])
 
     def __add_card(self, card):
         if not isinstance(card, Card):
             raise TypeError("card is not of type Card")
-        self.hand[card.suit].add(card.rank)
+        self.cards[card.suit].add(card.rank)
 
     def lead(self, card):
         """
@@ -114,7 +117,7 @@ class BridgeHand:
             raise TypeError("card_played is not of type Card")
 
         if card_played.suit != led_suit:
-            if len(self.hand[led_suit]) != 0:
+            if len(self.cards[led_suit]) != 0:
                 raise CardDoesntFollowSuitException("Must follow suit if possible.")
             else:
                 self.__play_card(card_played)
@@ -140,9 +143,9 @@ class BridgeHand:
             raise InvalidSuitException("Invalid Suit")
 
         if not led_suit:
-            return self.hand
+            return self.cards
 
-        if len(self.hand[led_suit]) is not 0:
-            return {led_suit: self.hand[led_suit]}
+        if len(self.cards[led_suit]) is not 0:
+            return {led_suit: self.cards[led_suit]}
         else:
-            return self.hand
+            return self.cards
