@@ -8,7 +8,7 @@ class InvalidDealerException(Exception):
 class Contract:
     def __init__(self):
         self.level = 0
-        self.strain = Strains.NT
+        self.strain = Strains.PASSOUT
         self.doubled = Doubles.NONE
         self.declarer = None
 
@@ -66,21 +66,23 @@ class Auction:
         self.redoubled = False
         self.consecutive_passes = 0
 
+        self.contract = Contract()
+
     def __increment_player(self):
         self.player = self.player.next_player()
 
     def pass_bid(self):
         if self.bid_index == -1:
             if self.consecutive_passes == 3:  # Passing out
-                self.record[self.player].append(Strains.PASSOUT)
-                self.contract.strain = Strains.NT
+                self.record[self.player].append("PASS")
+                self.contract.strain = Strains.PASSOUT
                 return AuctionStatus.DONE
             else:  # Passing before an opening bid
-                self.record[self.player].append(Strains.PASSOUT)
+                self.record[self.player].append("PASS")
                 self.__increment_player()
                 return AuctionStatus.CONTINUE
         elif self.consecutive_passes != 2:  # Passing but not finishing
-            self.record[self.player].append(Strains.PASSOUT)
+            self.record[self.player].append("PASS")
             self.__increment_player()
             return AuctionStatus.CONTINUE
         else:  # Three passes in a row.
