@@ -9,10 +9,10 @@ if __name__ == "__main__":
     deck = Deck()
     deck.shuffle()
 
-    contract = get_input_enum(Contracts, "contract")
-    doubled = get_input_enum(Doubles, "doubled status")
-    declarer = get_input_enum(Players, "declarer")
-    vulnerability = get_input_enum(Vulnerabilities, "vulnerability")
+    contract = Contracts.FIVE_CLUBS # get_input_enum(Contracts, "contract")
+    doubled = Doubles.DOUBLE # get_input_enum(Doubles, "doubled status")
+    declarer = Players.EAST # get_input_enum(Players, "declarer")
+    vulnerability = Vulnerabilities.BOTH # get_input_enum(Vulnerabilities, "vulnerability")
     vulnerability = vulnerability.is_declarer_vulnerable(declarer)
 
     trick_winners = cardplay.play(deck.deal(), contract, declarer)

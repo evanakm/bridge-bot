@@ -17,7 +17,21 @@ class Players(Enum):
         players = self.players()
         return players[(players.index(self) + 1) % 4]
 
-    def increment_by(self, steps):
+    def determine_nth_player_to_the_right(self, steps):
+        """
+        Determine the nth player to the right of self
+
+        Parameters
+        ----------
+        steps: int
+            The number of steps to look to the right (0 to 3 inclusive)
+
+        Returns
+        -------
+        nth_player: Players
+            The nth player to the right
+
+        """
         players = self.players()
         return players[(players.index(self) + steps) % 4]
 
