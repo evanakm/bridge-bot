@@ -61,7 +61,7 @@ class Auction:
         for player in Players.players():
             self.record[player].append("-")
 
-        self.bid_index = -1
+        self.last_bid = None
         self.doubled_by = None # Redundant with contract dictionary, but makes the logic below much cleaner.
         self.redoubled = False
         self.consecutive_passes = 0
@@ -72,7 +72,7 @@ class Auction:
         self.player = self.player.next_player()
 
     def pass_bid(self):
-        if self.bid_index == -1:
+        if self.last_bid is None:
             if self.consecutive_passes == 3:  # Passing out
                 self.record[self.player].append("PASS")
                 self.contract.strain = Strains.PASSOUT
@@ -93,8 +93,8 @@ class Auction:
             else:
                 self.contract.doubled = Doubles.NONE
 
-            self.contract.strain = Strains.strains()[self.bid_index % 5]
-            self.contract.level = int( 1 + (self.bid_index / 5) )
+            self.contract.strain = Contracts.determine_strain_from_contract(self.bid)
+            self.contract.level = Contracts.determine_level_from_contract(self.bid)
 
             # Kept track of who was the first to bid a strain
             if self.last_bidder_index % 2 == 0:
@@ -102,22 +102,23 @@ class Auction:
             else:
                 self.contract.declarer = self.ew_first_bid[self.contract.strain]
 
-            self.record[self.player].append(Strains.PASSOUT)
+            self.record[self.player].append("PASS")
             return AuctionStatus.DONE
 
-    def make_bid(self, bid_index):
-        if bid_index not in range(35):
+    def make_bid(self, bid):
+
+        if not isinstance(bid, Contracts):
             return AuctionStatus.INVALID
 
-        if bid_index <= self.bid_index:
+        if bid <= self.last_bid:
             return AuctionStatus.INVALID
 
-        self.bid_index = bid_index
+        self.last_bid = bid
         self.doubled_by = None
         self.redoubled = False
         self.consecutive_passes = 0
 
-        self.record[self.player].append(Contracts.contracts()[bid_index])
+        self.record[self.player].append(bid)
         return AuctionStatus.CONTINUE
 
     def double(self):
