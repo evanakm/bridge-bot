@@ -96,6 +96,19 @@ class Contracts(Enum):
         contracts = Contracts.contracts()
         return 1 + int(contracts.index(contract) / 5) #Add one since indexing starts from zero
 
+    @staticmethod
+    def determine_strain_from_contract(contract):
+        contracts = Contracts.contracts()
+        strains = Strains.strains()
+        return strains[contracts.index(contract) % 5]
+
+    def __lt__(self, other):
+        if other is None:
+            return False
+
+        contracts = self.contracts()
+        return contracts.index(self) < contracts.index(other)
+
 
 class Suits(Enum):
     CLUBS = "CLUBS"
