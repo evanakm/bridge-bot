@@ -151,6 +151,15 @@ class Team(Enum):
             return set([Players.EAST, Players.WEST])
         raise InvalidTeam("Invalid Team")
 
+    @staticmethod
+    def player_to_team(player):
+        if not isinstance(player, Players):
+            raise InvalidPlayerException("Invalid Player")
+        if player == Players.NORTH or player == Players.SOUTH:
+            return Team.NS
+        else:
+            return Team.EW
+
     def to_set_of_players(self):
         return Team.team_to_set_of_players(self)
 
