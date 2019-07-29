@@ -45,8 +45,10 @@ def doubled_bonus(doubled):
     if not isinstance(doubled, Doubles):
         raise InvalidDoublesException("Invalid Doubles")
 
-    if doubled in [Doubles.DOUBLE, Doubles.REDOUBLE]:
+    if doubled == Doubles.DOUBLE:
         return 50
+    elif doubled == Doubles.REDOUBLE:
+        return 100
     else:
         return 0
 
@@ -79,7 +81,7 @@ def slam_bonus(level, vulnerability):
     return 0
 
 
-def no_trump(bid, made, doubled, vulnerability):
+def no_trump(bid, made, doubled, vulnerable):
     """
     Points for making a no trump contract
 
@@ -104,27 +106,30 @@ def no_trump(bid, made, doubled, vulnerability):
     if not isinstance(doubled, Doubles):
         raise InvalidDoublesException()
 
-    if not isinstance(vulnerability, bool):
+    if not isinstance(vulnerable, bool):
         raise TypeError("vulnerability must be a bool")
 
     if made < bid or made not in range(1, 8):
         raise ValueError("made must be between 1 and 8 and be less than bid")
 
     multiplier = 1
+    overtrick = 30
 
     if doubled == Doubles.DOUBLE:
         multiplier = 2
+        overtrick = 100 if not vulnerable else 200
     elif doubled == Doubles.REDOUBLE:
         multiplier = 4
+        overtrick = 200 if not vulnerable else 400
 
     bid_trick_score = (30 * bid + 10) * multiplier
-    over_trick_score = (30 * (made - bid)) * multiplier
-    bonus = contract_bonus(bid_trick_score, vulnerability) + doubled_bonus(doubled) + slam_bonus(bid, vulnerability)
+    overtrick_score = overtrick * (made - bid)
+    bonus = contract_bonus(bid_trick_score, vulnerable) + doubled_bonus(doubled) + slam_bonus(bid, vulnerable)
 
-    return bid_trick_score + over_trick_score + bonus
+    return bid_trick_score + overtrick_score + bonus
 
 
-def major(bid, made, doubled, vulnerability):
+def major(bid, made, doubled, vulnerable):
     """
     Points for making a major contract
 
@@ -149,22 +154,25 @@ def major(bid, made, doubled, vulnerability):
     if not isinstance(doubled, Doubles):
         raise InvalidDoublesException()
 
-    if not isinstance(vulnerability, bool):
+    if not isinstance(vulnerable, bool):
         raise TypeError("vulnerability must be a bool")
 
     if made < bid or made not in range(1, 8):
         raise ValueError("made must be between 1 and 8 and be less than bid")
 
     multiplier = 1
+    overtrick = 30
 
     if doubled == Doubles.DOUBLE:
         multiplier = 2
+        overtrick = 100 if not vulnerable else 200
     elif doubled == Doubles.REDOUBLE:
         multiplier = 4
+        overtrick = 200 if not vulnerable else 400
 
     bid_trick_score = 30 * bid * multiplier
-    overtrick_score = (30 * (made - bid)) * multiplier
-    bonus = contract_bonus(bid_trick_score, vulnerability) + doubled_bonus(doubled) + slam_bonus(bid, vulnerability)
+    overtrick_score = overtrick * (made - bid)
+    bonus = contract_bonus(bid_trick_score, vulnerable) + doubled_bonus(doubled) + slam_bonus(bid, vulnerable)
 
     return bid_trick_score + overtrick_score + bonus
 
@@ -201,14 +209,17 @@ def minor(bid, made, doubled, vulnerability):
         raise ValueError("made must be between 1 and 8 and be less than bid")
 
     multiplier = 1
+    overtrick = 20
 
     if doubled == Doubles.DOUBLE:
         multiplier = 2
+        overtrick = 100 if not vulnerability else 200
     elif doubled == Doubles.REDOUBLE:
         multiplier = 4
+        overtrick = 200 if not vulnerability else 400
 
     bid_trick_score = 20 * bid * multiplier
-    overtrick_score = (20 * (made - bid)) * multiplier
+    overtrick_score = overtrick * (made - bid)
     bonus = contract_bonus(bid_trick_score, vulnerability) + doubled_bonus(doubled) + slam_bonus(bid, vulnerability)
 
     return bid_trick_score + overtrick_score + bonus
