@@ -58,14 +58,14 @@ def test_map_index_to_card(index, expected_except):
 
 
 # Generated from a random number generator
-test_list = [13, 29, 7, 25, 43, 24]
-# Corresponds to 2 of diamonds, 5 of hearts, 8 of clubs, ace of diamonds, 6 of spades, and king of diamonds
+test_list = [13, 29, 7, 25, 24]
+# Corresponds to 2 of diamonds, 5 of hearts, 8 of clubs, ace of diamonds, and king of diamonds
 
 
 @pytest.mark.parametrize('suit, rank, expected', [
     (Suits.DIAMONDS, Ranks.TWO, True),
     (Suits.DIAMONDS, Ranks.KING, True),
-    (Suits.SPADES, Ranks.SIX, True),
+    (Suits.HEARTS, Ranks.FIVE, True),
     (Suits.SPADES, Ranks.TEN, False)
 ])
 def test_partial_hand_fill_and_contains(suit, rank, expected):
@@ -86,7 +86,28 @@ def test_lead_when_card_is_missing():
     hand = cards.BridgeHand.generate_partially_played_hand(card_list)
     with pytest.raises(cards.CardNotInHandException):
         hand.lead(cards.Card(Suits.SPADES, Ranks.ACE))
-        assert not hand.contains_card(cards.Card(Suits.DIAMONDS, Ranks.KING))
+
+
+# The hand contains no spades, so arbitrarily playing a card when following spades doesn't fail
+@pytest.mark.parametrize('led_suit,card', [
+    (Suits.DIAMONDS, cards.Card(Suits.DIAMONDS, Ranks.ACE)),
+    (Suits.SPADES, cards.Card(Suits.DIAMONDS, Ranks.ACE))
+])
+def test_follow(led_suit, card):
+    card_list = [ Deck.generate_card_from_index(card_index) for card_index in test_list ]
+    hand = cards.BridgeHand.generate_partially_played_hand(card_list)
+    hand.follow(led_suit, card)
+    assert not hand.contains_card(card)
+
+@pytest.mark.parametrize('led_suit,card,expected_except', [
+    (Suits.DIAMONDS, cards.Card(Suits.DIAMONDS, Ranks.QUEEN), pytest.raises(cards.CardNotInHandException)),
+    (Suits.DIAMONDS, cards.Card(Suits.CLUBS, Ranks.EIGHT), pytest.raises(cards.CardDoesntFollowSuitException))
+])
+def test_follow_raises(led_suit, card, expected_except):
+    card_list = [ Deck.generate_card_from_index(card_index) for card_index in test_list ]
+    hand = cards.BridgeHand.generate_partially_played_hand(card_list)
+    with expected_except:
+        hand.follow(led_suit, card)
 
 
 full_test_list = [13, 29, 7, 25, 43, 24, 8, 35, 47, 33, 28, 18, 2]
