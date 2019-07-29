@@ -6,12 +6,14 @@ sys.path.insert(0,'..')
 
 from contextlib import contextmanager
 
-import deck
+from deck import Deck
 import cards
+
+from card import InvalidSuitException, InvalidRankException
 
 from enums import Ranks, Suits
 
-deck = deck.Deck()
+deck = Deck()
 seven_of_hearts = cards.Card(Suits.HEARTS, Ranks.SEVEN)
 eight_of_clubs = cards.Card(Suits.CLUBS, Ranks.EIGHT)
 
@@ -19,27 +21,26 @@ eight_of_clubs = cards.Card(Suits.CLUBS, Ranks.EIGHT)
 def does_not_raise():
     yield
 
-
 def test_deck():
-    print(deck.__card_indices) # Will be suppressed unless pytest is called with -s
-    assert len(deck.__card_indices) == 52
+    indices = deck.get_card_indices()
+    print(indices) # Will be suppressed unless pytest is called with -s
+    assert len(indices) == 52
 
 def test_deck_shuffle():
     deck.shuffle()
-    print(deck.__card_indices)
-    assert len(deck.__card_indices) == 52
-
+    indices = deck.get_card_indices()
+    print(indices)
+    assert len(indices) == 52
 
 def test_card():
     card = cards.Card(Suits.HEARTS, Ranks.SEVEN)
     assert card == seven_of_hearts
 
-
 @pytest.mark.parametrize('suit,rank,expected_result,expected_except', [
     (Suits.HEARTS, Ranks.SEVEN, True, does_not_raise()),
     (Suits.SPADES, Ranks.TEN, False, does_not_raise()),
-    (Suits.DIAMONDS, "1", False, pytest.raises(cards.InvalidRankException)),
-    ("STARS", Ranks.FIVE, False, pytest.raises(cards.InvalidSuitException)),
+    (Suits.DIAMONDS, "1", False, pytest.raises(InvalidRankException)),
+    ("STARS", Ranks.FIVE, False, pytest.raises(InvalidSuitException)),
 ])
 def test_card(suit, rank, expected_result, expected_except):
     with expected_except:
@@ -50,10 +51,9 @@ def test_card(suit, rank, expected_result, expected_except):
     (31, does_not_raise()),
     (55, pytest.raises(Exception))
 ])
-
 def test_map_index_to_card(index, expected_except):
     with expected_except:
-        card = cards.map_index_to_card(index)
+        card = Deck.generate_card_from_index(index)
         assert card == seven_of_hearts
 
 
@@ -68,30 +68,46 @@ test_list = [13, 29, 7, 25, 43, 24]
     (Suits.SPADES, Ranks.SIX, True),
     (Suits.SPADES, Ranks.TEN, False)
 ])
-def test_hand_fill_and_contains(suit, rank, expected):
-    hand = cards.BridgeHand.generate_incomplete_hand_from_list(test_list)
+def test_partial_hand_fill_and_contains(suit, rank, expected):
+    card_list = [ Deck.generate_card_from_index(card_index) for card_index in test_list ]
+    hand = cards.BridgeHand.generate_partially_played_hand(card_list)
     assert hand.contains_card(cards.Card(suit, rank)) == expected
 
 
-def test_play_card():
-    hand = cards.BridgeHand.generate_incomplete_hand_from_list(test_list)
-    hand.play_card(cards.Card(Suits.DIAMONDS, Ranks.KING))
+def test_lead():
+    card_list = [ Deck.generate_card_from_index(card_index) for card_index in test_list ]
+    hand = cards.BridgeHand.generate_partially_played_hand(card_list)
+    hand.lead(cards.Card(Suits.DIAMONDS, Ranks.KING))
     assert not hand.contains_card(cards.Card(Suits.DIAMONDS, Ranks.KING))
 
 
-def test_play_card_when_card_is_missing():
-    hand = cards.BridgeHand.generate_incomplete_hand_from_list(test_list)
+def test_lead_when_card_is_missing():
+    card_list = [ Deck.generate_card_from_index(card_index) for card_index in test_list ]
+    hand = cards.BridgeHand.generate_partially_played_hand(card_list)
     with pytest.raises(cards.CardNotInHandException):
-        hand.play_card(cards.Card(Suits.SPADES, Ranks.ACE))
+        hand.lead(cards.Card(Suits.SPADES, Ranks.ACE))
         assert not hand.contains_card(cards.Card(Suits.DIAMONDS, Ranks.KING))
 
 
-def test_bridge_hand():
-    with pytest.raises(cards.WrongSizeHandException):
-        bridge_hand = cards.BridgeHand(test_list)
+full_test_list = [13, 29, 7, 25, 43, 24, 8, 35, 47, 33, 28, 18, 2]
+too_long_test_list = [13, 29, 7, 25, 43, 24, 8, 35, 47, 33, 28, 18, 2, 50]
 
+@pytest.mark.parametrize('list,expected_except', [
+    (test_list, pytest.raises(cards.WrongSizeHandException)),
+    (full_test_list, does_not_raise())
+])
+def test_generate_hand(list, expected_except):
+    card_list = [ Deck.generate_card_from_index(card_index) for card_index in list ]
+    with expected_except:
+        hand = cards.BridgeHand.generate_complete_hand(card_list)
 
-long_test_list = [13, 29, 7, 25, 43, 24, 8, 35, 47, 33, 28, 18, 2]
-
-def test_bridge_hand():
-    bridge_hand = cards.BridgeHand(long_test_list)
+@pytest.mark.parametrize('list,expected_except', [
+    (test_list, does_not_raise()),
+    (full_test_list, does_not_raise()),
+    (too_long_test_list, pytest.raises(cards.WrongSizeHandException)),
+    ([3,3], pytest.raises(cards.RepeatedCardException))
+])
+def test_bridge_hand_constructor(list, expected_except):
+    card_list = [ Deck.generate_card_from_index(card_index) for card_index in list ]
+    with expected_except:
+        bridge_hand = cards.BridgeHand(card_list)
