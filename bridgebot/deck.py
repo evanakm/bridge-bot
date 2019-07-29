@@ -1,5 +1,5 @@
 from enums import Players, Suits, Ranks
-from cards import BridgeHand
+from bridgehand import BridgeHand
 
 from card import Card
 

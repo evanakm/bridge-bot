@@ -7,15 +7,15 @@ sys.path.insert(0,'..')
 from contextlib import contextmanager
 
 from deck import Deck
-import cards
+from bridgehand import Card, BridgeHand, CardDoesntFollowSuitException, CardNotInHandException, RepeatedCardException, WrongSizeHandException
 
 from card import InvalidSuitException, InvalidRankException
 
 from enums import Ranks, Suits
 
 deck = Deck()
-seven_of_hearts = cards.Card(Suits.HEARTS, Ranks.SEVEN)
-eight_of_clubs = cards.Card(Suits.CLUBS, Ranks.EIGHT)
+seven_of_hearts = Card(Suits.HEARTS, Ranks.SEVEN)
+eight_of_clubs = Card(Suits.CLUBS, Ranks.EIGHT)
 
 @contextmanager
 def does_not_raise():
@@ -33,11 +33,11 @@ def test_deck_shuffle():
     assert len(indices) == 52
 
 def test_card():
-    card = cards.Card(Suits.HEARTS, Ranks.SEVEN)
+    card = Card(Suits.HEARTS, Ranks.SEVEN)
     assert card == seven_of_hearts
 
 def test_card_str():
-    card = cards.Card(Suits.HEARTS, Ranks.SEVEN)
+    card = Card(Suits.HEARTS, Ranks.SEVEN)
     assert str(card) == "SEVEN_HEARTS"
 
 @pytest.mark.parametrize('suit,rank,expected_result,expected_except', [
@@ -48,7 +48,7 @@ def test_card_str():
 ])
 def test_card(suit, rank, expected_result, expected_except):
     with expected_except:
-        card = cards.Card(suit, rank)
+        card = Card(suit, rank)
         assert (card == seven_of_hearts) == expected_result
 
 @pytest.mark.parametrize('index, expected_except', [
@@ -74,42 +74,42 @@ test_list = [13, 29, 7, 25, 24]
 ])
 def test_partial_hand_fill_and_contains(suit, rank, expected):
     card_list = [ Deck.generate_card_from_index(card_index) for card_index in test_list ]
-    hand = cards.BridgeHand.generate_partially_played_hand(card_list)
-    assert hand.contains_card(cards.Card(suit, rank)) == expected
+    hand = BridgeHand.generate_partially_played_hand(card_list)
+    assert hand.contains_card(Card(suit, rank)) == expected
 
 
 def test_lead():
     card_list = [ Deck.generate_card_from_index(card_index) for card_index in test_list ]
-    hand = cards.BridgeHand.generate_partially_played_hand(card_list)
-    hand.lead(cards.Card(Suits.DIAMONDS, Ranks.KING))
-    assert not hand.contains_card(cards.Card(Suits.DIAMONDS, Ranks.KING))
+    hand = BridgeHand.generate_partially_played_hand(card_list)
+    hand.lead(Card(Suits.DIAMONDS, Ranks.KING))
+    assert not hand.contains_card(Card(Suits.DIAMONDS, Ranks.KING))
 
 
 def test_lead_when_card_is_missing():
     card_list = [ Deck.generate_card_from_index(card_index) for card_index in test_list ]
-    hand = cards.BridgeHand.generate_partially_played_hand(card_list)
-    with pytest.raises(cards.CardNotInHandException):
-        hand.lead(cards.Card(Suits.SPADES, Ranks.ACE))
+    hand = BridgeHand.generate_partially_played_hand(card_list)
+    with pytest.raises(CardNotInHandException):
+        hand.lead(Card(Suits.SPADES, Ranks.ACE))
 
 
 # The hand contains no spades, so arbitrarily playing a card when following spades doesn't fail
 @pytest.mark.parametrize('led_suit,card', [
-    (Suits.DIAMONDS, cards.Card(Suits.DIAMONDS, Ranks.ACE)),
-    (Suits.SPADES, cards.Card(Suits.DIAMONDS, Ranks.ACE))
+    (Suits.DIAMONDS, Card(Suits.DIAMONDS, Ranks.ACE)),
+    (Suits.SPADES, Card(Suits.DIAMONDS, Ranks.ACE))
 ])
 def test_follow(led_suit, card):
     card_list = [ Deck.generate_card_from_index(card_index) for card_index in test_list ]
-    hand = cards.BridgeHand.generate_partially_played_hand(card_list)
+    hand = BridgeHand.generate_partially_played_hand(card_list)
     hand.follow(led_suit, card)
     assert not hand.contains_card(card)
 
 @pytest.mark.parametrize('led_suit,card,expected_except', [
-    (Suits.DIAMONDS, cards.Card(Suits.DIAMONDS, Ranks.QUEEN), pytest.raises(cards.CardNotInHandException)),
-    (Suits.DIAMONDS, cards.Card(Suits.CLUBS, Ranks.EIGHT), pytest.raises(cards.CardDoesntFollowSuitException))
+    (Suits.DIAMONDS, Card(Suits.DIAMONDS, Ranks.QUEEN), pytest.raises(CardNotInHandException)),
+    (Suits.DIAMONDS, Card(Suits.CLUBS, Ranks.EIGHT), pytest.raises(CardDoesntFollowSuitException))
 ])
 def test_follow_raises(led_suit, card, expected_except):
     card_list = [ Deck.generate_card_from_index(card_index) for card_index in test_list ]
-    hand = cards.BridgeHand.generate_partially_played_hand(card_list)
+    hand = BridgeHand.generate_partially_played_hand(card_list)
     with expected_except:
         hand.follow(led_suit, card)
 
@@ -118,28 +118,28 @@ full_test_list = [13, 29, 7, 25, 43, 24, 8, 35, 47, 33, 28, 18, 2]
 too_long_test_list = [13, 29, 7, 25, 43, 24, 8, 35, 47, 33, 28, 18, 2, 50]
 
 @pytest.mark.parametrize('list,expected_except', [
-    (test_list, pytest.raises(cards.WrongSizeHandException)),
+    (test_list, pytest.raises(WrongSizeHandException)),
     (full_test_list, does_not_raise())
 ])
 def test_generate_hand(list, expected_except):
     card_list = [ Deck.generate_card_from_index(card_index) for card_index in list ]
     with expected_except:
-        hand = cards.BridgeHand.generate_complete_hand(card_list)
+        hand = BridgeHand.generate_complete_hand(card_list)
 
 @pytest.mark.parametrize('list,expected_except', [
     (test_list, does_not_raise()),
     (full_test_list, does_not_raise()),
-    (too_long_test_list, pytest.raises(cards.WrongSizeHandException)),
-    ([3,3], pytest.raises(cards.RepeatedCardException))
+    (too_long_test_list, pytest.raises(WrongSizeHandException)),
+    ([3,3], pytest.raises(RepeatedCardException))
 ])
 def test_bridge_hand_constructor(list, expected_except):
     card_list = [ Deck.generate_card_from_index(card_index) for card_index in list ]
     with expected_except:
-        bridge_hand = cards.BridgeHand(card_list)
+        bridge_hand = BridgeHand(card_list)
 
 def test_legal_cards():
     card_list = [Deck.generate_card_from_index(card_index) for card_index in test_list]
-    hand = cards.BridgeHand.generate_partially_played_hand(card_list)
+    hand = BridgeHand.generate_partially_played_hand(card_list)
     legal = hand.legal_cards(Suits.DIAMONDS)
-    assert cards.Card(Suits.DIAMONDS, Ranks.ACE) in legal
+    assert Card(Suits.DIAMONDS, Ranks.ACE) in legal
 
