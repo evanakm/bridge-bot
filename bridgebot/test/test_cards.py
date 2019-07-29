@@ -36,6 +36,10 @@ def test_card():
     card = cards.Card(Suits.HEARTS, Ranks.SEVEN)
     assert card == seven_of_hearts
 
+def test_card_str():
+    card = cards.Card(Suits.HEARTS, Ranks.SEVEN)
+    assert str(card) == "SEVEN_HEARTS"
+
 @pytest.mark.parametrize('suit,rank,expected_result,expected_except', [
     (Suits.HEARTS, Ranks.SEVEN, True, does_not_raise()),
     (Suits.SPADES, Ranks.TEN, False, does_not_raise()),
@@ -56,7 +60,7 @@ def test_map_index_to_card(index, expected_except):
         card = Deck.generate_card_from_index(index)
         assert card == seven_of_hearts
 
-
+#-------- TESTING HANDS --------#
 # Generated from a random number generator
 test_list = [13, 29, 7, 25, 24]
 # Corresponds to 2 of diamonds, 5 of hearts, 8 of clubs, ace of diamonds, and king of diamonds
@@ -132,3 +136,10 @@ def test_bridge_hand_constructor(list, expected_except):
     card_list = [ Deck.generate_card_from_index(card_index) for card_index in list ]
     with expected_except:
         bridge_hand = cards.BridgeHand(card_list)
+
+def test_legal_cards():
+    card_list = [Deck.generate_card_from_index(card_index) for card_index in test_list]
+    hand = cards.BridgeHand.generate_partially_played_hand(card_list)
+    legal = hand.legal_cards(Suits.DIAMONDS)
+    assert cards.Card(Suits.DIAMONDS, Ranks.ACE) in legal
+
