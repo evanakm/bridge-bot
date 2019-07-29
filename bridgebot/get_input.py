@@ -1,6 +1,6 @@
 from enum import Enum
 
-import readline
+import readline # in windows, need to install pyreadline
 import re
 from enums import Suits, Ranks
 from card import Card

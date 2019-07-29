@@ -20,8 +20,11 @@ class Deck:
     def deal(self):
         return Deck.__deal(self.__card_indices)
 
+    def get_card_indices(self):
+        return self.__card_indices
+
     @staticmethod
-    def __generate_card_from_index(index):
+    def generate_card_from_index(index):
         if index not in range(52):
             raise ValueError("index must be an integer between 0 and 51 inclusive.")
         return Card(Suits.suits()[int(index / 13)], Ranks.ranks()[index % 13])
@@ -29,7 +32,7 @@ class Deck:
     @staticmethod
     def __generate_bridge_hand(card_indices, start, stop):
         return BridgeHand.generate_complete_hand([
-            Deck.__generate_card_from_index(card_index) for card_index in card_indices[start:stop]
+            Deck.generate_card_from_index(card_index) for card_index in card_indices[start:stop]
         ])
 
     @staticmethod
