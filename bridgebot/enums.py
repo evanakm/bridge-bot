@@ -96,6 +96,19 @@ class Contracts(Enum):
         contracts = Contracts.contracts()
         return 1 + int(contracts.index(contract) / 5) #Add one since indexing starts from zero
 
+    @staticmethod
+    def determine_strain_from_contract(contract):
+        contracts = Contracts.contracts()
+        strains = Strains.strains()
+        return strains[contracts.index(contract) % 5]
+
+    def __lt__(self, other):
+        if other is None:
+            return False
+
+        contracts = self.contracts()
+        return contracts.index(self) < contracts.index(other)
+
 
 class Suits(Enum):
     CLUBS = "CLUBS"
@@ -137,6 +150,15 @@ class Team(Enum):
         if team == Team.EW:
             return set([Players.EAST, Players.WEST])
         raise InvalidTeam("Invalid Team")
+
+    @staticmethod
+    def player_to_team(player):
+        if not isinstance(player, Players):
+            raise InvalidPlayerException("Invalid Player")
+        if player == Players.NORTH or player == Players.SOUTH:
+            return Team.NS
+        else:
+            return Team.EW
 
     def to_set_of_players(self):
         return Team.team_to_set_of_players(self)
