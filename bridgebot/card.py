@@ -16,10 +16,10 @@ class InvalidSuitException(InvalidCardException):
 class Card:
     def __init__(self, suit, rank):
         if not isinstance(suit, Suits):
-            raise TypeError("suit is not of type Suits")
+            raise InvalidSuitException
 
         if not isinstance(rank, Ranks):
-            raise TypeError("rank is not of type Ranks")
+            raise InvalidRankException
 
         self.suit = suit
         self.rank = rank

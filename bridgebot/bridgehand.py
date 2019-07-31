@@ -2,7 +2,7 @@ import random
 
 from enums import Suits, Ranks
 
-from card import Card
+from card import Card, InvalidSuitException
 
 
 class CardDoesntFollowSuitException(Exception):
@@ -14,6 +14,14 @@ class WrongSizeHandException(Exception):
 
 
 class DeckListNotValid(Exception):
+    pass
+
+
+class CardNotInHandException(Exception):
+    pass
+
+
+class RepeatedCardException(Exception):
     pass
 
 
@@ -39,8 +47,31 @@ class BridgeHand:
 
     @staticmethod
     def generate_complete_hand(cards):
+        """
+        Generates a hand from a list of 13 ints
+
+        Parameters
+        ----------
+        cards: list
+            A list of 13 Cards
+
+        Returns
+        -------
+        BridgeHand containing 13 Cards
+
+        """
+
         if len(cards) != 13:
             raise WrongSizeHandException("cards must contain 13 cards")
+        for card in cards:
+            if not isinstance(card, Card):
+                raise TypeError("card is not of type Card")
+        return BridgeHand(cards)
+
+    @staticmethod
+    def generate_partially_played_hand(cards):
+        if len(cards) > 13:
+            raise WrongSizeHandException("cards must contain no more than 13 cards")
         for card in cards:
             if not isinstance(card, Card):
                 raise TypeError("card is not of type Card")
@@ -53,6 +84,9 @@ class BridgeHand:
         self.cards = set(cards)
         if len(cards) > 13:
             raise WrongSizeHandException("cards must contain 13 cards or less")
+
+        if len(cards) != len(set(cards)):
+            raise RepeatedCardException("At least one card is repeated")
 
         BridgeHand.__add_cards_to_bridge_hand(self, cards)
 
