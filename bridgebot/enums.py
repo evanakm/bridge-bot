@@ -1,7 +1,9 @@
 from enum import Enum
 
+
 class InvalidPlayerException(Exception):
     pass
+
 
 class Players(Enum):
     NORTH = "NORTH"
@@ -39,8 +41,10 @@ class Players(Enum):
         players = self.players()
         return players[(players.index(self) + 2) % 4]
 
+
 class ContractNotFound(Exception):
     pass
+
 
 class Contracts(Enum):
     ONE_CLUB = "1C"
@@ -217,8 +221,6 @@ class Strains(Enum):
             return strains.index(self) == suits.index(suit)
 
 
-PASS = 'PASS'
-
 class Ranks(Enum):
     TWO = "2"
     THREE = "3"
@@ -252,6 +254,7 @@ class Doubles(Enum):
     NONE = "NONE"
     DOUBLE = "X"
     REDOUBLE = "XX"
+
 
 class AuctionStatus(Enum):
     DONE = "DONE"

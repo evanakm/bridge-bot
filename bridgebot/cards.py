@@ -1,8 +1,6 @@
-import random
+from enums import Suits
 
-from enums import Suits, Ranks
-
-from card import Card
+from card import Card, InvalidSuitException
 
 
 class CardDoesntFollowSuitException(Exception):
@@ -14,6 +12,10 @@ class WrongSizeHandException(Exception):
 
 
 class DeckListNotValid(Exception):
+    pass
+
+
+class CardNotInHandException(Exception):
     pass
 
 
@@ -89,6 +91,19 @@ class BridgeHand:
             raise TypeError("card is not of type Card")
         self.cards.add(card)
 
+    def play_card(self, card, led_suit):
+        if not isinstance(card, Card):
+            raise TypeError("card is not of type Card")
+
+        if not isinstance(led_suit, Suits) and led_suit is not None:
+            raise TypeError("led_suit is not of type Suits or None")
+
+        if card.suit != led_suit and led_suit is not None and len(self.get_cards_of_suit(led_suit)) != 0:
+            raise CardDoesntFollowSuitException("Must follow suit if possible.")
+        else:
+            self.__play_card(card)
+
+    @DeprecationWarning
     def lead(self, card):
         """
         Parameters
@@ -104,6 +119,7 @@ class BridgeHand:
 
         self.__play_card(card)
 
+    @depreciated
     def follow(self, led_suit, card_played):
         """
         Parameters
@@ -142,7 +158,6 @@ class BridgeHand:
         playable_cards: list of Card
             A list of all of the playable cards
         """
-        print(led_suit)
         if not (led_suit is None or isinstance(led_suit, Suits)):
             raise InvalidSuitException("Invalid Suit")
 

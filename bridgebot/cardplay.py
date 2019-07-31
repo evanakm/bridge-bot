@@ -1,5 +1,5 @@
-from enums import Strains, Players, Suits, Ranks, Contracts, ContractNotFound, Team
-from get_input import get_input_enum, get_input_card
+from enums import Strains, Players, Contracts, ContractNotFound, Team
+from get_input import get_input_card
 from cards import Card
 
 
@@ -86,10 +86,14 @@ def play(hands, contract, declarer):
             hands[current_player].follow(led_card.suit, card)
             trick.append(card)
 
+        trick_winner = determine_trick_winner(trick, strain)
+
         # self.play_trick determines the index of the winner relative to the index of the leader
         # it also makes the code re-usable in case we want to use it for another trick-taking game, because
         # they all have the same mechanic, even if they don't have four players.
-        winning_player = leading_player.determine_nth_player_to_the_right(determine_trick_winner(trick, strain))
+        winning_player = leading_player.determine_nth_player_to_the_right(trick_winner)
+
+        print(winning_player.name + " won the trick")
 
         # Update the number of tricks won
         if leading_player in Team.team_to_set_of_players(Team.NS):

@@ -2,9 +2,6 @@ from enum import Enum
 
 import readline
 import re
-from enums import Suits, Ranks
-from card import Card
-
 
 def get_input_list(valid_input_list, name):
     # This assumes that the enum values are all upper case
@@ -13,7 +10,7 @@ def get_input_list(valid_input_list, name):
         raise TypeError("valid_input_list is not of type list or set")
 
     def completer(text, state):
-        options = [str(option) for option in valid_input_list if bool(re.match(text, str(option), re.I))]
+        options = [str(option) for option in sorted(valid_input_list) if bool(re.search(text, str(option), re.I))]
 
         if state < len(options):
             return options[state]
