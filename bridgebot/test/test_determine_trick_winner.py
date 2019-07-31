@@ -7,7 +7,7 @@ sys.path.insert(0, os.path.abspath('..'))
 
 import cardplay
 from enums import Strains, Suits, Ranks
-from cards import Card
+from bridgehand import Card
 
 
 @pytest.mark.parametrize('played_cards, trump_strain, expected', [

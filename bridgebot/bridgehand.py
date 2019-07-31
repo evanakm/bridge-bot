@@ -1,4 +1,4 @@
-from enums import Suits
+from enums import Suits, Ranks
 
 from card import Card, InvalidSuitException
 
@@ -16,6 +16,10 @@ class DeckListNotValid(Exception):
 
 
 class CardNotInHandException(Exception):
+    pass
+
+
+class RepeatedCardException(Exception):
     pass
 
 
@@ -41,8 +45,31 @@ class BridgeHand:
 
     @staticmethod
     def generate_complete_hand(cards):
+        """
+        Generates a hand from a list of 13 ints
+
+        Parameters
+        ----------
+        cards: list
+            A list of 13 Cards
+
+        Returns
+        -------
+        BridgeHand containing 13 Cards
+
+        """
+
         if len(cards) != 13:
             raise WrongSizeHandException("cards must contain 13 cards")
+        for card in cards:
+            if not isinstance(card, Card):
+                raise TypeError("card is not of type Card")
+        return BridgeHand(cards)
+
+    @staticmethod
+    def generate_partially_played_hand(cards):
+        if len(cards) > 13:
+            raise WrongSizeHandException("cards must contain no more than 13 cards")
         for card in cards:
             if not isinstance(card, Card):
                 raise TypeError("card is not of type Card")
@@ -55,6 +82,9 @@ class BridgeHand:
         self.cards = set(cards)
         if len(cards) > 13:
             raise WrongSizeHandException("cards must contain 13 cards or less")
+
+        if len(cards) != len(set(cards)):
+            raise RepeatedCardException("At least one card is repeated")
 
         BridgeHand.__add_cards_to_bridge_hand(self, cards)
 
@@ -78,20 +108,7 @@ class BridgeHand:
 
         return card in self.cards
 
-    def __play_card(self, card):
-        if not isinstance(card, Card):
-            raise TypeError("card is not of type Card")
-
-        if not self.contains_card(card):
-            raise CardNotInHandException("Hand does not contain " + card.rank.name + " of " + card.suit.name + ".")
-        self.cards.remove(card)
-
-    def __add_card(self, card):
-        if not isinstance(card, Card):
-            raise TypeError("card is not of type Card")
-        self.cards.add(card)
-
-    def play_card(self, card, led_suit):
+    def __play_card(self, card, led_suit):
         if not isinstance(card, Card):
             raise TypeError("card is not of type Card")
 
@@ -101,9 +118,15 @@ class BridgeHand:
         if card.suit != led_suit and led_suit is not None and len(self.get_cards_of_suit(led_suit)) != 0:
             raise CardDoesntFollowSuitException("Must follow suit if possible.")
         else:
-            self.__play_card(card)
+            if not self.contains_card(card):
+                raise CardNotInHandException("Hand does not contain " + card.rank.name + " of " + card.suit.name + ".")
+            self.cards.remove(card)
 
-    @DeprecationWarning
+    def __add_card(self, card):
+        if not isinstance(card, Card):
+            raise TypeError("card is not of type Card")
+        self.cards.add(card)
+
     def lead(self, card):
         """
         Parameters
@@ -111,15 +134,10 @@ class BridgeHand:
         card: Card
             The Card that was played
         """
-        if not isinstance(card, Card):
-            raise TypeError("card is not of type Card")
 
-        if not self.contains_card(card):
-            raise CardNotInHandException("Hand does not contain " + card.rank.name + " of " + card.suit.name + ".")
+        # Type checking happens in __play_card
+        self.__play_card(card, None)
 
-        self.__play_card(card)
-
-    @depreciated
     def follow(self, led_suit, card_played):
         """
         Parameters
@@ -130,19 +148,8 @@ class BridgeHand:
             The Card that was played
         """
 
-        if not isinstance(led_suit, Suits):
-            raise TypeError("led_suit is not of type Suits")
-
-        if not isinstance(card_played, Card):
-            raise TypeError("card_played is not of type Card")
-
-        if card_played.suit != led_suit:
-            if len(self.get_cards_of_suit(led_suit)) != 0:
-                raise CardDoesntFollowSuitException("Must follow suit if possible.")
-            else:
-                self.__play_card(card_played)
-        else:
-            self.__play_card(card_played)
+        # Type checking happens in __play_card
+        self.__play_card(card_played, led_suit)
 
     def legal_cards(self, led_suit=None):
         """

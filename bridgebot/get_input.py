@@ -1,6 +1,6 @@
 from enum import Enum
 
-import readline
+import readline # in windows, need to install pyreadline
 import re
 
 def get_input_list(valid_input_list, name):

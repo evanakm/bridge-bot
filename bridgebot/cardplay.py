@@ -1,6 +1,6 @@
 from enums import Strains, Players, Contracts, ContractNotFound, Team
 from get_input import get_input_card
-from cards import Card
+from bridgehand import Card
 
 
 def __convert_hand_to_str(cards):
