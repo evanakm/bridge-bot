@@ -1,13 +1,7 @@
-from enums import Strains, Players, Suits, Ranks, Contracts, ContractNotFound, Team
-from get_input import get_input_enum, get_input_card
+from enums import Strains, Players, Contracts, ContractNotFound, Team
+
 from bridgehand import Card
-
-
-def __convert_hand_to_str(cards):
-    card_string = ""
-    for card in sorted(cards):
-        card_string += str(card) + " "
-    return card_string
+from interface import User
 
 
 def determine_trick_winner(played_cards, strain):
@@ -39,9 +33,28 @@ def determine_trick_winner(played_cards, strain):
     return played_cards.index(highest_card)
 
 
-def play(hands, contract, declarer):
+def play(users, hands, contract, declarer, bid_history):
+    if not isinstance(users, dict):
+        raise TypeError("users is not of type dict")
+
+    for key, val in users.items():
+        if not isinstance(key, Players):
+            raise TypeError("users key is not of type Players")
+
+        if not isinstance(val, User):
+            raise TypeError("users value is not of type User")
+
+    card_history = {
+        Players.NORTH: [],
+        Players.EAST: [],
+        Players.WEST: [],
+        Players.SOUTH: []
+    }
+
+    leader_history = []
+
     if not isinstance(declarer, Players):
-        raise Exception("Invalid declarer")
+        raise TypeError("Invalid declarer")
 
     if not isinstance(contract, Contracts):
         raise ContractNotFound("Invalid Contract")
@@ -55,14 +68,14 @@ def play(hands, contract, declarer):
 
     for trick_count in range(13):
         trick = []
+
+        leader_history.append(leading_player)
         print(leading_player.value + " starts")
 
         all_cards = hands[leading_player].cards
-        print("All Cards: " +
-              __convert_hand_to_str(all_cards)
-              )
 
-        led_card = get_input_card(all_cards)
+        led_card = users[leading_player].play_card(all_cards, all_cards, bid_history, card_history, leader_history)
+        card_history[leading_player].append(led_card)
 
         hands[leading_player].lead(led_card)
 
@@ -73,16 +86,11 @@ def play(hands, contract, declarer):
         for follower_count in range(3):
             current_player = current_player.next_player()
             print(current_player.name + "'s turn")
-            print("All Cards: " +
-                  __convert_hand_to_str(hands[current_player].cards)
-                  )
-
+            all_cards = hands[current_player].cards
             legal_cards = hands[current_player].legal_cards(led_card.suit)
-            print("Legal Cards: " +
-                  __convert_hand_to_str(legal_cards)
-                  )
+            card = users[current_player].play_card(all_cards, legal_cards, bid_history, card_history, leader_history)
+            card_history[current_player].append(card)
 
-            card = get_input_card(legal_cards)
             hands[current_player].follow(led_card.suit, card)
             trick.append(card)
 
@@ -92,15 +100,15 @@ def play(hands, contract, declarer):
         winning_player = leading_player.determine_nth_player_to_the_right(determine_trick_winner(trick, strain))
 
         # Update the number of tricks won
-        if leading_player in Team.team_to_set_of_players(Team.NS):
+        if Team.NS.is_player_in_team(winning_player):
             ns_tricks = ns_tricks + 1
         else:
             ew_tricks = ew_tricks + 1
 
         leading_player = winning_player
 
-    if declarer in [Players.NORTH, Players.SOUTH]:
+    if Team.NS.is_player_in_team(declarer):
         return ns_tricks
-    if declarer in [Players.EAST, Players.WEST]:
+    if Team.EW.is_player_in_team(declarer):
         return ew_tricks
 
