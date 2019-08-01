@@ -59,6 +59,8 @@ def play(users, hands, contract, declarer, bid_history):
     if not isinstance(contract, Contracts):
         raise ContractNotFound("Invalid Contract")
 
+    dummy = declarer.partner()
+
     leading_player = declarer.next_player()
 
     strain = Strains.determine_strain_from_contract(contract)
@@ -74,7 +76,9 @@ def play(users, hands, contract, declarer, bid_history):
 
         all_cards = hands[leading_player].cards
 
-        led_card = users[leading_player].play_card(all_cards, all_cards, bid_history, card_history, leader_history)
+        led_card = users[leading_player].play_card(
+            leading_player, dummy, users[dummy].hand, all_cards, all_cards, bid_history, card_history, leader_history
+        )
         card_history[leading_player].append(led_card)
 
         hands[leading_player].lead(led_card)
@@ -88,7 +92,10 @@ def play(users, hands, contract, declarer, bid_history):
             print(current_player.name + "'s turn")
             all_cards = hands[current_player].cards
             legal_cards = hands[current_player].legal_cards(led_card.suit)
-            card = users[current_player].play_card(all_cards, legal_cards, bid_history, card_history, leader_history)
+            card = users[current_player].play_card(
+                current_player, dummy, users[dummy].hand, all_cards, legal_cards, bid_history, card_history,
+                leader_history
+            )
             card_history[current_player].append(card)
 
             hands[current_player].follow(led_card.suit, card)
