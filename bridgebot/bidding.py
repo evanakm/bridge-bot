@@ -185,9 +185,7 @@ class Auction:
     def reset(self):
         self.player_index = Players.players().index(self.dealer)
         self.last_bidder_index = None
-
         self.record = Record(self.dealer)
-
         self.last_bid = None
         self.doubled_by = None # Redundant with contract dictionary, but makes the logic below much cleaner.
         self.redoubled = False
