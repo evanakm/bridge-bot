@@ -5,7 +5,7 @@ from abc import abstractmethod
 class User:
     @staticmethod
     @abstractmethod
-    def play_card(all_cards, legal_cards, bid_history, card_history, leader_history):
+    def play_card(current_player, dummy, dummy_hand, all_cards, legal_cards, bid_history, card_history, leader_history):
         pass
 
     @staticmethod
@@ -18,7 +18,7 @@ class User:
 
 class HumanUser(User):
     @staticmethod
-    def play_card(all_cards, legal_cards, bid_history, card_history, leader_history):
+    def play_card(current_player, dummy, dummy_hand, all_cards, legal_cards, bid_history, card_history, leader_history):
         print("All Cards: " +
               User._convert_hand_to_str(all_cards)
               )
