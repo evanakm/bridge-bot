@@ -6,6 +6,7 @@ from scoring import get_score_from_result
 from interface import HumanUser
 import sys
 
+NUMBER_OF_PLAYTHROUGHS = 1
 
 def main():
     if sys.version_info[0] < 3:
@@ -32,7 +33,7 @@ def main():
         Players.EAST: HumanUser()
     }
 
-    for i in range(1, 100):
+    for i in range(1, NUMBER_OF_PLAYTHROUGHS):
         deal = deck.deal()
 
         trick_winners = cardplay.play(users, deal, contract, declarer, bid_history)
