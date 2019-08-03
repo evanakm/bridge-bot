@@ -39,3 +39,6 @@ class Card:
 
     def __str__(self):
         return self.rank.name + "_" + self.suit.name
+
+    def to_int(self):
+        return Ranks.ranks().index(self.rank) + Suits.suits().index(self.suit) * 13
