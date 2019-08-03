@@ -8,6 +8,7 @@ import sys
 
 NUMBER_OF_PLAYTHROUGHS = 1
 
+
 def main():
     if sys.version_info[0] < 3:
         print('bridgebot only works with python 3')
