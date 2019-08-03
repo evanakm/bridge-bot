@@ -85,6 +85,8 @@ def play(users, hands, contract, declarer, bid_history):
 
         trick.append(led_card)
 
+        print(leading_player.name + " played " + str(led_card))
+
         current_player = leading_player
 
         for follower_count in range(3):
@@ -100,6 +102,7 @@ def play(users, hands, contract, declarer, bid_history):
 
             hands[current_player].follow(led_card.suit, card)
             trick.append(card)
+            print(current_player.name + " played " + str(card))
 
         # self.play_trick determines the index of the winner relative to the index of the leader
         # it also makes the code re-usable in case we want to use it for another trick-taking game, because
