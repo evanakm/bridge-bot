@@ -5,6 +5,7 @@ import cardplay
 from scoring import get_score_from_result
 from interface import HumanUser
 import sys
+from randombotuser import RandomBotUser
 
 NUMBER_OF_PLAYTHROUGHS = 1
 
@@ -28,13 +29,13 @@ def main():
     bid_history = None
 
     users = {
-        Players.NORTH: HumanUser(),
-        Players.SOUTH: HumanUser(),
-        Players.WEST: HumanUser(),
-        Players.EAST: HumanUser()
+        Players.NORTH: RandomBotUser(),
+        Players.SOUTH: RandomBotUser(),
+        Players.WEST: RandomBotUser(),
+        Players.EAST: RandomBotUser()
     }
 
-    for i in range(1, NUMBER_OF_PLAYTHROUGHS):
+    for i in range(0, NUMBER_OF_PLAYTHROUGHS):
         deal = deck.deal()
 
         trick_winners = cardplay.play(users, deal, contract, declarer, bid_history)

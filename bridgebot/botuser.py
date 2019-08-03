@@ -34,12 +34,8 @@ def card_history_to_tensor(card_history):
     for key, val in card_history.items():
         card_history
 
-def leader_history_to_tensor(leader_history):
-
-
 
 class BotUser(User):
     @staticmethod
     def play_card(current_player, dummy, dummy_hand, all_cards, legal_cards, bid_history, card_history, leader_history):
-            current_player
         pass
