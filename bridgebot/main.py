@@ -4,9 +4,14 @@ from enums import Players, Contracts, Doubles, Vulnerabilities
 import cardplay
 from scoring import get_score_from_result
 from interface import HumanUser
+import sys
 
 
-if __name__ == "__main__":
+def main():
+    if sys.version_info[0] < 3:
+        print('bridgebot only works with python 3')
+        return 1
+
     deck = Deck()
     deck.shuffle()
 
@@ -27,8 +32,15 @@ if __name__ == "__main__":
         Players.EAST: HumanUser()
     }
 
-    trick_winners = cardplay.play(users, deck.deal(), contract, declarer, bid_history)
+    for i in range(1, 100):
+        deal = deck.deal()
 
-    score = get_score_from_result(contract, doubled, trick_winners, vulnerability)
+        trick_winners = cardplay.play(users, deal, contract, declarer, bid_history)
 
-    print(score)
+        score = get_score_from_result(contract, doubled, trick_winners, vulnerability)
+
+        print(score)
+
+
+if __name__ == "__main__":
+    sys.exit(main())
