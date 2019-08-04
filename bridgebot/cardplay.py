@@ -63,7 +63,7 @@ def play(users, hands, contract, declarer, bid_history):
 
     leading_player = declarer.next_player()
 
-    strain = Strains.determine_strain_from_contract(contract)
+    strain = contract.determine_strain()
 
     ns_tricks = 0
     ew_tricks = 0
