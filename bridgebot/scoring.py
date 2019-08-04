@@ -331,7 +331,7 @@ def get_score_from_result(contract, doubled, tricks_taken, vulnerability):
     if contract not in contracts:
         raise ContractNotFound("Invalid contract")
 
-    bid = Contracts.determine_level_from_contract(contract)
+    bid = contract.determine_level()
     strain = contract.determine_strain()
 
     required_number_of_tricks = bid + 6

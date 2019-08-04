@@ -92,7 +92,7 @@ class Contracts(Enum):
         ]
 
     @staticmethod
-    def determine_level_from_contract(contract):
+    def __determine_level_from_contract(contract):
         contracts = Contracts.contracts()
         return 1 + int(contracts.index(contract) / 5) #Add one since indexing starts from zero
 
@@ -109,7 +109,7 @@ class Contracts(Enum):
         return Contracts.__determine_strain_from_contract(self)
 
     def determine_level(self):
-        return Contracts.determine_level_from_contract(self)
+        return Contracts.__determine_level_from_contract(self)
 
     def __lt__(self, other):
         if other is None:
