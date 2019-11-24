@@ -69,43 +69,44 @@ class Bids(Enum):
             Bids.PASS,          Bids.DOUBLE,            Bids.REDOUBLE
         ]
 
-    def is_sufficient_bid(self, by_bidder, current_contract):
-        if not isinstance(by_bidder, Players):
-            raise Exception("by_bidder must be a Player.")
+    @staticmethod
+    def is_sufficient_bid(bid, bidder, current_contract):
+        if not isinstance(bidder, Players):
+            raise Exception("by_bidder must be a Player")
 
         if not isinstance(current_contract, FullContract):
             raise Exception("Must compare to a Contract")
 
         if current_contract.contract is None:
-            return self != Bids.DOUBLE and self != Bids.REDOUBLE
+            return bid != Bids.DOUBLE and bid != Bids.REDOUBLE
 
-        if self == Bids.PASS:
+        if bid == Bids.PASS:
             return True
 
-        if isinstance(self, Contracts):
-            return current_contract.contract < self
+        if isinstance(bid, Contracts):
+            return current_contract.contract < bid
 
-        if self == Bids.DOUBLE:
+        if bid == Bids.DOUBLE:
             if current_contract.contract is None:
-                #Can't double until bidding has been opened
+                # Can't double until bidding has been opened
                 return False
             elif current_contract.doubled != Doubles.NONE:
-                #Can only double an undoubled contract
+                # Can only double an undoubled contract
                 return False
-            elif Team.player_to_team(current_contract.declarer) == Team.player_to_team(by_bidder):
-                #Can only double if opponents have bid
+            elif Team.player_to_team(current_contract.declarer) == Team.player_to_team(bidder):
+                # Can only double if opponents have bid
                 return False
             else:
                 return True
 
-        if self == Bids.REDOUBLE:
+        if bid == Bids.REDOUBLE:
             if current_contract.contract is None:
                 # Can't redouble until a double has been made
                 return False
             elif current_contract.doubled != Doubles.DOUBLE:
                 # Can't redouble until a double has been made
                 return False
-            elif Team.player_to_team(current_contract.declarer) != Team.player_to_team(by_bidder):
+            elif Team.player_to_team(current_contract.declarer) != Team.player_to_team(bidder):
                 # Can only redouble the opponents' double
                 return False
             else:
@@ -114,6 +115,10 @@ class Bids(Enum):
     def map_to_contract(self):
         bids = self.bids()
         return Contracts.contracts()[bids.index(self)]
+
+    @staticmethod
+    def all_legal_bids(bidder, current_contract):
+        return [bid for bid in Bids.bids() if Bids.is_sufficent_bid(bid, bidder, current_contract)]
 
 
 class Record:
