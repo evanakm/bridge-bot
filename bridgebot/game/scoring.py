@@ -1,4 +1,4 @@
-from enums import Strains, Doubles, Contracts, InvalidDoublesException, InvalidStrainException, ContractNotFound
+from game.enums import Strains, Doubles, Contracts, InvalidDoublesException, InvalidStrainException, ContractNotFound
 
 
 def contract_bonus(bid_trick_score, vulnerability):

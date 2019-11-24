@@ -1,4 +1,4 @@
-from enums import Players, Strains, AuctionStatus, Doubles, Contracts, Team, InvalidPlayerException, InvalidStrainException
+from game.enums import Players, Strains, AuctionStatus, Doubles, Contracts, Team, InvalidPlayerException, InvalidStrainException
 from enum import Enum
 
 class InvalidDealerException(Exception):

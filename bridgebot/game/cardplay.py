@@ -1,7 +1,7 @@
-from enums import Strains, Players, Contracts, ContractNotFound, Team
+from game.enums import Strains, Players, Contracts, ContractNotFound, Team
 
-from bridgehand import Card
-from interface import User
+from game.bridgehand import Card
+from game.interface import User
 
 
 def determine_trick_winner(played_cards, strain):

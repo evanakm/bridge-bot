@@ -5,9 +5,9 @@ import os
 # sys.path.insert(0, os.path.abspath('../bridgebot'))
 sys.path.insert(0, os.path.abspath('..'))
 
-import cardplay
-from enums import Strains, Suits, Ranks
-from bridgehand import Card
+from game import cardplay
+from game.enums import Strains, Suits, Ranks
+from game.bridgehand import Card
 
 
 @pytest.mark.parametrize('played_cards, trump_strain, expected', [

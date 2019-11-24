@@ -1,4 +1,4 @@
-from interface import User
+from game.interface import User
 import tensorflow as tf
 from game.enums import Players
 from game.card import Card

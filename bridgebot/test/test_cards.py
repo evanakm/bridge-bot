@@ -6,12 +6,12 @@ sys.path.insert(0,'..')
 
 from contextlib import contextmanager
 
-from deck import Deck
-from bridgehand import Card, BridgeHand, CardDoesntFollowSuitException, CardNotInHandException, RepeatedCardException, WrongSizeHandException
+from game.deck import Deck
+from game.bridgehand import Card, BridgeHand, CardDoesntFollowSuitException, CardNotInHandException, RepeatedCardException, WrongSizeHandException
 
-from card import InvalidSuitException, InvalidRankException
+from game.card import InvalidSuitException, InvalidRankException
 
-from enums import Ranks, Suits
+from game.enums import Ranks, Suits
 
 deck = Deck()
 seven_of_hearts = Card(Suits.HEARTS, Ranks.SEVEN)

@@ -1,7 +1,7 @@
-from enums import Players, Suits, Ranks
-from bridgehand import BridgeHand
+from game.enums import Players, Suits, Ranks
+from game.bridgehand import BridgeHand
 
-from card import Card
+from game.card import Card
 
 import random
 

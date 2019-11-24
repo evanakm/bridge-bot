@@ -1,4 +1,4 @@
-from get_input import get_input_enum, get_input_card
+from game.get_input import get_input_card
 from abc import abstractmethod
 
 
