@@ -7,7 +7,7 @@ class InvalidDealerException(Exception):
 class InvalidBidException(Exception):
     pass
 
-class Contract:
+class FullContract:
     def __init__(self):
         self.contract = None
         self.doubled = Doubles.NONE
@@ -73,7 +73,7 @@ class Bids(Enum):
         if not isinstance(by_bidder, Players):
             raise Exception("by_bidder must be a Player.")
 
-        if not isinstance(current_contract, Contract):
+        if not isinstance(current_contract, FullContract):
             raise Exception("Must compare to a Contract")
 
         if current_contract.contract is None:
@@ -187,11 +187,10 @@ class Auction:
         self.last_bidder_index = None
         self.record = Record(self.dealer)
         self.last_bid = None
-        self.doubled_by = None # Redundant with contract dictionary, but makes the logic below much cleaner.
         self.redoubled = False
         self.consecutive_passes = 0
 
-        self.contract = Contract()
+        self.contract = FullContract()
 
     def __increment_player(self):
         self.player = self.player.next_player()
