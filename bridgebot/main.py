@@ -29,7 +29,7 @@ def main():
     bid_history = None
 
     users = {
-        Players.NORTH: HumanUser(),
+        Players.NORTH: RandomBotUser(),
         Players.SOUTH: RandomBotUser(),
         Players.WEST: RandomBotUser(),
         Players.EAST: RandomBotUser()
@@ -42,7 +42,7 @@ def main():
 
         score = get_score_from_result(contract, doubled, trick_winners, vulnerability)
 
-        print(score)
+        print("The declarer " + declarer.name + " has a score of " + str(score))
 
 
 if __name__ == "__main__":

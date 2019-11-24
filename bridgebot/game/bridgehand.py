@@ -174,7 +174,6 @@ class BridgeHand:
         playable_cards: list of Card
             A list of all of the playable cards
         """
-        print(led_suit)
         if not (led_suit is None or isinstance(led_suit, Suits)):
             raise InvalidSuitException("Invalid Suit")
 
