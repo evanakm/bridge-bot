@@ -29,6 +29,7 @@ class Card:
             return False
         return self.suit == other.suit and self.rank == other.rank
 
+    # Makes suit and rank a unique identifier
     def __hash__(self):
         return hash(self.suit.name + " " + self.rank.name)
 
