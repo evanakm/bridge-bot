@@ -1,7 +1,7 @@
 from interface import User
 import tensorflow as tf
-from enums import Players
-from card import Card
+from game.enums import Players
+from game.card import Card
 
 
 def player_to_tensor(player):
