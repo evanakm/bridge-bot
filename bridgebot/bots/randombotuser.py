@@ -1,4 +1,4 @@
-from interface import User
+from game.interface import User
 
 import random
 

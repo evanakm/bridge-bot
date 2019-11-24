@@ -1,11 +1,11 @@
-from deck import Deck
+from game.deck import Deck
 
-from enums import Players, Contracts, Doubles, Vulnerabilities
-import cardplay
-from scoring import get_score_from_result
-from interface import HumanUser
+from game.enums import Players, Contracts, Doubles, Vulnerabilities
+from game import cardplay
+from game.scoring import get_score_from_result
 import sys
-from randombotuser import RandomBotUser
+from bots.randombotuser import RandomBotUser
+from game.interface import HumanUser
 
 NUMBER_OF_PLAYTHROUGHS = 1
 
@@ -29,7 +29,7 @@ def main():
     bid_history = None
 
     users = {
-        Players.NORTH: RandomBotUser(),
+        Players.NORTH: HumanUser(),
         Players.SOUTH: RandomBotUser(),
         Players.WEST: RandomBotUser(),
         Players.EAST: RandomBotUser()

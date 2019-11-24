@@ -1,8 +1,6 @@
-import random
+from game.enums import Suits
 
-from enums import Suits, Ranks
-
-from card import Card, InvalidSuitException
+from game.card import Card, InvalidSuitException
 
 
 class CardDoesntFollowSuitException(Exception):
