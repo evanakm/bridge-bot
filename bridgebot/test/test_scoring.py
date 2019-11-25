@@ -4,8 +4,8 @@ import sys
 sys.path.insert(0,'../bridgebot')
 sys.path.insert(0,'..')
 
-from scoring import get_score_from_result
-from enums import Contracts, Doubles
+from game.scoring import get_score_from_result
+from game.enums import Contracts, Doubles
 
 # Doing this as a black box test
 @pytest.mark.parametrize('contract, doubled, tricks_taken, vulnerability, expected', [
