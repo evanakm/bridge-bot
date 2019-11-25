@@ -146,6 +146,10 @@ class Record:
         self.__player_currently_bidding = dealer
 
     @staticmethod
+    def __cycle_of_players(dealer):
+        return [dealer.determine_nth_player_to_the_right(i) for i in range(4)]
+
+    @staticmethod
     def __complete(dealer, record):
         if Record.__is_passout(record):
             return True
@@ -154,9 +158,8 @@ class Record:
         if lowest_common_bidding_round == 0:
             return False
 
-        cycle_of_players = [dealer.determine_nth_player_to_the_right(i) for i in range(4)]
-        index_of_last_player_to_bid = min([cycle_of_players.index(player) for player in Players.players() if len(record[player]) == lowest_common_bidding_round])
-        players_to_check = [cycle_of_players[i] for i in range(4) if i != index_of_last_player_to_bid]
+        index_of_last_player_to_bid = min([Record.__cycle_of_players(dealer).index(player) for player in Players.players() if len(record[player]) == lowest_common_bidding_round])
+        players_to_check = [Record.__cycle_of_players(dealer)[i] for i in range(4) if i != index_of_last_player_to_bid]
 
         for player in players_to_check:
             if record[player][-1] != Bids.PASS:
@@ -164,27 +167,19 @@ class Record:
 
         return True
 
-
     def complete(self):
         is_complete = Record.__complete(self.dealer, self.record)
 
         # This is a side effect but I think it makes sense
-        self.__player_currently_bidding = None
+        # DON'T DO THIS!!!
+        # self.__player_currently_bidding = None
 
         return is_complete
 
     def add_bid(self, bid):
-        """
+        if self.complete():
+            raise ValueError("Cannot add a bid as bidding is complete")
 
-        Parameters
-        ----------
-        player Players
-        bid
-
-        Returns
-        -------
-
-        """
         if not isinstance(bid, Bids):
             raise TypeError("bid must be of type Bids")
         self.__record[self.__player_currently_bidding].append(bid)
@@ -208,10 +203,25 @@ class Record:
                 return False
         return True
 
+    def determine_highest_bid_and_bidder(self):
+        if Record.__is_passout(self.__record):
+            raise ValueError("Cannot determine the highest player for a passout")
+
+        highest_bid, highest_bidder = max(
+            [(bid, player) for player, player_bids in self.__record.items() for bid in player_bids if
+             bid.value in Contracts.contracts()]
+        )
+        return highest_bid, highest_bidder
+
     def determine_full_contract(self):
-        # TODO consider making this algorithm faster with memoization
+        if not self.complete():
+            raise ValueError("Cannot call determine_full_contract if the record is not complete!")
+
         if Record.__is_passout(self.__record):
             return FullContract(None, None, None, True)
+
+
+
         player_to_check = self.__dealer
         most_recent_bid = None
         most_recent_doubler = Doubles.NONE
