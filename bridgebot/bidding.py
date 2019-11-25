@@ -1,4 +1,4 @@
-from game.enums import Players, Strains, AuctionStatus, Doubles, Contracts, Team, InvalidPlayerException, InvalidStrainException
+from game.enums import Players, Strains, AuctionStatus, Doubles, Contracts, Team, InvalidPlayerException, InvalidStrainException, Suits
 from enum import Enum
 
 class InvalidDealerException(Exception):
@@ -8,11 +8,24 @@ class InvalidBidException(Exception):
     pass
 
 class FullContract:
-    def __init__(self):
-        self.contract = None
-        self.doubled = Doubles.NONE
-        self.declarer = None
-        self.last_bid_by = None # Redundant, but cleans up edge case logic in Bids.is_sufficient_bid
+    def __init__(self, contract, doubled, declarer, passout):
+        self.contract = contract
+        self.doubled = doubled
+        self.declarer = declarer
+        self.passout = passout
+
+        if not isinstance(passout, bool):
+            raise TypeError("passout must be of type bool")
+
+        if passout:
+            return
+
+        if not isinstance(contract, Contracts):
+            raise TypeError("contract must be of enum Contracts")
+        if not isinstance(doubled, Doubles):
+            raise TypeError("doubled must be of enum Doubles")
+        if not isinstance(declarer, Players):
+            raise TypeError("declarer must be of type Players")
 
 
 # Compares to a contract, so can't go into enum
@@ -123,41 +136,114 @@ class Bids(Enum):
 
 class Record:
     def __init__(self, dealer):
-
-        self.record = {
+        self.__dealer = dealer
+        self.__record = {
             Players.NORTH: [],
             Players.EAST: [],
             Players.SOUTH: [],
             Players.WEST: []
         }
+        self.__player_currently_bidding = dealer
 
-        # Not necessary but makes it more human readable
-        if dealer == Players.EAST:
-            self.record[Players.NORTH].append("-")
-        elif dealer == Players.SOUTH:
-            self.record[Players.NORTH].append("-")
-            self.record[Players.EAST].append("-")
-        elif dealer == Players.WEST:
-            self.record[Players.NORTH].append("-")
-            self.record[Players.EAST].append("-")
-            self.record[Players.SOUTH].append("-")
+    @staticmethod
+    def __complete(dealer, record):
+        if Record.__is_passout(record):
+            return True
 
-        self.first_bids = {
-            Team.NS: {
-                Strains.CLUBS: None,
-                Strains.DIAMONDS: None,
-                Strains.HEARTS: None,
-                Strains.SPADES: None,
-                Strains.NT: None
-            },
-            Team.EW: {
-                Strains.CLUBS: None,
-                Strains.DIAMONDS: None,
-                Strains.HEARTS: None,
-                Strains.SPADES: None,
-                Strains.NT: None
-            }
+        lowest_common_bidding_round = min([len(record[player]) for player in Players.players()])
+        if lowest_common_bidding_round == 0:
+            return False
+
+        cycle_of_players = [dealer.determine_nth_player_to_the_right(i) for i in range(4)]
+        index_of_last_player_to_bid = min([cycle_of_players.index(player) for player in Players.players() if len(record[player]) == lowest_common_bidding_round])
+        players_to_check = [cycle_of_players[i] for i in range(4) if i != index_of_last_player_to_bid]
+
+        for player in players_to_check:
+            if record[player][-1] != Bids.PASS:
+                return False
+
+        return True
+
+
+    def complete(self):
+        is_complete = Record.__complete(self.dealer, self.record)
+
+        # This is a side effect but I think it makes sense
+        self.__player_currently_bidding = None
+
+        return is_complete
+
+    def add_bid(self, bid):
+        """
+
+        Parameters
+        ----------
+        player Players
+        bid
+
+        Returns
+        -------
+
+        """
+        if not isinstance(bid, Bids):
+            raise TypeError("bid must be of type Bids")
+        self.__record[self.__player_currently_bidding].append(bid)
+        self.__player_currently_bidding = self.__player_currently_bidding.next_player()
+
+    @property
+    def record(self):
+        return self.__record
+
+    @property
+    def dealer(self):
+        return self.__dealer
+
+    @staticmethod
+    def __is_passout(record):
+        for player in Players:
+            if len(record[player]) != 0:
+                if record[player][0] != Bids.PASS:
+                    return False
+            else:
+                return False
+        return True
+
+    def determine_full_contract(self):
+        # TODO consider making this algorithm faster with memoization
+        if Record.__is_passout(self.__record):
+            return FullContract(None, None, None, True)
+        player_to_check = self.__dealer
+        most_recent_bid = None
+        most_recent_doubler = Doubles.NONE
+
+        first_ns_to_bid_strain = {
+            Strains.CLUBS: None,
+            Strains.DIAMONDS: None,
+            Strains.HEARTS: None,
+            Strains.SPADES: None,
+            Strains.NT: None
         }
+
+        first_ew_to_bid_strain = {
+            Strains.CLUBS: None,
+            Strains.DIAMONDS: None,
+            Strains.HEARTS: None,
+            Strains.SPADES: None,
+            Strains.NT: None
+        }
+
+        bidding_round = 0
+
+        pass_count = 0
+
+        # Recall that in this function, we already check to see if it is a passout with the __is_passout function
+        while True:
+            if len(self.__record[player_to_check]) > bidding_round:
+                if self.__record[player_to_check][bidding_round] == Bids.PASS:
+                    pass_count += 1
+                else:
+                    pass_count = 0
+
 
     def try_to_set_first_bid(self, player, strain):
         if not isinstance(player, Players):
