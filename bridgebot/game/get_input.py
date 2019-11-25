@@ -2,8 +2,6 @@ from enum import Enum
 
 import readline # in windows, need to install pyreadline
 import re
-from enums import Suits, Ranks
-from card import Card
 
 
 def get_input_list(valid_input_list, name):

@@ -1,7 +1,7 @@
-from enums import Players, Suits, Ranks
-from bridgehand import BridgeHand
+from game.enums import Players, Suits, Ranks
+from game.bridgehand import BridgeHand
 
-from card import Card
+from game.card import Card
 
 import random
 
@@ -18,6 +18,14 @@ class Deck:
             self.__card_indices[i], self.__card_indices[j] = self.__card_indices[j], self.__card_indices[i]
 
     def deal(self):
+        """
+        Deal out the deck of cards
+
+        Returns
+        -------
+        hands: dict [Players, BridgeHand]
+            The bridge hands to be played
+        """
         return Deck.__deal(self.__card_indices)
 
     def get_card_indices(self):

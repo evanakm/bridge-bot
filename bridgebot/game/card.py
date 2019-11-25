@@ -1,4 +1,4 @@
-from enums import Suits, Ranks
+from game.enums import Suits, Ranks
 
 
 class InvalidCardException(Exception):
@@ -29,6 +29,7 @@ class Card:
             return False
         return self.suit == other.suit and self.rank == other.rank
 
+    # Makes suit and rank a unique identifier
     def __hash__(self):
         return hash(self.suit.name + " " + self.rank.name)
 
@@ -39,3 +40,6 @@ class Card:
 
     def __str__(self):
         return self.rank.name + "_" + self.suit.name
+
+    def to_int(self):
+        return Ranks.ranks().index(self.rank) + Suits.suits().index(self.suit) * 13

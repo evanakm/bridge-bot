@@ -1,8 +1,6 @@
-import random
+from game.enums import Suits
 
-from enums import Suits, Ranks
-
-from card import Card, InvalidSuitException
+from game.card import Card, InvalidSuitException
 
 
 class CardDoesntFollowSuitException(Exception):
@@ -176,7 +174,6 @@ class BridgeHand:
         playable_cards: list of Card
             A list of all of the playable cards
         """
-        print(led_suit)
         if not (led_suit is None or isinstance(led_suit, Suits)):
             raise InvalidSuitException("Invalid Suit")
 

@@ -92,15 +92,24 @@ class Contracts(Enum):
         ]
 
     @staticmethod
-    def determine_level_from_contract(contract):
+    def __determine_level_from_contract(contract):
         contracts = Contracts.contracts()
         return 1 + int(contracts.index(contract) / 5) #Add one since indexing starts from zero
 
     @staticmethod
-    def determine_strain_from_contract(contract):
+    def __determine_strain_from_contract(contract):
+        if not isinstance(contract, Contracts):
+            raise TypeError("contract is not of type Contracts")
+
         contracts = Contracts.contracts()
         strains = Strains.strains()
         return strains[contracts.index(contract) % 5]
+
+    def determine_strain(self):
+        return Contracts.__determine_strain_from_contract(self)
+
+    def determine_level(self):
+        return Contracts.__determine_level_from_contract(self)
 
     def __lt__(self, other):
         if other is None:
@@ -210,13 +219,6 @@ class Strains(Enum):
     def __lt__(self, other):
         strains = self.strains()
         return strains.index(self) < strains.index(other)
-
-    @staticmethod
-    def determine_strain_from_contract(contract):
-        if not isinstance(contract, Contracts):
-            raise ContractNotFound("Invalid Contract")
-
-        return Strains.strains()[Contracts.contracts().index(contract) % 5]
 
     def determine_suit(self):
         if self == Strains.CLUBS:
