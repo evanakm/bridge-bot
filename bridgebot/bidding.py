@@ -203,7 +203,7 @@ class Record:
                 return False
         return True
 
-    def determine_highest_bid_and_bidder(self):
+    def _determine_highest_bid_and_bidder(self):
         if Record.__is_passout(self.__record):
             raise ValueError("Cannot determine the highest player for a passout")
 

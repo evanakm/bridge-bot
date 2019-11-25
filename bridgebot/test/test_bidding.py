@@ -181,7 +181,7 @@ def test_determine_highest_bid_and_bidder(dealer, bids, expected):
     record = Record(dealer)
     for bid in bids:
         record.add_bid(bid)
-    assert record.determine_highest_bid_and_bidder() == expected
+    assert record._determine_highest_bid_and_bidder() == expected
 
 
 @pytest.mark.parametrize('dealer, bids, expected', [
@@ -229,4 +229,4 @@ def test_determine_highest_bid_and_bidder_exceptions(dealer, bids, expected):
         print(bid)
         record.add_bid(bid)
     with expected:
-        assert record.determine_highest_bid_and_bidder() == expected
+        assert record._determine_highest_bid_and_bidder() == expected
