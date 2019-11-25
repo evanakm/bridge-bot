@@ -1,6 +1,9 @@
 from game.enums import Players, Strains, AuctionStatus, Doubles, Contracts, Team, InvalidPlayerException, InvalidStrainException, Suits
 from enum import Enum
 
+from itertools import chain
+
+
 class InvalidDealerException(Exception):
     pass
 
@@ -207,11 +210,46 @@ class Record:
         if Record.__is_passout(self.__record):
             raise ValueError("Cannot determine the highest player for a passout")
 
-        highest_bid, highest_bidder = max(
-            [(bid, player) for player, player_bids in self.__record.items() for bid in player_bids if
+        # This sorts on bid.value (a Contract type)
+        highest_contract, highest_bid, highest_bidder = max(
+            [(bid.value, bid, player) for player, player_bids in self.__record.items() for bid in player_bids if
              bid.value in Contracts.contracts()]
         )
         return highest_bid, highest_bidder
+
+    def _determine_doubled_status(self, highest_bid):
+        zipped = list(
+            chain.from_iterable(
+                # We append [Bids.PASS] because it is possible that the last real bid
+                # gets removed by zip if it does not have a companion
+                zip(*[self.__record[player] + [Bids.PASS] for player in Record.__cycle_of_players(self.__dealer)])
+            )
+        )
+
+        highest_bid_index = zipped.index(highest_bid)
+        bids_after_highest_bid = zipped[highest_bid_index:]
+
+        if Doubles.REDOUBLE in bids_after_highest_bid:
+            return Doubles.REDOUBLE
+        elif Doubles.DOUBLE in bids_after_highest_bid:
+            return Doubles.DOUBLE
+        else:
+            return Doubles.NONE
+
+    def _determine_declarer(self, highest_bid, highest_bidder):
+        highest_bid_strain = highest_bid.value.determine_strain()
+        bids_that_are_same_strain = [
+            bid for bid in Bids.bids()
+            if isinstance(bid.value, Contracts) and bid.value.determine_strain() == highest_bid_strain
+        ]
+
+        for bid in bids_that_are_same_strain:
+            if bid in self.__record[highest_bidder]:
+                return highest_bidder
+            elif bid in self.__record[highest_bidder.partner()]:
+                return highest_bidder.partner()
+
+        raise ValueError("highest_bid not found")
 
     def determine_full_contract(self):
         if not self.complete():
@@ -220,40 +258,11 @@ class Record:
         if Record.__is_passout(self.__record):
             return FullContract(None, None, None, True)
 
+        highest_bid, highest_bidder = self._determine_highest_bid_and_bidder()
+        doubled = self._determine_doubled_status(highest_bid)
+        declarer = self._determine_declarer(highest_bid, highest_bidder)
 
-
-        player_to_check = self.__dealer
-        most_recent_bid = None
-        most_recent_doubler = Doubles.NONE
-
-        first_ns_to_bid_strain = {
-            Strains.CLUBS: None,
-            Strains.DIAMONDS: None,
-            Strains.HEARTS: None,
-            Strains.SPADES: None,
-            Strains.NT: None
-        }
-
-        first_ew_to_bid_strain = {
-            Strains.CLUBS: None,
-            Strains.DIAMONDS: None,
-            Strains.HEARTS: None,
-            Strains.SPADES: None,
-            Strains.NT: None
-        }
-
-        bidding_round = 0
-
-        pass_count = 0
-
-        # Recall that in this function, we already check to see if it is a passout with the __is_passout function
-        while True:
-            if len(self.__record[player_to_check]) > bidding_round:
-                if self.__record[player_to_check][bidding_round] == Bids.PASS:
-                    pass_count += 1
-                else:
-                    pass_count = 0
-
+        return FullContract(highest_bid.value, doubled, declarer, False)
 
     def try_to_set_first_bid(self, player, strain):
         if not isinstance(player, Players):

@@ -172,9 +172,10 @@ def test_bidding(dealer, bids, expected):
                 Bids.PASS,
                 Bids.FIVE_CLUBS,
                 Bids.DOUBLE,
-                Bids.REDOUBLE
+                Bids.REDOUBLE,
+                Bids.SIX_CLUBS
             ],
-            (Bids.FIVE_CLUBS, Players.WEST)
+            (Bids.SIX_CLUBS, Players.SOUTH)
     ),
 ])
 def test_determine_highest_bid_and_bidder(dealer, bids, expected):
@@ -230,3 +231,27 @@ def test_determine_highest_bid_and_bidder_exceptions(dealer, bids, expected):
         record.add_bid(bid)
     with expected:
         assert record._determine_highest_bid_and_bidder() == expected
+
+
+@pytest.mark.parametrize('dealer, bids, expected', [
+    (
+            Players.EAST,
+            [
+                Bids.ONE_CLUB,
+                Bids.TWO_CLUBS,
+                Bids.THREE_CLUBS,
+                Bids.FOUR_CLUBS,
+                Bids.PASS,
+                Bids.PASS,
+                Bids.PASS
+            ],
+            Players.SOUTH
+    ),
+])
+def test_determine_declarer(dealer, bids, expected):
+    record = Record(dealer)
+    for bid in bids:
+        print(bid)
+        record.add_bid(bid)
+    highest_bid, highest_bidder = record._determine_highest_bid_and_bidder()
+    assert record._determine_declarer(highest_bid, highest_bidder) == expected
