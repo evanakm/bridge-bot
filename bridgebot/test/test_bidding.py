@@ -100,6 +100,133 @@ def does_not_raise():
 def test_bidding(dealer, bids, expected):
     record = Record(dealer)
     for bid in bids:
+        print(bid)
         record.add_bid(bid)
     print(expected)
     assert record.complete() == expected
+
+
+
+
+
+
+@pytest.mark.parametrize('dealer, bids, expected', [
+    (
+            Players.EAST,
+            [
+                Bids.FIVE_CLUBS,
+                Bids.PASS,
+                Bids.PASS,
+                Bids.PASS
+            ],
+            (Bids.FIVE_CLUBS, Players.EAST)
+    ),
+    (
+            Players.EAST,
+            [
+                Bids.PASS,
+                Bids.PASS,
+                Bids.FIVE_CLUBS,
+                Bids.PASS,
+                Bids.PASS,
+                Bids.PASS
+            ],
+            (Bids.FIVE_CLUBS, Players.WEST)
+    ),
+    (
+            Players.EAST,
+            [
+                Bids.PASS,
+                Bids.PASS,
+                Bids.FIVE_CLUBS,
+                Bids.PASS
+            ],
+            (Bids.FIVE_CLUBS, Players.WEST)
+    ),
+    (
+            Players.EAST,
+            [
+                Bids.PASS,
+                Bids.PASS,
+                Bids.FIVE_CLUBS,
+                Bids.PASS,
+                Bids.PASS,
+            ],
+            (Bids.FIVE_CLUBS, Players.WEST)
+    ),
+    (
+            Players.EAST,
+            [
+                Bids.PASS,
+                Bids.PASS,
+                Bids.FIVE_CLUBS,
+                Bids.DOUBLE,
+                Bids.PASS,
+            ],
+            (Bids.FIVE_CLUBS, Players.WEST)
+    ),
+    (
+            Players.EAST,
+            [
+                Bids.PASS,
+                Bids.PASS,
+                Bids.FIVE_CLUBS,
+                Bids.DOUBLE,
+                Bids.REDOUBLE
+            ],
+            (Bids.FIVE_CLUBS, Players.WEST)
+    ),
+])
+def test_determine_highest_bid_and_bidder(dealer, bids, expected):
+    record = Record(dealer)
+    for bid in bids:
+        record.add_bid(bid)
+    assert record.determine_highest_bid_and_bidder() == expected
+
+
+@pytest.mark.parametrize('dealer, bids, expected', [
+    (
+            Players.EAST,
+            [
+                Bids.PASS,
+                Bids.PASS,
+                Bids.PASS
+            ],
+            pytest.raises(ValueError)
+    ),
+    (
+            Players.WEST,
+            [
+                Bids.PASS,
+                Bids.PASS,
+                Bids.PASS
+            ],
+            pytest.raises(ValueError)
+    ),
+    (
+            Players.NORTH,
+            [
+                Bids.PASS,
+                Bids.PASS,
+                Bids.PASS
+            ],
+            pytest.raises(ValueError)
+    ),
+    (
+            Players.EAST,
+            [
+                Bids.PASS,
+                Bids.PASS,
+                Bids.PASS,
+                Bids.PASS
+            ],
+            pytest.raises(ValueError)
+    ),
+])
+def test_determine_highest_bid_and_bidder_exceptions(dealer, bids, expected):
+    record = Record(dealer)
+    for bid in bids:
+        print(bid)
+        record.add_bid(bid)
+    with expected:
+        assert record.determine_highest_bid_and_bidder() == expected
