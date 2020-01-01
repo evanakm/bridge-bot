@@ -1,8 +1,9 @@
 from game.enums import Players, Strains, AuctionStatus, Doubles, Contracts, Team, InvalidPlayerException, InvalidStrainException, Suits
 from enum import Enum
+from game.get_input import get_input_list
+
 
 from itertools import chain
-
 
 class InvalidDealerException(Exception):
     pass
@@ -86,7 +87,7 @@ class Bids(Enum):
         ]
 
     @staticmethod
-    def is_sufficient_bid(bid, bidder, current_contract):
+    def __is_sufficient_bid(bid, bidder, current_contract):
         if not isinstance(bidder, Players):
             raise Exception("by_bidder must be a Player")
 
@@ -109,7 +110,7 @@ class Bids(Enum):
             elif current_contract.doubled != Doubles.NONE:
                 # Can only double an undoubled contract
                 return False
-            elif Team.player_to_team(current_contract.declarer) == Team.player_to_team(bidder):
+            elif Team.player_to_team(bidder) == Team.player_to_team(current_contract.declarer):
                 # Can only double if opponents have bid
                 return False
             else:
@@ -134,7 +135,7 @@ class Bids(Enum):
 
     @staticmethod
     def all_legal_bids(bidder, current_contract):
-        return [bid for bid in Bids.bids() if Bids.is_sufficent_bid(bid, bidder, current_contract)]
+        return [bid for bid in Bids.bids() if Bids.__is_sufficent_bid(bid, bidder, current_contract)]
 
 
 class Record:
@@ -179,9 +180,13 @@ class Record:
 
         return is_complete
 
-    def add_bid(self, bid):
+    def add_bid(self, bid, bidder, current_contract):
         if self.complete():
             raise ValueError("Cannot add a bid as bidding is complete")
+
+        if bid not in Bids.all_legal_bids(bidder, current_contract):
+            raise ValueError("Cannot add bid as it is not a legal bid00")
+
 
         if not isinstance(bid, Bids):
             raise TypeError("bid must be of type Bids")
@@ -210,11 +215,15 @@ class Record:
         if Record.__is_passout(self.__record):
             raise ValueError("Cannot determine the highest player for a passout")
 
+        bids_so_far = [(bid.value, bid, player) for player, player_bids in self.__record.items() for bid in player_bids
+                       if bid.value in Contracts.contracts()]
+
+        if len(bids_so_far) == 0:
+            return Bids.PASS, None
+
         # This sorts on bid.value (a Contract type)
-        highest_contract, highest_bid, highest_bidder = max(
-            [(bid.value, bid, player) for player, player_bids in self.__record.items() for bid in player_bids if
-             bid.value in Contracts.contracts()]
-        )
+        highest_contract, highest_bid, highest_bidder = max(bids_so_far)
+
         return highest_bid, highest_bidder
 
     def _determine_doubled_status(self, highest_bid):
@@ -251,7 +260,17 @@ class Record:
 
         raise ValueError("highest_bid not found")
 
+    def determine_current_contract(self):
+        highest_bid, highest_bidder = self._determine_highest_bid_and_bidder()
+        if highest_bid == Bids.PASS:
+            return None
+
+        doubled = self._determine_doubled_status(highest_bid)
+        declarer = self._determine_declarer(highest_bid, highest_bidder)
+        return FullContract(highest_bid.value, doubled, declarer, False)
+
     def determine_full_contract(self):
+        """ TODO THIS SHOULD BE COMBINED WITH determine_current_contract? """
         if not self.complete():
             raise ValueError("Cannot call determine_full_contract if the record is not complete!")
 
@@ -264,24 +283,8 @@ class Record:
 
         return FullContract(highest_bid.value, doubled, declarer, False)
 
-    def try_to_set_first_bid(self, player, strain):
-        if not isinstance(player, Players):
-            raise InvalidPlayerException
 
-        if not isinstance(strain, Strains):
-            raise InvalidStrainException
-
-        team = Team.player_to_team(player)
-
-        if self.first_bids[team][strain] is None:
-            # This is the ONLY case in which to do something. Otherwise do nothing.
-            self.first_bids[team][strain] = player
-
-    def get_first_bid(self, player, strain):
-        team = Team.player_to_team(player)
-        return self.first_bids[team][strain]
-
-
+"""
 class Auction:
     def __init__(self, dealer):
         if not isinstance(dealer, Players):
@@ -294,9 +297,7 @@ class Auction:
     # For debugging purposes, easier to reset than to create a new Auction
     def reset(self):
         self.player_index = Players.players().index(self.dealer)
-        self.last_bidder_index = None
         self.record = Record(self.dealer)
-        self.last_bid = None
         self.redoubled = False
         self.consecutive_passes = 0
 
@@ -344,4 +345,32 @@ class Auction:
         elif new_bid == Bids.REDOUBLE:
             self.consecutive_passes = 0
             return AuctionStatus.CONTINUE
+"""
 
+def auction(users, dealer):
+    if not isinstance(dealer, Players):
+        raise TypeError("Invalid dealer")
+
+    record = Record(dealer)
+    current_bidder = dealer
+
+    while not record.complete():
+        current_contract = record.determine_current_contract()
+        legal_bids = Bids.all_legal_bids(current_bidder, current_contract)
+        bid = users[current_bidder].make_bid(record, legal_bids)
+        record.add_bid(bid, current_bidder, current_contract)
+        current_bidder = current_bidder.next_player()
+
+    return record
+
+
+if __name__ == "__main__":
+    users = {
+        Players.NORTH: RandomBotUser(),
+        Players.SOUTH: RandomBotUser(),
+        Players.WEST: RandomBotUser(),
+        Players.EAST: RandomBotUser()
+    }
+
+    record = auction(users, Players.NORTH)
+    print(record.determine_full_contract())

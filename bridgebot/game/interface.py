@@ -1,4 +1,4 @@
-from game.get_input import get_input_card
+from game.get_input import get_input_card, get_input_list
 from abc import abstractmethod
 
 
@@ -6,6 +6,11 @@ class User:
     @staticmethod
     @abstractmethod
     def play_card(current_player, dummy, dummy_hand, all_cards, legal_cards, bid_history, card_history, leader_history):
+        pass
+
+    @staticmethod
+    @abstractmethod
+    def make_bid(record, legal_bids):
         pass
 
     @staticmethod
@@ -30,5 +35,9 @@ class HumanUser(User):
 
         return get_input_card(legal_cards)
 
-
+    @staticmethod
+    def make_bid(record, legal_bids):
+        print("Record: " + str(record)) # TODO stringify record
+        print("Legal Bids: " + str(legal_bids))
+        return get_input_list(legal_bids, "bid")
 
