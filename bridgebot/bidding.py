@@ -1,6 +1,8 @@
 from game.enums import Players, Strains, AuctionStatus, Doubles, Contracts, Team, InvalidPlayerException, InvalidStrainException, Suits
 from enum import Enum
 from game.get_input import get_input_list
+from bots.randombotuser import RandomBotUser
+
 
 
 from itertools import chain
@@ -12,16 +14,20 @@ class InvalidBidException(Exception):
     pass
 
 class FullContract:
-    def __init__(self, contract, doubled, declarer, passout):
+    def __init__(self, contract, doubled, declarer, passout=False, start_of_auction=False):
         self.contract = contract
         self.doubled = doubled
         self.declarer = declarer
         self.passout = passout
+        self.start_of_auction = start_of_auction
 
         if not isinstance(passout, bool):
             raise TypeError("passout must be of type bool")
 
-        if passout:
+        if not isinstance(start_of_auction, bool):
+            raise TypeError("start_of_auction must be of type bool")
+
+        if passout or start_of_auction:
             return
 
         if not isinstance(contract, Contracts):
@@ -31,6 +37,13 @@ class FullContract:
         if not isinstance(declarer, Players):
             raise TypeError("declarer must be of type Players")
 
+    @staticmethod
+    def start_of_auction_generator():
+        return FullContract(None, None, None, False, True)
+
+    @staticmethod
+    def passout_generator():
+        return FullContract(None, None, None, True, False)
 
 # Compares to a contract, so can't go into enum
 class Bids(Enum):
@@ -135,7 +148,7 @@ class Bids(Enum):
 
     @staticmethod
     def all_legal_bids(bidder, current_contract):
-        return [bid for bid in Bids.bids() if Bids.__is_sufficent_bid(bid, bidder, current_contract)]
+        return [bid for bid in Bids.bids() if Bids.__is_sufficient_bid(bid, bidder, current_contract)]
 
 
 class Record:
@@ -263,7 +276,7 @@ class Record:
     def determine_current_contract(self):
         highest_bid, highest_bidder = self._determine_highest_bid_and_bidder()
         if highest_bid == Bids.PASS:
-            return None
+            return FullContract.start_of_auction_generator()
 
         doubled = self._determine_doubled_status(highest_bid)
         declarer = self._determine_declarer(highest_bid, highest_bidder)
@@ -275,7 +288,7 @@ class Record:
             raise ValueError("Cannot call determine_full_contract if the record is not complete!")
 
         if Record.__is_passout(self.__record):
-            return FullContract(None, None, None, True)
+            return FullContract.passout_generator()
 
         highest_bid, highest_bidder = self._determine_highest_bid_and_bidder()
         doubled = self._determine_doubled_status(highest_bid)
@@ -356,6 +369,7 @@ def auction(users, dealer):
 
     while not record.complete():
         current_contract = record.determine_current_contract()
+        print(type(current_contract))
         legal_bids = Bids.all_legal_bids(current_bidder, current_contract)
         bid = users[current_bidder].make_bid(record, legal_bids)
         record.add_bid(bid, current_bidder, current_contract)
