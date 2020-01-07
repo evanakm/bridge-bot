@@ -297,69 +297,6 @@ class Record:
         return FullContract(highest_bid.value, doubled, declarer, False)
 
 
-"""
-class Auction:
-    def __init__(self, dealer):
-        if not isinstance(dealer, Players):
-            raise InvalidDealerException('Invalid dealer')
-
-        self.dealer = dealer
-
-        self.reset()
-
-    # For debugging purposes, easier to reset than to create a new Auction
-    def reset(self):
-        self.player_index = Players.players().index(self.dealer)
-        self.record = Record(self.dealer)
-        self.redoubled = False
-        self.consecutive_passes = 0
-
-        self.contract = FullContract()
-
-    def __increment_player(self):
-        self.player = self.player.next_player()
-
-    def get_new_bid(self, new_bid):
-        if not isinstance(new_bid, Bids):
-            raise InvalidBidException("Not a valid bid.")
-        if not new_bid.is_sufficient_bid(self.player, self.contract):
-            raise InvalidBidException("Insufficient bid.")
-
-        self.record[self.player].append(new_bid)
-
-        if new_bid == Bids.PASS:
-            if self.contract.contract is None:
-                if self.consecutive_passes == 3:  # Passing out
-                    return AuctionStatus.DONE
-                else:  # Passing before an opening bid
-                    self.__increment_player()
-                    return AuctionStatus.CONTINUE
-            elif self.consecutive_passes != 2:  # Passing but not finishing
-                self.__increment_player()
-                return AuctionStatus.CONTINUE
-            else:  # Three passes in a row after at least one bid. Auction over.
-                return AuctionStatus.DONE
-        elif isinstance(new_bid, Contracts):
-            self.contract.contract = new_bid.map_to_contract()
-            self.contract.doubled = Doubles.NONE
-            self.contract.last_bid_by = self.player
-
-            # The logic behind finding self.contract.declarer is encapsulated in self.record
-            strain = Strains.get_strain_from_contract(self.contract.contract)
-            self.record.try_to_set_first_bid(self.player, strain)
-            self.contract.declarer = self.record.get_first_bid(self.player, strain)
-
-            self.consecutive_passes = 0
-
-            return AuctionStatus.CONTINUE
-        elif new_bid == Bids.DOUBLE:
-            self.consecutive_passes = 0
-            return AuctionStatus.CONTINUE
-        elif new_bid == Bids.REDOUBLE:
-            self.consecutive_passes = 0
-            return AuctionStatus.CONTINUE
-"""
-
 def auction(users, dealer):
     if not isinstance(dealer, Players):
         raise TypeError("Invalid dealer")
