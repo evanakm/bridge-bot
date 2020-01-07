@@ -299,7 +299,7 @@ class Record:
 
 def auction(users, dealer):
     if not isinstance(dealer, Players):
-        raise TypeError("Invalid dealer")
+        raise TypeError("dealer must be of enum Players")
 
     record = Record(dealer)
     current_bidder = dealer
