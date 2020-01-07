@@ -100,7 +100,7 @@ class Bids(Enum):
         ]
 
     @staticmethod
-    def __is_sufficient_bid(bid, bidder, current_contract):
+    def _is_sufficient_bid(bid, bidder, current_contract):
         if not isinstance(bidder, Players):
             raise Exception("by_bidder must be a Player")
 
@@ -113,8 +113,8 @@ class Bids(Enum):
         if bid == Bids.PASS:
             return True
 
-        if isinstance(bid, Contracts):
-            return current_contract.contract < bid
+        if isinstance(bid.value, Contracts):
+            return current_contract.contract < bid.value
 
         if bid == Bids.DOUBLE:
             if current_contract.contract is None:
@@ -148,7 +148,7 @@ class Bids(Enum):
 
     @staticmethod
     def all_legal_bids(bidder, current_contract):
-        return [bid for bid in Bids.bids() if Bids.__is_sufficient_bid(bid, bidder, current_contract)]
+        return [bid for bid in Bids.bids() if Bids._is_sufficient_bid(bid, bidder, current_contract)]
 
 
 class Record:

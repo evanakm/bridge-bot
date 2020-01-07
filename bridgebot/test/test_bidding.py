@@ -6,8 +6,8 @@ sys.path.insert(0,'..')
 
 from contextlib import contextmanager
 from bidding import Record
-from game.enums import Players
-from bidding import Bids
+from game.enums import Players, Doubles, Contracts
+from bidding import Bids, FullContract
 
 
 @contextmanager
@@ -255,3 +255,9 @@ def test_determine_declarer(dealer, bids, expected):
         record.add_bid(bid)
     highest_bid, highest_bidder = record._determine_highest_bid_and_bidder()
     assert record._determine_declarer(highest_bid, highest_bidder) == expected
+
+@pytest.mark.parametrize('bid, bidder, current_contract, expected', [
+    (Bids.ONE_NO_TRUMP, Players.NORTH, FullContract(Contracts.ONE_HEART, Doubles.NONE, Players.SOUTH), True),
+])
+def test_is_sufficient_bid(bid, bidder, current_contract, expected):
+    assert Bids._is_sufficient_bid(bid, bidder, current_contract) == expected
