@@ -193,13 +193,14 @@ class Record:
 
         return is_complete
 
-    def add_bid(self, bid, bidder, current_contract):
+    def add_bid(self, bid):
         if self.complete():
             raise ValueError("Cannot add a bid as bidding is complete")
 
-        if bid not in Bids.all_legal_bids(bidder, current_contract):
-            raise ValueError("Cannot add bid as it is not a legal bid00")
+        current_contract = self.determine_current_contract()
 
+        if bid not in Bids.all_legal_bids(self.__player_currently_bidding, current_contract):
+            raise ValueError("Cannot add bid as it is not a legal bid")
 
         if not isinstance(bid, Bids):
             raise TypeError("bid must be of type Bids")
@@ -251,9 +252,9 @@ class Record:
         highest_bid_index = zipped.index(highest_bid)
         bids_after_highest_bid = zipped[highest_bid_index:]
 
-        if Doubles.REDOUBLE in bids_after_highest_bid:
+        if Doubles.REDOUBLE in [bid.value for bid in bids_after_highest_bid]:
             return Doubles.REDOUBLE
-        elif Doubles.DOUBLE in bids_after_highest_bid:
+        elif Doubles.DOUBLE in [bid.value for bid in bids_after_highest_bid]:
             return Doubles.DOUBLE
         else:
             return Doubles.NONE
@@ -305,11 +306,24 @@ def auction(users, dealer):
     current_bidder = dealer
 
     while not record.complete():
+        print('<------------- NEW BID --------------->')
+        print('current_bidder')
+        print(current_bidder)
+        print('--------------------------------------')
         current_contract = record.determine_current_contract()
-        print(type(current_contract))
+        print('current_contract')
+        print(current_contract.contract)
+        print(current_contract.declarer)
+        print(current_contract.doubled)
         legal_bids = Bids.all_legal_bids(current_bidder, current_contract)
+        print('--------')
+        print('legal_bids')
+        print(legal_bids)
         bid = users[current_bidder].make_bid(record, legal_bids)
-        record.add_bid(bid, current_bidder, current_contract)
+        print('--------')
+        print('bid')
+        print(bid)
+        record.add_bid(bid)
         current_bidder = current_bidder.next_player()
 
     return record

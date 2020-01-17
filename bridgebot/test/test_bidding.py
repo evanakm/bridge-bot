@@ -258,6 +258,24 @@ def test_determine_declarer(dealer, bids, expected):
 
 @pytest.mark.parametrize('bid, bidder, current_contract, expected', [
     (Bids.ONE_NO_TRUMP, Players.NORTH, FullContract(Contracts.ONE_HEART, Doubles.NONE, Players.SOUTH), True),
+    (Bids.REDOUBLE, Players.NORTH, FullContract(Contracts.ONE_HEART, Doubles.DOUBLE, Players.SOUTH), True),
+    (Bids.REDOUBLE, Players.WEST, FullContract(Contracts.ONE_HEART, Doubles.DOUBLE, Players.SOUTH), False),
 ])
 def test_is_sufficient_bid(bid, bidder, current_contract, expected):
     assert Bids._is_sufficient_bid(bid, bidder, current_contract) == expected
+
+@pytest.mark.parametrize('dealer, bids, expected_contract, expected_declarer, expected_doubled', [
+    (Players.NORTH, [Bids.PASS, Bids.PASS, Bids.ONE_NO_TRUMP], Contracts.ONE_NO_TRUMP, Players.SOUTH, Doubles.NONE),
+    (Players.NORTH, [Bids.PASS, Bids.PASS, Bids.ONE_NO_TRUMP, Bids.DOUBLE], Contracts.ONE_NO_TRUMP, Players.SOUTH, Doubles.DOUBLE),
+    (Players.NORTH, [Bids.PASS, Bids.PASS], None, None, None),
+])
+def test_determine_current_contract(dealer, bids, expected_contract, expected_declarer, expected_doubled):
+    record = Record(dealer)
+
+    for bid in bids:
+        record.add_bid(bid)
+
+    current_contract = record.determine_current_contract()
+    assert current_contract.contract == expected_contract
+    assert current_contract.declarer == expected_declarer
+    assert current_contract.doubled == expected_doubled
