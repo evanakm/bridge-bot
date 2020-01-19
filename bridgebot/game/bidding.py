@@ -1,7 +1,8 @@
-from game.enums import Players, Strains, AuctionStatus, Doubles, Contracts, Team, InvalidPlayerException, InvalidStrainException, Suits
+from game.enums import Players, Strains, AuctionStatus, Doubles, Contracts, Team, InvalidPlayerException, InvalidStrainException, Suits, Pass
 from enum import Enum
 from game.get_input import get_input_list
 from bots.randombotuser import RandomBotUser
+from game.interface import HumanUser
 
 
 
@@ -82,7 +83,7 @@ class Bids(Enum):
     SEVEN_HEARTS = Contracts.SEVEN_HEARTS
     SEVEN_SPADES = Contracts.SEVEN_SPADES
     SEVEN_NO_TRUMP = Contracts.SEVEN_NO_TRUMP
-    PASS = "PASS"
+    PASS = Pass.PASS
     DOUBLE = Doubles.DOUBLE
     REDOUBLE = Doubles.REDOUBLE
 
@@ -150,6 +151,23 @@ class Bids(Enum):
     def all_legal_bids(bidder, current_contract):
         return [bid for bid in Bids.bids() if Bids._is_sufficient_bid(bid, bidder, current_contract)]
 
+    @staticmethod
+    def beautify_legal_bids(bidder, current_contract):
+        legal_bids = Bids.all_legal_bids(bidder, current_contract)
+
+        counter = 0
+        res = ''
+        for bid in Bids.bids():
+            if bid in legal_bids:
+                res = res + bid.value.value.ljust(8)
+            else:
+                res = res + '--'.ljust(8)
+
+            if counter % 5 == 4:
+                res = res + '\n'
+            counter = counter + 1
+
+        return res
 
 class Record:
     def __init__(self, dealer):
@@ -297,6 +315,34 @@ class Record:
 
         return FullContract(highest_bid.value, doubled, declarer, False)
 
+    def beautify_history(self):
+        cycle = Record.__cycle_of_players(self.__dealer)
+
+        zipped = list(
+            chain.from_iterable(
+                # zip won't work properly if the players have made a different number of bids, hence the placeholder
+                zip(*[self.__record[player] + ['Placeholder'] for player in cycle])
+            )
+        )
+
+        bids = [bid for bid in zipped if bid != 'Placeholder']
+
+        first = True
+        res = ''
+        for player in cycle:
+            res = res + player.value.ljust(8)
+
+        res = res + '\n'
+
+        for i in range(len(bids)):
+            res = res + str(bids[i].value.value.ljust(8))
+
+            if i % 4 == 3:
+                res = res + '\n'
+
+        return res
+
+
 
 def auction(users, dealer):
     if not isinstance(dealer, Players):
@@ -310,12 +356,16 @@ def auction(users, dealer):
         print('The current bidder is ' + str(current_bidder))
         current_contract = record.determine_current_contract()
         legal_bids = Bids.all_legal_bids(current_bidder, current_contract)
+        legal_bids_beaut = Bids.beautify_legal_bids(current_bidder, current_contract)
         print('Legal bids:')
-        print(legal_bids)
+        print(legal_bids_beaut)
         bid = users[current_bidder].make_bid(record, legal_bids)
         print('You bid: ' + str(bid))
         record.add_bid(bid)
         current_bidder = current_bidder.next_player()
+        print('Record:')
+        #print(str(record))
+        print(record.beautify_history())
 
     return record
 

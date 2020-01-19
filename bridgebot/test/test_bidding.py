@@ -1,13 +1,14 @@
-import pytest
 import sys
+
+import pytest
 
 sys.path.insert(0,'../bridgebot')
 sys.path.insert(0,'..')
 
 from contextlib import contextmanager
-from bidding import Record
+from game.bidding import Record
 from game.enums import Players, Doubles, Contracts
-from bidding import Bids, FullContract
+from game.bidding import Bids, FullContract
 
 
 @contextmanager

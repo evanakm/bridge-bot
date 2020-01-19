@@ -6,6 +6,7 @@ from game.scoring import get_score_from_result
 import sys
 from bots.randombotuser import RandomBotUser
 from game.interface import HumanUser
+from game.bidding import auction, Record
 
 NUMBER_OF_PLAYTHROUGHS = 1
 
@@ -19,11 +20,11 @@ def main():
     deck.shuffle()
 
     # Todo add in bid getting
-    contract = Contracts.FIVE_CLUBS # get_input_enum(Contracts, "contract")
-    doubled = Doubles.DOUBLE # get_input_enum(Doubles, "doubled status")
-    declarer = Players.EAST # get_input_enum(Players, "declarer")
-    vulnerability = Vulnerabilities.BOTH # get_input_enum(Vulnerabilities, "vulnerability")
-    vulnerability = vulnerability.is_declarer_vulnerable(declarer)
+    #contract = Contracts.FIVE_CLUBS # get_input_enum(Contracts, "contract")
+    #doubled = Doubles.DOUBLE # get_input_enum(Doubles, "doubled status")
+    #declarer = Players.EAST # get_input_enum(Players, "declarer")
+    #vulnerability = Vulnerabilities.BOTH # get_input_enum(Vulnerabilities, "vulnerability")
+    #vulnerability = vulnerability.is_declarer_vulnerable(declarer)
 
     # Todo, link in bid history
     bid_history = None
@@ -34,6 +35,15 @@ def main():
         Players.WEST: RandomBotUser(),
         Players.EAST: RandomBotUser()
     }
+
+    record = auction(users, Players.NORTH)
+    full_contract = record.determine_full_contract()
+
+    contract = full_contract.contract
+    doubled = full_contract.doubled
+    declarer = full_contract.declarer
+    vulnerability = Vulnerabilities.BOTH
+    vulnerability = vulnerability.is_declarer_vulnerable(declarer)
 
     for i in range(0, NUMBER_OF_PLAYTHROUGHS):
         deal = deck.deal()

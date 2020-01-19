@@ -241,7 +241,8 @@ class Strains(Enum):
             return strains.index(self) == suits.index(suit)
 
 
-PASS = 'PASS'
+class Pass(Enum):
+    PASS = 'P'
 
 class Ranks(Enum):
     TWO = "2"
