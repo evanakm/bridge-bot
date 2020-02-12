@@ -1,24 +1,23 @@
 from game.interface import User
-import tensorflow as tf
+import torch
 from game.enums import Players
-from game.card import Card
+from game.card import Card, Suits, Ranks
 
 
 def player_to_tensor(player):
     if not isinstance(player, Players):
         raise TypeError("player is not of type Player")
 
-    return tf.Variable(Players.players().index(player))
+    return torch.tensor(Players.players().index(player))
 
 
 def cards_to_tensor(cards):
-    card_tensor = tf.zeros(
-        [52],
-        dtype=tf.dtypes.float32,
-        name=None
+    card_tensor = torch.zeros(
+        52,
+        dtype=torch.long
     )
 
-    if not isinstance(cards, list) or not isinstance(cards, set):
+    if not isinstance(cards, list) and not isinstance(cards, set):
         raise TypeError("cards must be a list of set")
 
     for card in cards:
@@ -32,10 +31,15 @@ def cards_to_tensor(cards):
 
 def card_history_to_tensor(card_history):
     for key, val in card_history.items():
-        card_history
+        print(key, val)
 
 
 class BotUser(User):
     @staticmethod
     def play_card(current_player, dummy, dummy_hand, all_cards, legal_cards, bid_history, card_history, leader_history):
         pass
+
+
+if __name__ == "__main__":
+    print(player_to_tensor(Players.SOUTH))
+    print(cards_to_tensor([Card(Suits.SPADES, Ranks.EIGHT)]))

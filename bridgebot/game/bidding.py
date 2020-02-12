@@ -343,7 +343,6 @@ class Record:
         return res
 
 
-
 def auction(users, dealer):
     if not isinstance(dealer, Players):
         raise TypeError("dealer must be of enum Players")
@@ -359,7 +358,7 @@ def auction(users, dealer):
         legal_bids_beaut = Bids.beautify_legal_bids(current_bidder, current_contract)
         print('Legal bids:')
         print(legal_bids_beaut)
-        bid = users[current_bidder].make_bid(record, legal_bids)
+        bid = users[current_bidder].make_bid(current_bidder, record, legal_bids)
         print('You bid: ' + str(bid))
         record.add_bid(bid)
         current_bidder = current_bidder.next_player()

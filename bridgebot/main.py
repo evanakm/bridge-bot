@@ -37,6 +37,7 @@ def main():
     }
 
     record = auction(users, Players.NORTH)
+    print(record)
     full_contract = record.determine_full_contract()
 
     contract = full_contract.contract
