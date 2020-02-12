@@ -41,6 +41,7 @@ class User:
 class HumanUser(User):
     @staticmethod
     def play_card(current_player, dummy, dummy_hand, all_cards, legal_cards, bid_history, card_history, leader_history):
+        #print("Dummy: \n" + User._convert_hand_to_str(dummy_hand))
         print("Dummy: \n" + User._beautify_hand(dummy_hand))
         print("All Cards: \n" +
               #User._convert_hand_to_str(all_cards)

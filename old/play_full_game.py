@@ -1,8 +1,7 @@
 from game import cardplay
-from game.scoring import score
-from bidding import Auction
-
+from game.bidding import Auction
 from game.enums import Vulnerabilities, Players, Strains, Contracts
+from game.scoring import score
 
 
 def play(dealer, vulnerability, hands):
