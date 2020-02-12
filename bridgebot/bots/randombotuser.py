@@ -11,5 +11,5 @@ class RandomBotUser(User):
         return random.choice(tuple(legal_cards))
 
     @staticmethod
-    def make_bid(record, legal_bids):
+    def make_bid(current_player, record, legal_bids):
         return random.choice(tuple(legal_bids))

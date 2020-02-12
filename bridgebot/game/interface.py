@@ -10,7 +10,7 @@ class User:
 
     @staticmethod
     @abstractmethod
-    def make_bid(record, legal_bids):
+    def make_bid(current_player, record, legal_bids):
         pass
 
     @staticmethod
@@ -41,6 +41,7 @@ class User:
 class HumanUser(User):
     @staticmethod
     def play_card(current_player, dummy, dummy_hand, all_cards, legal_cards, bid_history, card_history, leader_history):
+        print("Please play Player: " + str(current_player))
         #print("Dummy: \n" + User._convert_hand_to_str(dummy_hand))
         print("Dummy: \n" + User._beautify_hand(dummy_hand))
         print("All Cards: \n" +
@@ -55,7 +56,8 @@ class HumanUser(User):
         return get_input_card(legal_cards)
 
     @staticmethod
-    def make_bid(record, legal_bids):
+    def make_bid(current_player, record, legal_bids):
+        print("Please play Player: " + str(current_player))
         print("Record: " + str(record)) # TODO stringify record
         print("Legal Bids: " + str(legal_bids))
         return get_input_list(legal_bids, "bid")
