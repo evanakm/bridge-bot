@@ -1,14 +1,12 @@
-from typing import Dict, cast
-
 from game.deck import Deck
 
-from game.enums import Players, Contracts, Doubles, Vulnerabilities
+from game.enums import Players, Vulnerabilities
 from game import cardplay
 from game.scoring import get_score_from_result
 import sys
 from bots.randombotuser import RandomBotUser
-from game.interface import HumanUser, User
-from game.bidding import auction, Record
+from game.interface import HumanUser
+from game.bidding import auction
 
 NUMBER_OF_PLAYTHROUGHS = 1
 
