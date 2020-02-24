@@ -47,46 +47,43 @@ class User:
 
         for suit in Suits.suits():
             cards_in_suit = [card for card in cards if card.suit == suit]
+            # cards_in_suit.sort(key=lambda x: x.rank)
 
-            if len(cards_in_suit) ==  0:
-                res = res + "--"
-            else:
+            if len(cards_in_suit) != 0:
                 for card in cards_in_suit:
                     res = res + str(card).ljust(20)
-
-            res = res + "\n"
+                res = res + "\n"
+            # else:
+            #     res = res + "--"
+            #     res = res + "\n"
 
         return res
 
 
 class HumanUser(User):
     @staticmethod
-    def play_card_from_own_hand(current_player, dummy, dummy_hand, all_cards, legal_cards, bid_history, card_history, leader_history):
+    def play_card_from_own_hand(current_player, dummy, dummy_hand, all_cards, legal_cards, bid_history, card_history,
+                                leader_history):
         print("Please play Player: " + str(current_player))
-        print("Dummy: \n" + User._convert_hand_to_str(dummy_hand))
-        print("Dummy: \n" + User._beautify_hand(dummy_hand))
-        print("All Cards: \n" +
-              #User._convert_hand_to_str(all_cards)
+        print("Dummy Cards: \n" + User._beautify_hand(dummy_hand))  # Alternatively User._convert_hand_to_str
+        print("Your Cards: \n" +
               User._beautify_hand(all_cards)
               )
         print("Legal Cards: \n" +
-              #User._convert_hand_to_str(legal_cards)
               User._beautify_hand(legal_cards)
               )
 
         return get_input_card(legal_cards)
 
     @staticmethod
-    def play_card_from_own_hand(current_player, dummy, dummy_hand, all_cards, legal_cards, bid_history, card_history, leader_history):
+    def play_card_from_dummy_hand(current_player, dummy, dummy_hand, all_cards, legal_cards, bid_history, card_history,
+                                  leader_history):
         print("It is the Dummy's turn (" + str(dummy) + "). Please play Player: " + str(current_player.partner()))
-        print("Dummy: \n" + User._convert_hand_to_str(dummy_hand))
-        print("Dummy: \n" + User._beautify_hand(dummy_hand))
-        print("All Cards: \n" +
-              #User._convert_hand_to_str(all_cards)
+        print("Dummy Cards: \n" + User._beautify_hand(dummy_hand))  # Alternatively User._convert_hand_to_str
+        print("Your Cards: \n" +
               User._beautify_hand(all_cards)
               )
         print("Legal Cards: \n" +
-              #User._convert_hand_to_str(legal_cards)
               User._beautify_hand(legal_cards)
               )
 

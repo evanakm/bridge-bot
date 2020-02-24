@@ -30,14 +30,13 @@ def main():
     bid_history = None
 
     users = {
-        Players.NORTH: RandomBotUser(),
+        Players.NORTH: HumanUser(),
         Players.SOUTH: RandomBotUser(),
         Players.WEST: RandomBotUser(),
         Players.EAST: RandomBotUser()
     }
 
     record = auction(users, Players.NORTH)
-    print(record)
     full_contract = record.determine_full_contract()
 
     contract = full_contract.contract

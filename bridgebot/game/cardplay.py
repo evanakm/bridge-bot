@@ -65,14 +65,20 @@ def play(users, hands, contract, declarer, bid_history):
 
     strain = contract.determine_strain()
 
+    print("Declarer is " + str(declarer))
+    print("Dummy is "+ str(dummy))
+    print("Strain is " + str(strain.name))
+    print("Contract is " + str(contract.name))
+
     ns_tricks = 0
     ew_tricks = 0
+
+    print(leading_player.value + " starts")
 
     for trick_count in range(13):
         trick = []
 
         leader_history.append(leading_player)
-        print(leading_player.value + " starts")
 
         all_cards = hands[leading_player].cards
 
@@ -91,6 +97,7 @@ def play(users, hands, contract, declarer, bid_history):
             card_history=card_history,
             leader_history=leader_history
         )
+
         card_history[leading_player].append(led_card)
 
         hands[leading_player].lead(led_card)
@@ -103,7 +110,7 @@ def play(users, hands, contract, declarer, bid_history):
 
         for follower_count in range(3):
             current_player = current_player.next_player()
-            print(current_player.name + "'s turn")
+            # print(current_player.name + "'s turn")
             all_cards = hands[current_player].cards
             legal_cards = hands[current_player].legal_cards(led_card.suit)
             partner_user = users[current_player.partner()]
@@ -130,6 +137,8 @@ def play(users, hands, contract, declarer, bid_history):
         # it also makes the code re-usable in case we want to use it for another trick-taking game, because
         # they all have the same mechanic, even if they don't have four players.
         winning_player = leading_player.determine_nth_player_to_the_right(determine_trick_winner(trick, strain))
+
+        print(leading_player.value + " won the trick")
 
         # Update the number of tricks won
         if Team.NS.is_player_in_team(winning_player):
