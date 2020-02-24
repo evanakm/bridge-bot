@@ -14,8 +14,8 @@ NUMBER_OF_PLAYTHROUGHS = 1
 
 
 def main():
-    if sys.version_info[0] < 3:
-        print('bridgebot only works with python 3')
+    if sys.version_info < (3, 6):
+        print('bridgebot only works with python 3.6 and higher')
         return 1
 
     deck = Deck()
@@ -45,6 +45,8 @@ def main():
         score = get_score_from_result(contract, doubled, trick_winners, declarer_vulnerable)
 
         print("The declarer " + declarer.name + " has a score of " + str(score))
+
+    return 0
 
 
 if __name__ == "__main__":
