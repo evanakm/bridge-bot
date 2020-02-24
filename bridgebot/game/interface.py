@@ -1,11 +1,21 @@
+from __future__ import annotations
+
+from typing import List, Dict, Set
+
+from game.card import Card
 from game.get_input import get_input_card, get_input_list
 from abc import abstractmethod
-from game.enums import Suits
+from game.enums import Suits, Players
+from game.bids import Bids
+
+print(Bids)
 
 
 class User:
-    def play_card(self, partner, partners_cards, current_player, dummy, dummy_hand, all_cards, legal_cards,
-                  bid_history, card_history, leader_history):
+    def play_card(self, partner: User, partners_cards: Set[Card], current_player: Players, dummy: Players,
+                  dummy_hand: Set[Card], all_cards: Set[Card], legal_cards: Set[Card],
+                  bid_history: Dict[Players, List[Bids]], card_history: Dict[Players, List[Card]],
+                  leader_history: List[Players]) -> Card:
         if current_player != dummy:
             return self.play_card_from_own_hand(current_player, dummy, dummy_hand, all_cards, legal_cards,
                                                 bid_history, card_history, leader_history)
@@ -15,39 +25,45 @@ class User:
 
     @staticmethod
     @abstractmethod
-    def play_card_from_dummy_hand(current_player, dummy, dummy_hand, all_cards, legal_cards, bid_history, card_history,
-                                  leader_history):
+    def play_card_from_dummy_hand(current_player: Players, dummy: Players,
+                                  dummy_hand: Set[Card], all_cards: Set[Card], legal_cards: Set[Card],
+                                  bid_history: Dict[Players, List[Bids]], card_history: Dict[Players, List[Card]],
+                                  leader_history: List[Players]) -> Card:
         raise NotImplementedError('This is an abstract method. Please implement it before calling.'
                                   'The function play_card_from_dummy_hand has to be implemented for player ' +
                                   str(current_player))
 
     @staticmethod
     @abstractmethod
-    def play_card_from_own_hand(current_player, dummy, dummy_hand, all_cards, legal_cards, bid_history, card_history,
-                                leader_history):
+    def play_card_from_own_hand(current_player: Players, dummy: Players,
+                                dummy_hand: Set[Card], all_cards: Set[Card], legal_cards: Set[Card],
+                                bid_history: Dict[Players, List[Bids]], card_history: Dict[Players, List[Card]],
+                                leader_history: List[Players]) -> Card:
         raise NotImplementedError('This is an abstract method. Please implement it before calling.'
                                   'The function play_card_from_own_hand has to be implemented for player ' +
                                   str(current_player))
 
     @staticmethod
     @abstractmethod
-    def make_bid(current_player, record, legal_bids):
-        raise NotImplementedError('This is an abstract method. Please implement it before calling.')
+    def make_bid(current_player: Players, record: Dict[Players, List[Card]], legal_bids: List[Bids]) -> None:
+        raise NotImplementedError('This is an abstract method. Please implement it before calling.'
+                                  'The function play_card_from_own_hand has to be implemented for player ' +
+                                  str(current_player))
 
     @staticmethod
-    def _convert_hand_to_str(cards):
+    def _convert_hand_to_str(cards: List[Card]) -> str:
         card_string = ""
         for card in sorted(cards):
             card_string += str(card) + " "
         return card_string
 
     @staticmethod
-    def _beautify_hand(cards):
+    def _beautify_hand(cards: Set[Card]) -> str:
         res = ""
 
         for suit in Suits.suits():
             cards_in_suit = [card for card in cards if card.suit == suit]
-            # cards_in_suit.sort(key=lambda x: x.rank)
+            cards_in_suit.sort(key=lambda x: x.rank)
 
             if len(cards_in_suit) != 0:
                 for card in cards_in_suit:

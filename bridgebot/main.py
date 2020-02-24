@@ -20,7 +20,7 @@ def main():
     deck.shuffle()
 
     users = {
-        Players.NORTH: HumanUser(),
+        Players.NORTH: RandomBotUser(),
         Players.SOUTH: RandomBotUser(),
         Players.WEST: RandomBotUser(),
         Players.EAST: RandomBotUser()

@@ -79,7 +79,7 @@ class BridgeHand:
         if not isinstance(cards, list):
             raise DeckListNotValid("cards is not a list")
 
-        self.cards = set(cards)
+        self.cards: Set[Card] = set(cards)
         if len(cards) > 13:
             raise WrongSizeHandException("cards must contain 13 cards or less")
 

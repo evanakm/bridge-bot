@@ -1,6 +1,6 @@
 from typing import Dict, List
 
-from game.bidding import Bids
+from game.bids import Bids
 from game.enums import Strains, Players, Contracts, ContractNotFound, Team
 
 from game.bridgehand import Card, BridgeHand
@@ -55,7 +55,7 @@ def play(users: Dict[Players, User], hands: Dict[Players, BridgeHand], contract:
         Players.SOUTH: []
     }
 
-    leader_history = []
+    leader_history: List[Players] = []
 
     if not isinstance(declarer, Players):
         raise TypeError("Invalid declarer")
