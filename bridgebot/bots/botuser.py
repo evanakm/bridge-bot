@@ -36,7 +36,7 @@ def card_history_to_tensor(card_history):
 
 class BotUser(User):
     @staticmethod
-    def play_card(current_player, dummy, dummy_hand, all_cards, legal_cards, bid_history, card_history, leader_history):
+    def play_card_from_own_hand(current_player, dummy, dummy_hand, all_cards, legal_cards, bid_history, card_history, leader_history):
         pass
 
 

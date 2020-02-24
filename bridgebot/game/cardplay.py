@@ -76,8 +76,20 @@ def play(users, hands, contract, declarer, bid_history):
 
         all_cards = hands[leading_player].cards
 
+        partner_user = users[leading_player.partner()]
+        partners_cards = hands[leading_player.partner()].cards
+
         led_card = users[leading_player].play_card(
-            leading_player, dummy, hands[dummy].cards, all_cards, all_cards, bid_history, card_history, leader_history
+            partner=partner_user,
+            partners_cards=partners_cards,
+            current_player=leading_player,
+            dummy=dummy,
+            dummy_hand=hands[dummy].cards,
+            all_cards=all_cards,
+            legal_cards=all_cards,
+            bid_history=bid_history,
+            card_history=card_history,
+            leader_history=leader_history
         )
         card_history[leading_player].append(led_card)
 
@@ -94,9 +106,19 @@ def play(users, hands, contract, declarer, bid_history):
             print(current_player.name + "'s turn")
             all_cards = hands[current_player].cards
             legal_cards = hands[current_player].legal_cards(led_card.suit)
+            partner_user = users[current_player.partner()]
+            partners_cards = hands[current_player.partner()].cards
             card = users[current_player].play_card(
-                current_player, dummy, hands[dummy].cards, all_cards, legal_cards, bid_history, card_history,
-                leader_history
+                partner=partner_user,
+                partners_cards=partners_cards,
+                current_player=current_player,
+                dummy=dummy,
+                dummy_hand=hands[dummy].cards,
+                all_cards=all_cards,
+                legal_cards=legal_cards,
+                bid_history=bid_history,
+                card_history=card_history,
+                leader_history=leader_history
             )
             card_history[current_player].append(card)
 
