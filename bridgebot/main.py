@@ -21,13 +21,6 @@ def main():
     deck = Deck()
     deck.shuffle()
 
-    # Todo add in bid getting
-    #contract = Contracts.FIVE_CLUBS # get_input_enum(Contracts, "contract")
-    #doubled = Doubles.DOUBLE # get_input_enum(Doubles, "doubled status")
-    #declarer = Players.EAST # get_input_enum(Players, "declarer")
-    #vulnerability = Vulnerabilities.BOTH # get_input_enum(Vulnerabilities, "vulnerability")
-    #vulnerability = vulnerability.is_declarer_vulnerable(declarer)
-
     users = {
         Players.NORTH: HumanUser(),
         Players.SOUTH: RandomBotUser(),
