@@ -1,7 +1,12 @@
+from __future__ import annotations
 from enum import Enum
+
+from typing import List, Union, Set
+
 
 class InvalidPlayerException(Exception):
     pass
+
 
 class Players(Enum):
     NORTH = "NORTH"
@@ -10,14 +15,14 @@ class Players(Enum):
     WEST = "WEST"
 
     @staticmethod
-    def players():
+    def players() -> List[Players]:
         return [Players.NORTH, Players.EAST, Players.SOUTH, Players.WEST]
 
-    def next_player(self):
+    def next_player(self) -> Players:
         players = self.players()
         return players[(players.index(self) + 1) % 4]
 
-    def determine_nth_player_to_the_right(self, steps):
+    def determine_nth_player_to_the_right(self, steps: int) -> Players:
         """
         Determine the nth player to the right of self
 
@@ -35,12 +40,14 @@ class Players(Enum):
         players = self.players()
         return players[(players.index(self) + steps) % 4]
 
-    def partner(self):
+    def partner(self) -> Players:
         players = self.players()
         return players[(players.index(self) + 2) % 4]
 
+
 class ContractNotFound(Exception):
     pass
+
 
 class Contracts(Enum):
     ONE_CLUB = "1C"
@@ -80,7 +87,7 @@ class Contracts(Enum):
     SEVEN_NO_TRUMP = "7N"
 
     @staticmethod
-    def contracts():
+    def contracts() -> List[Contracts]:
         return [
             Contracts.ONE_CLUB,    Contracts.ONE_DIAMOND,    Contracts.ONE_HEART,    Contracts.ONE_SPADE,    Contracts.ONE_NO_TRUMP,
             Contracts.TWO_CLUBS,   Contracts.TWO_DIAMONDS,   Contracts.TWO_HEARTS,   Contracts.TWO_SPADES,   Contracts.TWO_NO_TRUMP,
@@ -92,12 +99,12 @@ class Contracts(Enum):
         ]
 
     @staticmethod
-    def __determine_level_from_contract(contract):
+    def __determine_level_from_contract(contract: Contracts) -> int:
         contracts = Contracts.contracts()
         return 1 + int(contracts.index(contract) / 5) #Add one since indexing starts from zero
 
     @staticmethod
-    def __determine_strain_from_contract(contract):
+    def __determine_strain_from_contract(contract: Contracts) -> Strains:
         if not isinstance(contract, Contracts):
             raise TypeError("contract is not of type Contracts")
 
@@ -105,13 +112,13 @@ class Contracts(Enum):
         strains = Strains.strains()
         return strains[contracts.index(contract) % 5]
 
-    def determine_strain(self):
+    def determine_strain(self) -> Strains:
         return Contracts.__determine_strain_from_contract(self)
 
-    def determine_level(self):
+    def determine_level(self) -> int:
         return Contracts.__determine_level_from_contract(self)
 
-    def __lt__(self, other):
+    def __lt__(self, other: Union[Contracts, None]):
         if other is None:
             return False
 
@@ -126,16 +133,15 @@ class Suits(Enum):
     SPADES = "SPADES"
 
     @staticmethod
-    def suits():
+    def suits() -> List[Suits]:
         return [Suits.CLUBS, Suits.DIAMONDS, Suits.HEARTS, Suits.SPADES]
 
-    def __lt__(self, other):
+    def __lt__(self, other: Suits) -> bool:
         suits = self.suits()
         return suits.index(self) < suits.index(other)
 
-
     @staticmethod
-    def determine_suit_from_contract(contract):
+    def determine_suit_from_contract(contract: Contracts) -> Suits:
         if not isinstance(contract, Contracts):
             raise ContractNotFound("Invalid Contract")
 
@@ -151,17 +157,17 @@ class Team(Enum):
     EW = 'EW'
 
     @staticmethod
-    def team_to_set_of_players(team):
+    def team_to_set_of_players(team: Team) -> Set[Players]:
         if not isinstance(team, Team):
             raise InvalidTeam("Invalid Team")
         if team == Team.NS:
-            return set([Players.NORTH, Players.SOUTH])
+            return {Players.NORTH, Players.SOUTH}
         if team == Team.EW:
-            return set([Players.EAST, Players.WEST])
+            return {Players.EAST, Players.WEST}
         raise InvalidTeam("Invalid Team")
 
     @staticmethod
-    def player_to_team(player):
+    def player_to_team(player: Players) -> Team:
         if not isinstance(player, Players):
             raise InvalidPlayerException("Invalid Player")
         if player == Players.NORTH or player == Players.SOUTH:
@@ -169,10 +175,10 @@ class Team(Enum):
         else:
             return Team.EW
 
-    def to_set_of_players(self):
+    def to_set_of_players(self) -> Set[Players]:
         return Team.team_to_set_of_players(self)
 
-    def is_player_in_team(self, player):
+    def is_player_in_team(self, player: Players) -> bool:
         if not isinstance(player, Players):
             raise InvalidPlayerException("Invalid Player")
         return player in self.to_set_of_players()
@@ -184,7 +190,7 @@ class Vulnerabilities(Enum):
     EW = 'EW'
     BOTH = 'BOTH'
 
-    def is_declarer_vulnerable(self, declarer):
+    def is_declarer_vulnerable(self, declarer: Players) -> bool:
         if not isinstance(declarer, Players):
             raise InvalidPlayerException("Invalid Declarer")
 
@@ -201,8 +207,10 @@ class Vulnerabilities(Enum):
 class InvalidSuitOrStrainException(Exception):
     pass
 
+
 class InvalidStrainException(Exception):
     pass
+
 
 class Strains(Enum):
     CLUBS = "CLUBS"
@@ -213,14 +221,14 @@ class Strains(Enum):
     PASSOUT = "PASSOUT" #Including this as a strain is somewhat of a ninja fix
 
     @staticmethod
-    def strains():
+    def strains() -> List[Strains]:
         return [Strains.CLUBS, Strains.DIAMONDS, Strains.HEARTS, Strains.SPADES, Strains.NT, Strains.PASSOUT]
 
-    def __lt__(self, other):
+    def __lt__(self, other: Strains) -> bool:
         strains = self.strains()
         return strains.index(self) < strains.index(other)
 
-    def determine_suit(self):
+    def determine_suit(self) -> Suits:
         if self == Strains.CLUBS:
             return Suits.CLUBS
         elif self == Strains.DIAMONDS:
@@ -231,7 +239,7 @@ class Strains(Enum):
             return Suits.SPADES
         return None
 
-    def compare_to_suit(self, suit):
+    def compare_to_suit(self, suit: Suits) -> bool:
         if not isinstance(suit, Suits):
             raise InvalidSuitOrStrainException("Invalid Suit")
         else:
@@ -243,6 +251,7 @@ class Strains(Enum):
 
 class Pass(Enum):
     PASS = 'P'
+
 
 class Ranks(Enum):
     TWO = "2"
@@ -260,11 +269,11 @@ class Ranks(Enum):
     ACE = "A"
 
     @staticmethod
-    def ranks():
+    def ranks() -> List[Ranks]:
         return [Ranks.TWO, Ranks.THREE, Ranks.FOUR, Ranks.FIVE, Ranks.SIX, Ranks.SEVEN, Ranks.EIGHT, Ranks.NINE,
                 Ranks.TEN, Ranks.JACK, Ranks.QUEEN, Ranks.KING, Ranks.ACE]
 
-    def __lt__(self, other):
+    def __lt__(self, other: Ranks) -> bool:
         ranks = self.ranks()
         return ranks.index(self) < ranks.index(other)
 
@@ -277,6 +286,7 @@ class Doubles(Enum):
     NONE = "NONE"
     DOUBLE = "X"
     REDOUBLE = "XX"
+
 
 class AuctionStatus(Enum):
     DONE = "DONE"

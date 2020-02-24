@@ -104,7 +104,7 @@ def test_bidding(dealer, bids, expected):
         print(bid)
         record.add_bid(bid)
     print(expected)
-    assert record.complete() == expected
+    assert record.is_complete() == expected
 
 
 

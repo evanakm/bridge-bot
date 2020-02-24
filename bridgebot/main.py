@@ -1,3 +1,5 @@
+from typing import Dict, cast
+
 from game.deck import Deck
 
 from game.enums import Players, Contracts, Doubles, Vulnerabilities
@@ -5,7 +7,7 @@ from game import cardplay
 from game.scoring import get_score_from_result
 import sys
 from bots.randombotuser import RandomBotUser
-from game.interface import HumanUser
+from game.interface import HumanUser, User
 from game.bidding import auction, Record
 
 NUMBER_OF_PLAYTHROUGHS = 1
@@ -26,9 +28,6 @@ def main():
     #vulnerability = Vulnerabilities.BOTH # get_input_enum(Vulnerabilities, "vulnerability")
     #vulnerability = vulnerability.is_declarer_vulnerable(declarer)
 
-    # Todo, link in bid history
-    bid_history = None
-
     users = {
         Players.NORTH: HumanUser(),
         Players.SOUTH: RandomBotUser(),
@@ -43,14 +42,14 @@ def main():
     doubled = full_contract.doubled
     declarer = full_contract.declarer
     vulnerability = Vulnerabilities.BOTH
-    vulnerability = vulnerability.is_declarer_vulnerable(declarer)
+    declarer_vulnerable = vulnerability.is_declarer_vulnerable(declarer)
 
     for i in range(0, NUMBER_OF_PLAYTHROUGHS):
         deal = deck.deal()
 
-        trick_winners = cardplay.play(users, deal, contract, declarer, bid_history)
+        trick_winners = cardplay.play(users, deal, contract, declarer, record.record)
 
-        score = get_score_from_result(contract, doubled, trick_winners, vulnerability)
+        score = get_score_from_result(contract, doubled, trick_winners, declarer_vulnerable)
 
         print("The declarer " + declarer.name + " has a score of " + str(score))
 

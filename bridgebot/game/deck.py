@@ -1,3 +1,5 @@
+from typing import List, Dict
+
 from game.enums import Players, Suits, Ranks
 from game.bridgehand import BridgeHand
 
@@ -17,7 +19,7 @@ class Deck:
                 continue
             self.__card_indices[i], self.__card_indices[j] = self.__card_indices[j], self.__card_indices[i]
 
-    def deal(self):
+    def deal(self) -> Dict[Players, BridgeHand]:
         """
         Deal out the deck of cards
 
@@ -28,23 +30,23 @@ class Deck:
         """
         return Deck.__deal(self.__card_indices)
 
-    def get_card_indices(self):
+    def get_card_indices(self) -> List[int]:
         return self.__card_indices
 
     @staticmethod
-    def generate_card_from_index(index):
+    def generate_card_from_index(index: int) -> Card:
         if index not in range(52):
             raise ValueError("index must be an integer between 0 and 51 inclusive.")
         return Card(Suits.suits()[int(index / 13)], Ranks.ranks()[index % 13])
 
     @staticmethod
-    def __generate_bridge_hand(card_indices, start, stop):
+    def __generate_bridge_hand(card_indices, start: int, stop: int) -> BridgeHand:
         return BridgeHand.generate_complete_hand([
             Deck.generate_card_from_index(card_index) for card_index in card_indices[start:stop]
         ])
 
     @staticmethod
-    def __deal(card_indices):
+    def __deal(card_indices: List[int]) -> Dict[Players, BridgeHand]:
         """
         Deal out a deck of cards
 

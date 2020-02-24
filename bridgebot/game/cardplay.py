@@ -1,6 +1,9 @@
+from typing import Dict, List
+
+from game.bidding import Bids
 from game.enums import Strains, Players, Contracts, ContractNotFound, Team
 
-from game.bridgehand import Card
+from game.bridgehand import Card, BridgeHand
 from game.interface import User
 
 
@@ -33,7 +36,8 @@ def determine_trick_winner(played_cards, strain):
     return played_cards.index(highest_card)
 
 
-def play(users, hands, contract, declarer, bid_history):
+def play(users: Dict[Players, User], hands: Dict[Players, BridgeHand], contract: Contracts, declarer: Players,
+         bid_history: Dict[Players, List[Bids]]):
     if not isinstance(users, dict):
         raise TypeError("users is not of type dict")
 
@@ -66,7 +70,7 @@ def play(users, hands, contract, declarer, bid_history):
     strain = contract.determine_strain()
 
     print("Declarer is " + str(declarer))
-    print("Dummy is "+ str(dummy))
+    print("Dummy is " + str(dummy))
     print("Strain is " + str(strain.name))
     print("Contract is " + str(contract.name))
 

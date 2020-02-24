@@ -1,3 +1,6 @@
+from __future__ import annotations
+from typing import List, Union, Set
+
 from game.enums import Suits
 
 from game.card import Card, InvalidSuitException
@@ -24,14 +27,13 @@ class RepeatedCardException(Exception):
 
 
 class BridgeHand:
-    def get_cards_of_suit(self, suit):
+    def get_cards_of_suit(self, suit) -> Set[Card]:
         if not isinstance(suit, Suits):
             raise TypeError("suit is not of type Suits")
 
         return set(card for card in self.cards if card.suit == suit)
 
-    @staticmethod
-    def __add_cards_to_bridge_hand(bridge_hand, cards):
+    def __add_cards_to_bridge_hand(self, cards):
         if not isinstance(cards, list):
             raise DeckListNotValid("deck_indices is not a list")
 
@@ -39,12 +41,10 @@ class BridgeHand:
             raise WrongSizeHandException("Bridge hands must contain 13 cards.")
 
         for card in cards:
-            bridge_hand.__add_card(card)
-
-        return bridge_hand
+            self.__add_card(card)
 
     @staticmethod
-    def generate_complete_hand(cards):
+    def generate_complete_hand(cards: List[Card]) -> BridgeHand:
         """
         Generates a hand from a list of 13 ints
 
@@ -67,7 +67,7 @@ class BridgeHand:
         return BridgeHand(cards)
 
     @staticmethod
-    def generate_partially_played_hand(cards):
+    def generate_partially_played_hand(cards: List[Card]) -> BridgeHand:
         if len(cards) > 13:
             raise WrongSizeHandException("cards must contain no more than 13 cards")
         for card in cards:
@@ -75,7 +75,7 @@ class BridgeHand:
                 raise TypeError("card is not of type Card")
         return BridgeHand(cards)
 
-    def __init__(self, cards):
+    def __init__(self, cards: List[Card]):
         if not isinstance(cards, list):
             raise DeckListNotValid("cards is not a list")
 
@@ -88,7 +88,7 @@ class BridgeHand:
 
         BridgeHand.__add_cards_to_bridge_hand(self, cards)
 
-    def contains_card(self, card):
+    def contains_card(self, card: Card) -> bool:
         """
         Returns if a card is in the hand or not
 
@@ -108,7 +108,7 @@ class BridgeHand:
 
         return card in self.cards
 
-    def __play_card(self, card):
+    def __play_card(self, card: Card):
         if not isinstance(card, Card):
             raise TypeError("card is not of type Card")
 
@@ -116,12 +116,12 @@ class BridgeHand:
             raise CardNotInHandException("Hand does not contain " + card.rank.name + " of " + card.suit.name + ".")
         self.cards.remove(card)
 
-    def __add_card(self, card):
+    def __add_card(self, card: Card):
         if not isinstance(card, Card):
             raise TypeError("card is not of type Card")
         self.cards.add(card)
 
-    def lead(self, card):
+    def lead(self, card: Card):
         """
         Parameters
         ----------
@@ -136,7 +136,7 @@ class BridgeHand:
 
         self.__play_card(card)
 
-    def follow(self, led_suit, card_played):
+    def follow(self, led_suit: Suits, card_played: Card):
         """
         Parameters
         ----------
@@ -160,7 +160,7 @@ class BridgeHand:
         else:
             self.__play_card(card_played)
 
-    def legal_cards(self, led_suit=None):
+    def legal_cards(self, led_suit: Union[Suits, None] = None) -> Set[Card]:
         """
         Get a list of all of a players playable cards.
 

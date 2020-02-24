@@ -1,4 +1,5 @@
-from game.enums import Strains, Doubles, Contracts, InvalidDoublesException, InvalidStrainException, ContractNotFound
+from game.enums import Strains, Doubles, Contracts, InvalidDoublesException, InvalidStrainException, ContractNotFound, \
+    Vulnerabilities
 
 
 def contract_bonus(bid_trick_score, vulnerability):
@@ -225,7 +226,7 @@ def minor(bid, made, doubled, vulnerability):
     return bid_trick_score + overtrick_score + bonus
 
 
-def penalty(down, doubled, vulnerability):
+def penalty(down: int, doubled: Doubles, vulnerability: bool) -> int:
     """
     Points for setting a contract
 
@@ -276,21 +277,9 @@ def penalty(down, doubled, vulnerability):
             return base + (down - 3)*600
 
 
-def calculate_score(bid, strain, result, doubled, vulnerability):
+def calculate_score(bid: int, strain: Strains, result: int, doubled: Doubles, vulnerability: bool) -> int:
     """
     Calculating the score from a contract and result
-
-    Parameters
-    ----------
-    bid: int
-    strain: Strains
-    result: int
-    doubled: Doubles
-    vulnerability: bool
-
-    Returns
-    -------
-    score: int
 
     """
     if not isinstance(bid, int):
@@ -324,7 +313,8 @@ def calculate_score(bid, strain, result, doubled, vulnerability):
         return no_trump(bid, result, doubled, vulnerability)
 
 
-def get_score_from_result(contract, doubled, tricks_taken, vulnerability):
+def get_score_from_result(contract: Contracts, doubled: Doubles, tricks_taken: int,
+                          vulnerability: bool) -> int:
     contracts = Contracts.contracts()
     strains = Strains.strains()
 

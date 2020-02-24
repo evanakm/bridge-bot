@@ -1,10 +1,11 @@
+from __future__ import annotations
+from typing import Dict, List, Union, Tuple
+
 from game.enums import Players, Strains, AuctionStatus, Doubles, Contracts, Team, InvalidPlayerException, InvalidStrainException, Suits, Pass
 from enum import Enum
 from game.get_input import get_input_list
 from bots.randombotuser import RandomBotUser
-from game.interface import HumanUser
-
-
+from game.interface import HumanUser, User
 
 from itertools import chain
 
@@ -14,8 +15,10 @@ class InvalidDealerException(Exception):
 class InvalidBidException(Exception):
     pass
 
+
 class FullContract:
-    def __init__(self, contract, doubled, declarer, passout=False, start_of_auction=False):
+    def __init__(self, contract: Union[Contracts, None], doubled: Union[Doubles, None], declarer: Union[Players, None],
+                 passout: bool = False, start_of_auction: bool = False):
         self.contract = contract
         self.doubled = doubled
         self.declarer = declarer
@@ -45,6 +48,7 @@ class FullContract:
     @staticmethod
     def passout_generator():
         return FullContract(None, None, None, True, False)
+
 
 # Compares to a contract, so can't go into enum
 class Bids(Enum):
@@ -88,7 +92,7 @@ class Bids(Enum):
     REDOUBLE = Doubles.REDOUBLE
 
     @staticmethod
-    def bids():
+    def bids() -> List[Bids]:
         return [
             Bids.ONE_CLUB,      Bids.ONE_DIAMOND,       Bids.ONE_HEART,     Bids.ONE_SPADE,     Bids.ONE_NO_TRUMP,
             Bids.TWO_CLUBS,     Bids.TWO_DIAMONDS,      Bids.TWO_HEARTS,    Bids.TWO_SPADES,    Bids.TWO_NO_TRUMP,
@@ -101,7 +105,7 @@ class Bids(Enum):
         ]
 
     @staticmethod
-    def _is_sufficient_bid(bid, bidder, current_contract):
+    def _is_sufficient_bid(bid: Bids, bidder: Players, current_contract: FullContract) -> bool:
         if not isinstance(bidder, Players):
             raise Exception("by_bidder must be a Player")
 
@@ -143,16 +147,16 @@ class Bids(Enum):
             else:
                 return True
 
-    def map_to_contract(self):
+    def map_to_contract(self) -> Contracts:
         bids = self.bids()
         return Contracts.contracts()[bids.index(self)]
 
     @staticmethod
-    def all_legal_bids(bidder, current_contract):
+    def all_legal_bids(bidder: Players, current_contract: FullContract) -> List[Bids]:
         return [bid for bid in Bids.bids() if Bids._is_sufficient_bid(bid, bidder, current_contract)]
 
     @staticmethod
-    def beautify_legal_bids(bidder, current_contract):
+    def beautify_legal_bids(bidder: Players, current_contract: FullContract) -> str:
         legal_bids = Bids.all_legal_bids(bidder, current_contract)
 
         counter = 0
@@ -169,10 +173,11 @@ class Bids(Enum):
 
         return res
 
+
 class Record:
-    def __init__(self, dealer):
+    def __init__(self, dealer: Players):
         self.__dealer = dealer
-        self.__record = {
+        self.__record: Dict[Players, List[Bids]] = {
             Players.NORTH: [],
             Players.EAST: [],
             Players.SOUTH: [],
@@ -181,11 +186,11 @@ class Record:
         self.__player_currently_bidding = dealer
 
     @staticmethod
-    def __cycle_of_players(dealer):
+    def __cycle_of_players(dealer: Players) -> List[Players]:
         return [dealer.determine_nth_player_to_the_right(i) for i in range(4)]
 
     @staticmethod
-    def __complete(dealer, record):
+    def __is_complete(dealer: Players, record: Dict[Players, List[Bids]]) -> bool:
         if Record.__is_passout(record):
             return True
 
@@ -202,17 +207,11 @@ class Record:
 
         return True
 
-    def complete(self):
-        is_complete = Record.__complete(self.dealer, self.record)
+    def is_complete(self) -> bool:
+        return Record.__is_complete(self.dealer, self.record)
 
-        # This is a side effect but I think it makes sense
-        # DON'T DO THIS!!!
-        # self.__player_currently_bidding = None
-
-        return is_complete
-
-    def add_bid(self, bid):
-        if self.complete():
+    def add_bid(self, bid: Bids) -> None:
+        if self.is_complete():
             raise ValueError("Cannot add a bid as bidding is complete")
 
         current_contract = self.determine_current_contract()
@@ -226,15 +225,15 @@ class Record:
         self.__player_currently_bidding = self.__player_currently_bidding.next_player()
 
     @property
-    def record(self):
+    def record(self) -> Dict[Players, List[Bids]]:
         return self.__record
 
     @property
-    def dealer(self):
+    def dealer(self) -> Players:
         return self.__dealer
 
     @staticmethod
-    def __is_passout(record):
+    def __is_passout(record: Dict[Players, List[Bids]]) -> bool:
         for player in Players:
             if len(record[player]) != 0:
                 if record[player][0] != Bids.PASS:
@@ -243,7 +242,7 @@ class Record:
                 return False
         return True
 
-    def _determine_highest_bid_and_bidder(self):
+    def _determine_highest_bid_and_bidder(self) -> Tuple[Bids, Union[Players, None]]:
         if Record.__is_passout(self.__record):
             raise ValueError("Cannot determine the highest player for a passout")
 
@@ -258,7 +257,7 @@ class Record:
 
         return highest_bid, highest_bidder
 
-    def _determine_doubled_status(self, highest_bid):
+    def _determine_doubled_status(self, highest_bid: Bids) -> Doubles:
         zipped = list(
             chain.from_iterable(
                 # We append [Bids.PASS] because it is possible that the last real bid
@@ -277,7 +276,7 @@ class Record:
         else:
             return Doubles.NONE
 
-    def _determine_declarer(self, highest_bid, highest_bidder):
+    def _determine_declarer(self, highest_bid: Bids, highest_bidder: Players) -> Players:
         highest_bid_strain = highest_bid.value.determine_strain()
         bids_that_are_same_strain = [
             bid for bid in Bids.bids()
@@ -292,7 +291,7 @@ class Record:
 
         raise ValueError("highest_bid not found")
 
-    def determine_current_contract(self):
+    def determine_current_contract(self) -> FullContract:
         highest_bid, highest_bidder = self._determine_highest_bid_and_bidder()
         if highest_bid == Bids.PASS:
             return FullContract.start_of_auction_generator()
@@ -301,9 +300,9 @@ class Record:
         declarer = self._determine_declarer(highest_bid, highest_bidder)
         return FullContract(highest_bid.value, doubled, declarer, False)
 
-    def determine_full_contract(self):
+    def determine_full_contract(self) -> FullContract:
         """ TODO THIS SHOULD BE COMBINED WITH determine_current_contract? """
-        if not self.complete():
+        if not self.is_complete():
             raise ValueError("Cannot call determine_full_contract if the record is not complete!")
 
         if Record.__is_passout(self.__record):
@@ -315,7 +314,7 @@ class Record:
 
         return FullContract(highest_bid.value, doubled, declarer, False)
 
-    def beautify_history(self):
+    def beautify_history(self) -> str:
         cycle = Record.__cycle_of_players(self.__dealer)
 
         zipped = list(
@@ -327,7 +326,6 @@ class Record:
 
         bids = [bid for bid in zipped if bid != 'Placeholder']
 
-        first = True
         res = ''
         for player in cycle:
             res = res + player.value.ljust(8)
@@ -343,14 +341,14 @@ class Record:
         return res
 
 
-def auction(users, dealer):
+def auction(users: Dict[Players, User], dealer: Players) -> Record:
     if not isinstance(dealer, Players):
         raise TypeError("dealer must be of enum Players")
 
     record = Record(dealer)
     current_bidder = dealer
 
-    while not record.complete():
+    while not record.is_complete():
         print('<------------- NEW BID --------------->')
         print('The current bidder is ' + str(current_bidder))
         current_contract = record.determine_current_contract()
