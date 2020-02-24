@@ -1,9 +1,9 @@
-from game.deck import Deck
+import sys
 
+from game.deck import Deck
 from game.enums import Players, Vulnerabilities
 from game import cardplay
 from game.scoring import get_score_from_result
-import sys
 from bots.randombotuser import RandomBotUser
 from game.interface import HumanUser
 from game.bidding import auction
