@@ -5,7 +5,6 @@ from game.enums import Players, Vulnerabilities
 from game import cardplay
 from game.scoring import get_score_from_result
 from bots.randombotuser import RandomBotUser
-from game.interface import HumanUser
 from game.bidding import auction
 
 NUMBER_OF_PLAYTHROUGHS = 1

@@ -8,8 +8,6 @@ from abc import abstractmethod
 from game.enums import Suits, Players
 from game.bids import Bids
 
-print(Bids)
-
 
 class User:
     def play_card(self, partner: User, partners_cards: Set[Card], current_player: Players, dummy: Players,
