@@ -77,6 +77,36 @@ def card_logic(state: GameState, is_led: bool):
     state.current_player = state.current_player.next_player()
 
 
+def update_game_state(state: GameState):
+    if state.current_player == state.leading_player:
+        if len(state.current_trick) == 0:
+            card_logic(state, True)
+        else:
+            # self.play_trick determines the index of the winner relative to the index of the leader
+            # it also makes the code re-usable in case we want to use it for another trick-taking game, because
+            # they all have the same mechanic, even if they don't have four players.
+            winning_player = state.leading_player.determine_nth_player_to_the_right(
+                determine_trick_winner(state.current_trick, state.strain))
+
+            print(state.leading_player.value + " won the trick")
+
+            # Update the number of tricks won
+            if Team.NS.is_player_in_team(winning_player):
+                state.ns_tricks += 1
+            else:
+                state.ew_tricks += 1
+
+            state.trick_history.append(state.current_trick)
+            state.leader_history.append(state.leading_player)
+
+            state.leading_player = winning_player
+            state.current_player = winning_player
+
+            state.current_trick = []
+    else:
+        card_logic(state, False)
+
+
 def play(state: GameState):
     print("Declarer is " + str(state.declarer))
     print("Dummy is " + str(state.dummy))
@@ -84,34 +114,10 @@ def play(state: GameState):
     print("Contract is " + str(state.contract.name))
     print(state.leading_player.value + " starts")
 
-    while state.trick_count < NUMBER_OF_TRICKS:
-        if state.current_player == state.leading_player:
-            if len(state.current_trick) == 0:
-                card_logic(state, True)
-            else:
-                # self.play_trick determines the index of the winner relative to the index of the leader
-                # it also makes the code re-usable in case we want to use it for another trick-taking game, because
-                # they all have the same mechanic, even if they don't have four players.
-                winning_player = state.leading_player.determine_nth_player_to_the_right(
-                    determine_trick_winner(state.current_trick, state.strain))
+    while not state.is_game_over:
+        update_game_state(state)
 
-                print(state.leading_player.value + " won the trick")
-
-                # Update the number of tricks won
-                if Team.NS.is_player_in_team(winning_player):
-                    state.ns_tricks += 1
-                else:
-                    state.ew_tricks += 1
-
-                state.trick_history.append(state.current_trick)
-                state.leader_history.append(state.leading_player)
-
-                state.leading_player = winning_player
-                state.current_player = winning_player
-
-                state.current_trick = []
-        else:
-            card_logic(state, False)
+    print("NS Tricks: {}, EW Tricks: {}".format(state.ns_tricks, state.ew_tricks))
 
     if Team.NS.is_player_in_team(state.declarer):
         return state.ns_tricks
