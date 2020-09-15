@@ -1,7 +1,7 @@
 from typing import Dict, List
 
 from game.bids import Bids
-from game.enums import Players, Contracts, ContractNotFound, Strains
+from game.enums import Players, Contracts, ContractNotFound, Strains, NUMBER_OF_TRICKS
 
 from game.bridgehand import BridgeHand
 from game.interface import User
@@ -93,7 +93,11 @@ class GameState:
         return self.current_trick[0]
 
     @property
-    def trick_count(self):
+    def trick_count(self) -> int:
         if len(self.leader_history) != len(self.trick_history):
             raise InternalHistoryError("The leader_history and trick_history are not consistent with each other")
         return len(self.leader_history)
+
+    @property
+    def is_game_over(self) -> bool:
+        return self.trick_count == NUMBER_OF_TRICKS
