@@ -109,6 +109,17 @@ class BridgeHand:
         return card in self.cards
 
     def __play_card(self, card: Card):
+        """
+        Plays a card. This removes the card from the hand.
+        Parameters
+        ----------
+        card: Card
+            The card to be played
+
+        Returns
+        -------
+
+        """
         if not isinstance(card, Card):
             raise TypeError("card is not of type Card")
 
@@ -138,6 +149,8 @@ class BridgeHand:
 
     def follow(self, led_suit: Suits, card_played: Card):
         """
+        Follow a suit with a card. This function removes the card from he hand of the player.
+
         Parameters
         ----------
         led_suit: Suits

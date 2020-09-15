@@ -5,7 +5,7 @@ from game.enums import Strains, Players, Contracts, ContractNotFound, Team
 
 from game.bridgehand import Card, BridgeHand
 from game.interface import User
-
+from game.gamestate import GameState
 
 def determine_trick_winner(played_cards, strain):
     if not isinstance(played_cards, list):
@@ -36,75 +36,42 @@ def determine_trick_winner(played_cards, strain):
     return played_cards.index(highest_card)
 
 
-def play(users: Dict[Players, User], hands: Dict[Players, BridgeHand], contract: Contracts, declarer: Players,
-         bid_history: Dict[Players, List[Bids]]):
-    if not isinstance(users, dict):
-        raise TypeError("users is not of type dict")
+def play(state: GameState):
+    leading_player = state.declarer.next_player()
 
-    for key, val in users.items():
-        if not isinstance(key, Players):
-            raise TypeError("users key is not of type Players")
-
-        if not isinstance(val, User):
-            raise TypeError("users value is not of type User")
-
-    card_history = {
-        Players.NORTH: [],
-        Players.EAST: [],
-        Players.WEST: [],
-        Players.SOUTH: []
-    }
-
-    leader_history: List[Players] = []
-
-    if not isinstance(declarer, Players):
-        raise TypeError("Invalid declarer")
-
-    if not isinstance(contract, Contracts):
-        raise ContractNotFound("Invalid Contract")
-
-    dummy = declarer.partner()
-
-    leading_player = declarer.next_player()
-
-    strain = contract.determine_strain()
-
-    print("Declarer is " + str(declarer))
-    print("Dummy is " + str(dummy))
-    print("Strain is " + str(strain.name))
-    print("Contract is " + str(contract.name))
-
-    ns_tricks = 0
-    ew_tricks = 0
+    print("Declarer is " + str(state.declarer))
+    print("Dummy is " + str(state.dummy))
+    print("Strain is " + str(state.strain.name))
+    print("Contract is " + str(state.contract.name))
 
     print(leading_player.value + " starts")
 
     for trick_count in range(13):
         trick = []
 
-        leader_history.append(leading_player)
+        state.leader_history.append(leading_player)
 
-        all_cards = hands[leading_player].cards
+        all_cards = state.hands[leading_player].cards
 
-        partner_user = users[leading_player.partner()]
-        partners_cards = hands[leading_player.partner()].cards
+        partner_user = state.users[leading_player.partner()]
+        partners_cards = state.hands[leading_player.partner()].cards
 
-        led_card = users[leading_player].play_card(
+        led_card = state.users[leading_player].play_card(
             partner=partner_user,
             partners_cards=partners_cards,
             current_player=leading_player,
-            dummy=dummy,
-            dummy_hand=hands[dummy].cards,
+            dummy=state.dummy,
+            dummy_hand=state.hands[state.dummy].cards,
             all_cards=all_cards,
             legal_cards=all_cards,
-            bid_history=bid_history,
-            card_history=card_history,
-            leader_history=leader_history
+            bid_history=state.bid_history,
+            card_history=state.card_history,
+            leader_history=state.leader_history
         )
 
-        card_history[leading_player].append(led_card)
+        state.card_history[leading_player].append(led_card)
 
-        hands[leading_player].lead(led_card)
+        state.hands[leading_player].lead(led_card)
 
         trick.append(led_card)
 
@@ -115,45 +82,45 @@ def play(users: Dict[Players, User], hands: Dict[Players, BridgeHand], contract:
         for follower_count in range(3):
             current_player = current_player.next_player()
             # print(current_player.name + "'s turn")
-            all_cards = hands[current_player].cards
-            legal_cards = hands[current_player].legal_cards(led_card.suit)
-            partner_user = users[current_player.partner()]
-            partners_cards = hands[current_player.partner()].cards
-            card = users[current_player].play_card(
+            all_cards = state.hands[current_player].cards
+            legal_cards = state.hands[current_player].legal_cards(led_card.suit)
+            partner_user = state.users[current_player.partner()]
+            partners_cards = state.hands[current_player.partner()].cards
+            card = state.users[current_player].play_card(
                 partner=partner_user,
                 partners_cards=partners_cards,
                 current_player=current_player,
-                dummy=dummy,
-                dummy_hand=hands[dummy].cards,
+                dummy=state.dummy,
+                dummy_hand=state.hands[state.dummy].cards,
                 all_cards=all_cards,
                 legal_cards=legal_cards,
-                bid_history=bid_history,
-                card_history=card_history,
-                leader_history=leader_history
+                bid_history=state.bid_history,
+                card_history=state.card_history,
+                leader_history=state.leader_history
             )
-            card_history[current_player].append(card)
+            state.card_history[current_player].append(card)
 
-            hands[current_player].follow(led_card.suit, card)
+            state.hands[current_player].follow(led_card.suit, card)
             trick.append(card)
             print(current_player.name + " played " + str(card))
 
         # self.play_trick determines the index of the winner relative to the index of the leader
         # it also makes the code re-usable in case we want to use it for another trick-taking game, because
         # they all have the same mechanic, even if they don't have four players.
-        winning_player = leading_player.determine_nth_player_to_the_right(determine_trick_winner(trick, strain))
+        winning_player = leading_player.determine_nth_player_to_the_right(determine_trick_winner(trick, state.strain))
 
         print(leading_player.value + " won the trick")
 
         # Update the number of tricks won
         if Team.NS.is_player_in_team(winning_player):
-            ns_tricks = ns_tricks + 1
+            state.ns_tricks += 1
         else:
-            ew_tricks = ew_tricks + 1
+            state.ew_tricks += 1
 
         leading_player = winning_player
 
-    if Team.NS.is_player_in_team(declarer):
-        return ns_tricks
-    if Team.EW.is_player_in_team(declarer):
-        return ew_tricks
+    if Team.NS.is_player_in_team(state.declarer):
+        return state.ns_tricks
+    if Team.EW.is_player_in_team(state.declarer):
+        return state.ew_tricks
 

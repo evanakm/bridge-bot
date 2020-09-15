@@ -6,6 +6,7 @@ from game import cardplay
 from game.scoring import get_score_from_result
 from bots.randombotuser import RandomBotUser
 from game.bidding import auction
+from game.gamestate import GameState
 
 NUMBER_OF_PLAYTHROUGHS = 1
 
@@ -37,7 +38,7 @@ def main():
     for i in range(0, NUMBER_OF_PLAYTHROUGHS):
         deal = deck.deal()
 
-        trick_winners = cardplay.play(users, deal, contract, declarer, record.record)
+        trick_winners = cardplay.play(GameState(users, deal, contract, declarer, record.record))
 
         score = get_score_from_result(contract, doubled, trick_winners, declarer_vulnerable)
 
