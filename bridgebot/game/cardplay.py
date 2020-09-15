@@ -33,32 +33,48 @@ def determine_trick_winner(played_cards, strain):
     return played_cards.index(highest_card)
 
 
-def led_card_logic(state: GameState):
-    all_cards = state.hands[state.leading_player].cards
+def card_logic(state: GameState, is_led: bool):
+    print(state.current_player.name + "'s turn")
+    all_cards = state.hands[state.current_player].cards
 
-    partner_user = state.users[state.leading_player.partner()]
-    partners_cards = state.hands[state.leading_player.partner()].cards
+    # TODO consider moving this out of this function and passing in `legal_cards` into the function.
+    if not is_led:
+        legal_cards = state.hands[state.current_player].legal_cards(state.led_card.suit)
+    else:
+        legal_cards = all_cards
 
-    led_card = state.users[state.leading_player].play_card(
+    partner_user = state.users[state.current_player.partner()]
+    partners_cards = state.hands[state.current_player.partner()].cards
+
+    # TODO consider creating a function to call on GameState that returns the visible data for each player.
+    # The function on GameState would take in a Player and return the items visible to the player.
+    # That would allow passing only one argument to the following play_card function.
+    card = state.users[state.current_player].play_card(
         partner=partner_user,
         partners_cards=partners_cards,
-        current_player=state.leading_player,
+        current_player=state.current_player,
         dummy=state.dummy,
         dummy_hand=state.hands[state.dummy].cards,
         all_cards=all_cards,
-        legal_cards=all_cards,
+        legal_cards=legal_cards,
         bid_history=state.bid_history,
         card_history=state.card_history,
         leader_history=state.leader_history
     )
 
-    state.card_history[state.leading_player].append(led_card)
+    state.card_history[state.current_player].append(card)
 
-    state.hands[state.leading_player].lead(led_card)
+    if is_led:
+        # TODO consider using follow here instead of lead
+        # state.hands[state.current_player].follow(card.suit, card)
+        state.hands[state.current_player].lead(card)
+    else:
+        state.hands[state.current_player].follow(state.led_card.suit, card)
 
-    state.current_trick.append(led_card)
+    state.current_trick.append(card)
 
-    print(state.leading_player.name + " played " + str(led_card))
+    print(state.current_player.name + " played " + str(card))
+    state.current_player = state.current_player.next_player()
 
 
 def play(state: GameState):
@@ -66,15 +82,13 @@ def play(state: GameState):
     print("Dummy is " + str(state.dummy))
     print("Strain is " + str(state.strain.name))
     print("Contract is " + str(state.contract.name))
-
     print(state.leading_player.value + " starts")
 
     while state.trick_count < NUMBER_OF_TRICKS:
         while True:
             if state.current_player == state.leading_player:
                 if len(state.current_trick) == 0:
-                    led_card_logic(state)
-                    state.current_player = state.current_player.next_player()
+                    card_logic(state, True)
                 else:
                     # self.play_trick determines the index of the winner relative to the index of the leader
                     # it also makes the code re-usable in case we want to use it for another trick-taking game, because
@@ -99,29 +113,7 @@ def play(state: GameState):
                     state.current_trick = []
                     break
             else:
-                print(state.current_player.name + "'s turn")
-                all_cards = state.hands[state.current_player].cards
-                legal_cards = state.hands[state.current_player].legal_cards(state.led_card.suit)
-                partner_user = state.users[state.current_player.partner()]
-                partners_cards = state.hands[state.current_player.partner()].cards
-                card = state.users[state.current_player].play_card(
-                    partner=partner_user,
-                    partners_cards=partners_cards,
-                    current_player=state.current_player,
-                    dummy=state.dummy,
-                    dummy_hand=state.hands[state.dummy].cards,
-                    all_cards=all_cards,
-                    legal_cards=legal_cards,
-                    bid_history=state.bid_history,
-                    card_history=state.card_history,
-                    leader_history=state.leader_history
-                )
-                state.card_history[state.current_player].append(card)
-
-                state.hands[state.current_player].follow(state.led_card.suit, card)
-                state.current_trick.append(card)
-                print(state.current_player.name + " played " + str(card))
-                state.current_player = state.current_player.next_player()
+                card_logic(state, False)
 
     if Team.NS.is_player_in_team(state.declarer):
         return state.ns_tricks

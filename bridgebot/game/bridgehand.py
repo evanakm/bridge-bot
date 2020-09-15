@@ -139,6 +139,11 @@ class BridgeHand:
         card: Card
             The Card that was played
         """
+
+        # Perhaps use the following code?
+        # TODO consider removing this function
+        # return self.follow(card.suit, card)
+
         if not isinstance(card, Card):
             raise TypeError("card is not of type Card")
 
