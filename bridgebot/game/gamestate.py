@@ -5,6 +5,11 @@ from game.enums import Players, Contracts, ContractNotFound, Strains
 
 from game.bridgehand import BridgeHand
 from game.interface import User
+from game.bridgehand import Card
+
+
+class NoLedCardException(Exception):
+    pass
 
 
 class GameState:
@@ -27,11 +32,11 @@ class GameState:
             raise ContractNotFound("Invalid Contract")
 
         self.users: Dict[Players, User] = users
-        self.hands = hands
-        self.__contract = contract
-        self.__declarer = declarer
-        self.__bid_history = bid_history
-        self.card_history = {
+        self.hands: Dict[Players, BridgeHand] = hands
+        self.__contract: Contracts = contract
+        self.__declarer: Players = declarer
+        self.__bid_history: Dict[Players, List[Bids]] = bid_history
+        self.card_history: Dict[Players, List[Card]] = {
             Players.NORTH: [],
             Players.EAST: [],
             Players.WEST: [],
@@ -40,8 +45,17 @@ class GameState:
 
         self.leader_history: List[Players] = []
 
-        self.ns_tricks = 0
-        self.ew_tricks = 0
+        self.ns_tricks: int = 0
+        self.ew_tricks: int = 0
+
+        self.leading_player: Players = self.first_leading_player
+
+        self.current_trick: List[Card] = []
+
+        # Unsure if we need this!?
+        self.trick_history: List[List[Card]] = []
+
+        self.current_player: Players = self.leading_player
 
     @property
     def dummy(self) -> Players:
@@ -62,3 +76,14 @@ class GameState:
     @property
     def bid_history(self) -> Dict[Players, List[Bids]]:
         return self.__bid_history
+
+    @property
+    def first_leading_player(self) -> Players:
+        return self.declarer.next_player()
+
+    @property
+    def led_card(self) -> Card:
+        if len(self.current_trick) == 0:
+            raise NoLedCardException()
+
+        return self.current_trick[0]
