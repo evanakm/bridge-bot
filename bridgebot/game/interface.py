@@ -9,11 +9,18 @@ from game.enums import Suits, Players
 from game.bids import Bids
 
 
+class InternalCannotPlayCardException(Exception):
+    pass
+
+
 class User:
     def play_card(self, partner: User, partners_cards: Set[Card], current_player: Players, dummy: Players,
                   dummy_hand: Set[Card], all_cards: Set[Card], legal_cards: Set[Card],
                   bid_history: Dict[Players, List[Bids]], card_history: Dict[Players, List[Card]],
                   leader_history: List[Players]) -> Card:
+        if len(legal_cards) == 0 or len(all_cards) == 0:
+            raise InternalCannotPlayCardException("Internal error. No cards can be played.")
+
         if current_player != dummy:
             return self.play_card_from_own_hand(current_player, dummy, dummy_hand, all_cards, legal_cards,
                                                 bid_history, card_history, leader_history)

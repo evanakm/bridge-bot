@@ -12,6 +12,10 @@ class NoLedCardException(Exception):
     pass
 
 
+class InternalHistoryError(Exception):
+    pass
+
+
 class GameState:
     def __init__(self, users: Dict[Players, User], hands: Dict[Players, BridgeHand], contract: Contracts,
                  declarer: Players, bid_history: Dict[Players, List[Bids]]):
@@ -87,3 +91,9 @@ class GameState:
             raise NoLedCardException()
 
         return self.current_trick[0]
+
+    @property
+    def trick_count(self):
+        if len(self.leader_history) != len(self.trick_history):
+            raise InternalHistoryError("The leader_history and trick_history are not consistent with each other")
+        return len(self.leader_history)

@@ -8,6 +8,10 @@ class InvalidPlayerException(Exception):
     pass
 
 
+# This is a constant. Do not change it! Bridge has 13 tricks!
+NUMBER_OF_TRICKS = 13
+
+
 class Players(Enum):
     NORTH = "NORTH"
     EAST = "EAST"
