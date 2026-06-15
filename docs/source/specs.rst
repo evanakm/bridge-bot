@@ -18,5 +18,8 @@ Implementation-facing specs live in ``docs/specs/``.
 ``docs/specs/ai-player-architectures.md``
    Requirements and comparison points for the Python AI player architectures.
 
+``docs/specs/self-play-training.md``
+   Deterministic self-play training contract and model artifact format.
+
 When behavior changes, update the relevant spec and the tests named in that
 spec's verification section in the same commit.

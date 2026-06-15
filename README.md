@@ -95,6 +95,19 @@ addresses, account IDs, session IDs, visitor IDs, IP addresses, user agents,
 browser details, and device details. The in-app privacy policy is available at
 `/privacy`, with a documentation copy in `docs/source/privacy.rst`.
 
+## Self-play training
+
+The first trainable model is the dependency-light `LinearPolicyBotUser`. It can
+iteratively play duplicate boards against the current champion, mutate its bid
+and card-play weights, and write a versioned JSON artifact.
+
+```bash
+python3 -m bridgebot.training.self_play
+```
+
+The default model artifact is
+`bridgebot/models/linear_policy_selfplay.json`.
+
 ## Integration docs
 
 - `docs/source/web_app.rst` describes the web table, gameplay flow, and current
@@ -105,9 +118,10 @@ browser details, and device details. The in-app privacy policy is available at
   Python Worker deployables.
 - `docs/source/privacy.rst` describes what optional training records include and
   exclude.
-- `docs/source/ai_players.rst` describes the Python AI player architectures.
+- `docs/source/ai_players.md` describes the Python AI player architectures.
 - `docs/specs/gameplay-web-app.md` is the implemented gameplay spec.
 - `docs/specs/limited-information-bot-adapter.md` is the privacy and adapter
   contract for outside tables.
 - `docs/specs/cloudflare-deployment.md` is the Cloudflare deployment contract.
 - `docs/specs/ai-player-architectures.md` is the implemented AI-player spec.
+- `docs/specs/self-play-training.md` is the self-play training spec.

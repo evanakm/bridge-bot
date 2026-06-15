@@ -19,7 +19,7 @@ def test_bridgebot_main_imports_without_pythonpath_hack():
     assert result.returncode == 0, result.stderr
 
 
-def assert_main_reached_terminal_hand(stdout):
+def assert_main_printed_game_result(stdout):
     assert "The declarer" in stdout or "The hand was passed out" in stdout
 
 
@@ -38,7 +38,7 @@ def test_bridgebot_main_runs_as_module_without_pythonpath_hack():
     )
 
     assert result.returncode == 0, result.stderr
-    assert_main_reached_terminal_hand(result.stdout)
+    assert_main_printed_game_result(result.stdout)
 
 
 def test_bridgebot_main_runs_as_script_without_pythonpath_hack():
@@ -56,4 +56,4 @@ def test_bridgebot_main_runs_as_script_without_pythonpath_hack():
     )
 
     assert result.returncode == 0, result.stderr
-    assert_main_reached_terminal_hand(result.stdout)
+    assert_main_printed_game_result(result.stdout)

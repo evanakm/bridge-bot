@@ -1,0 +1,132 @@
+{
+  "architecture": "LinearPolicyBotUser",
+  "bid_weights": {
+    "balanced_nt": 0.5172,
+    "double_points": 0.6154,
+    "length": 0.5674,
+    "level_cost": -3.4003,
+    "major": 1.3658,
+    "pass_floor": 6.0,
+    "points": 0.0791
+  },
+  "card_weights": {
+    "conserve_honor": -0.1003,
+    "partner_winning": -0.6979,
+    "rank": -0.0332,
+    "trump": 0.9057,
+    "wins_now": 1.7435
+  },
+  "schema_version": 1,
+  "training": {
+    "algorithm": "evolutionary_self_play",
+    "result": {
+      "bid_weights": {
+        "balanced_nt": 0.5172,
+        "double_points": 0.6154,
+        "length": 0.5674,
+        "level_cost": -3.4003,
+        "major": 1.3658,
+        "pass_floor": 6.0,
+        "points": 0.0791
+      },
+      "card_weights": {
+        "conserve_honor": -0.1003,
+        "partner_winning": -0.6979,
+        "rank": -0.0332,
+        "trump": 0.9057,
+        "wins_now": 1.7435
+      },
+      "champion_updates": 6,
+      "config": {
+        "boards_per_generation": 10,
+        "generations": 6,
+        "mutation_scale": 0.45,
+        "population": 8,
+        "seed": 20260615,
+        "validation_boards": 12
+      },
+      "final_score_vs_initial": 11.0,
+      "generations": [
+        {
+          "generation": 0,
+          "selected": {
+            "accepted": true,
+            "average_delta": 8.25,
+            "boards": 20,
+            "candidate": "mutation-0-3",
+            "passouts": 0,
+            "total_delta": 165
+          },
+          "validation_average_delta_vs_initial": 5.916666666666667,
+          "validation_total_delta_vs_initial": 142
+        },
+        {
+          "generation": 1,
+          "selected": {
+            "accepted": true,
+            "average_delta": 6.55,
+            "boards": 20,
+            "candidate": "mutation-1-6",
+            "passouts": 0,
+            "total_delta": 131
+          },
+          "validation_average_delta_vs_initial": 11.666666666666666,
+          "validation_total_delta_vs_initial": 280
+        },
+        {
+          "generation": 2,
+          "selected": {
+            "accepted": true,
+            "average_delta": 5.6,
+            "boards": 20,
+            "candidate": "mutation-2-7",
+            "passouts": 0,
+            "total_delta": 112
+          },
+          "validation_average_delta_vs_initial": 10.833333333333334,
+          "validation_total_delta_vs_initial": 260
+        },
+        {
+          "generation": 3,
+          "selected": {
+            "accepted": true,
+            "average_delta": 3.65,
+            "boards": 20,
+            "candidate": "mutation-3-6",
+            "passouts": 0,
+            "total_delta": 73
+          },
+          "validation_average_delta_vs_initial": 8.541666666666666,
+          "validation_total_delta_vs_initial": 205
+        },
+        {
+          "generation": 4,
+          "selected": {
+            "accepted": true,
+            "average_delta": 3.4,
+            "boards": 20,
+            "candidate": "mutation-4-5",
+            "passouts": 0,
+            "total_delta": 68
+          },
+          "validation_average_delta_vs_initial": 9.75,
+          "validation_total_delta_vs_initial": 234
+        },
+        {
+          "generation": 5,
+          "selected": {
+            "accepted": true,
+            "average_delta": 1.1,
+            "boards": 20,
+            "candidate": "mutation-5-2",
+            "passouts": 0,
+            "total_delta": 22
+          },
+          "validation_average_delta_vs_initial": 11.208333333333334,
+          "validation_total_delta_vs_initial": 269
+        }
+      ],
+      "model_path": "bridgebot/models/linear_policy_selfplay.json"
+    }
+  }
+}

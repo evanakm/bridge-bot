@@ -23,6 +23,7 @@ def test_setup_packages_include_runtime_subpackages_and_exclude_tests():
         "bridgebot",
         "bridgebot.bots",
         "bridgebot.game",
+        "bridgebot.training",
     ]
 
 

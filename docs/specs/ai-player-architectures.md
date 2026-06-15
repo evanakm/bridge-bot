@@ -46,7 +46,8 @@ Behavior:
   balanced no-trump bonus, level cost, and double/redouble features.
 - Scores each legal card using rank, immediate trick-winning status, trump,
   partner-winning status, and honor-conservation features.
-- Accepts custom weight dictionaries for future tuning or offline training.
+- Accepts custom weight dictionaries for tuning or offline training.
+- Can be trained by `bridgebot.training.self_play`.
 
 ### RolloutBotUser
 
@@ -101,3 +102,19 @@ Run:
 ```bash
 pytest
 ```
+
+## Self-Play Training
+
+Training details live in `docs/specs/self-play-training.md`.
+
+Current implemented training target:
+
+- `LinearPolicyBotUser` bid and card weights.
+
+Current training method:
+
+- deterministic duplicate self-play;
+- candidate-vs-champion evolutionary mutation;
+- standard IMP compression for duplicate score swings;
+- validation guard against the initial baseline;
+- JSON model artifact at `bridgebot/models/linear_policy_selfplay.json`.
