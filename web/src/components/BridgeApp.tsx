@@ -1,5 +1,5 @@
 import { Bot, Eye, EyeOff, RotateCcw, StepForward, UserRound } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { callLabel, contractCalls, isCallLegal } from '../game/auction'
 import { cardLabel, seatName, sortCards, suitLabel } from '../game/cards'
@@ -230,11 +230,19 @@ function ControlRail({
       <div className="rail-status">
         <span>Board {boardNumber}</span>
         <span>{humans} human{humans === 1 ? '' : 's'}</span>
+        <span>{automationStatus(game)}</span>
         <strong>{game.phase}</strong>
       </div>
       <MoveHistory game={game} />
     </aside>
   )
+}
+
+function automationStatus(game: GameState) {
+  if (game.phase === 'complete') return 'Board complete'
+  if (game.phase === 'passedOut') return 'Board passed out'
+  if (isHumanTurn(game)) return `Waiting for ${seatName(activeControllerSeat(game))}`
+  return `${seatName(game.turn)} bot thinking`
 }
 
 type HistoryItem = {
@@ -312,6 +320,13 @@ function controllerLabel(game: GameState, seat: Seat) {
 
 function MoveHistory({ game }: { game: GameState }) {
   const history = moveHistory(game)
+  const latest = history.at(-1)
+  const endRef = useRef<HTMLLIElement | null>(null)
+
+  useEffect(() => {
+    endRef.current?.scrollIntoView?.({ block: 'end' })
+  }, [history.length])
+
   return (
     <section className="move-history" aria-label="Move history">
       <header>
@@ -321,6 +336,13 @@ function MoveHistory({ game }: { game: GameState }) {
         </div>
         <span>{history.length}</span>
       </header>
+      {latest && (
+        <div className={`latest-move history-${latest.tone}`} aria-label="Latest move">
+          <span>Last move</span>
+          <strong>{latest.title}</strong>
+          <small>{latest.detail}</small>
+        </div>
+      )}
       {history.length === 0 ? (
         <p className="history-empty">Waiting for the first call.</p>
       ) : (
@@ -332,6 +354,7 @@ function MoveHistory({ game }: { game: GameState }) {
               <small>{item.detail}</small>
             </li>
           ))}
+          <li className="history-end" ref={endRef} aria-hidden="true" />
         </ol>
       )}
     </section>

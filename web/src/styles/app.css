@@ -156,7 +156,7 @@ input:focus-visible {
 
 .move-history {
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
+  grid-template-rows: auto auto minmax(0, 1fr);
   gap: 9px;
   min-height: 0;
   padding-top: 8px;
@@ -202,6 +202,30 @@ input:focus-visible {
   line-height: 1.35;
 }
 
+.latest-move {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  padding: 9px;
+  border: 1px solid rgba(232, 207, 139, 0.24);
+  border-left: 3px solid rgba(232, 207, 139, 0.46);
+  background: rgba(10, 28, 22, 0.52);
+}
+
+.latest-move > span,
+.latest-move small {
+  color: #d2c2a2;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+}
+
+.latest-move strong {
+  overflow-wrap: anywhere;
+  color: #f7ecd2;
+  font-size: 0.92rem;
+  line-height: 1.12;
+}
+
 .history-item {
   display: grid;
   gap: 3px;
@@ -236,6 +260,10 @@ input:focus-visible {
 .history-result {
   border-left-color: #f0cb72;
   background: rgba(214, 177, 91, 0.14);
+}
+
+.history-end {
+  min-height: 1px;
 }
 
 .seat-toggles {

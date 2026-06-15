@@ -1,9 +1,13 @@
-import { fireEvent, render, screen, within } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { act, fireEvent, render, screen, within } from '@testing-library/react'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { BridgeApp } from './BridgeApp'
 
 describe('BridgeApp', () => {
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
   it('renders the table as the first screen', () => {
     render(<BridgeApp />)
 
@@ -29,8 +33,37 @@ describe('BridgeApp', () => {
 
     expect(within(history).queryByText(/waiting for the first call/i)).toBeNull()
     expect(within(history).getByText('Bid 1')).not.toBeNull()
-    expect(within(history).getByText(/^North /i)).not.toBeNull()
-    expect(within(history).getByText('Bot call')).not.toBeNull()
+    expect(within(history).getAllByText(/^North /i).length).toBeGreaterThan(0)
+    expect(within(history).getAllByText('Bot call').length).toBeGreaterThan(0)
+    expect(screen.getByLabelText(/latest move/i).textContent).toContain('North')
+  })
+
+  it('auto-advances bots only until the next human-controlled action', async () => {
+    vi.useFakeTimers()
+    render(<BridgeApp />)
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(420)
+    })
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(420)
+    })
+
+    expect(screen.getByText('South to bid')).not.toBeNull()
+    expect(screen.getByText('Your call')).not.toBeNull()
+    expect(screen.getByText('Waiting for South')).not.toBeNull()
+
+    const history = screen.getByRole('region', { name: /move history/i })
+    expect(within(history).getAllByText('North Pass').length).toBeGreaterThan(0)
+    expect(within(history).getAllByText('East 1H').length).toBeGreaterThan(0)
+    expect(within(history).queryByText(/^West /i)).toBeNull()
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(5_000)
+    })
+
+    expect(screen.getByText('South to bid')).not.toBeNull()
+    expect(within(history).queryByText(/^West /i)).toBeNull()
   })
 
   it('supports 0 to 4 human seats from the setup controls', () => {
