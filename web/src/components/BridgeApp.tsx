@@ -22,6 +22,7 @@ import {
 import type { Call, Card, GameState, Seat, SeatConfig } from '../game/types'
 
 const compassSeats: Seat[] = ['N', 'E', 'S', 'W']
+const BOT_DELAY_MS = 420
 
 function nextSeed() {
   return Math.floor(Date.now() % 1_000_000)
@@ -32,7 +33,6 @@ export function BridgeApp() {
   const [practice, setPractice] = useState(false)
   const [seed, setSeed] = useState(20260615)
   const [boardIndex, setBoardIndex] = useState(0)
-  const [speed, setSpeed] = useState(420)
   const [readySeat, setReadySeat] = useState<Seat | null>(null)
   const [thinkingSeat, setThinkingSeat] = useState<Seat | null>(null)
   const [game, setGame] = useState(() => createGame({
@@ -56,9 +56,9 @@ export function BridgeApp() {
     const timer = window.setTimeout(() => {
       setGame((current) => advanceBotOnce(current))
       setThinkingSeat(null)
-    }, speed)
+    }, BOT_DELAY_MS)
     return () => window.clearTimeout(timer)
-  }, [game, speed])
+  }, [game])
 
   useEffect(() => {
     if (humans.length <= 1 || practice) {
@@ -119,10 +119,8 @@ export function BridgeApp() {
           game={game}
           humans={humans.length}
           practice={practice}
-          speed={speed}
           boardNumber={boardIndex + 1}
           onPractice={setPracticeMode}
-          onSpeed={setSpeed}
           onNewDeal={() => startDeal(nextSeed(), boardIndex + 1)}
           onStep={() => setGame((current) => advanceBotOnce(current))}
         />
@@ -198,20 +196,16 @@ function ControlRail({
   game,
   humans,
   practice,
-  speed,
   boardNumber,
   onPractice,
-  onSpeed,
   onNewDeal,
   onStep,
 }: {
   game: GameState
   humans: number
   practice: boolean
-  speed: number
   boardNumber: number
   onPractice: (enabled: boolean) => void
-  onSpeed: (speed: number) => void
   onNewDeal: () => void
   onStep: () => void
 }) {
@@ -225,17 +219,6 @@ function ControlRail({
         {practice ? <Eye aria-hidden="true" /> : <EyeOff aria-hidden="true" />}
         <span>Practice</span>
       </button>
-      <label className="speed-control">
-        <span>Bot pace</span>
-        <input
-          type="range"
-          min="80"
-          max="900"
-          step="40"
-          value={speed}
-          onChange={(event) => onSpeed(Number(event.target.value))}
-        />
-      </label>
       <button className="icon-button" type="button" onClick={onStep} disabled={isHumanTurn(game) || game.phase === 'complete' || game.phase === 'passedOut'}>
         <StepForward aria-hidden="true" />
         <span>Step</span>
@@ -249,7 +232,109 @@ function ControlRail({
         <span>{humans} human{humans === 1 ? '' : 's'}</span>
         <strong>{game.phase}</strong>
       </div>
+      <MoveHistory game={game} />
     </aside>
+  )
+}
+
+type HistoryItem = {
+  id: string
+  label: string
+  title: string
+  detail: string
+  tone: 'call' | 'play' | 'trick' | 'result'
+}
+
+function moveHistory(game: GameState): HistoryItem[] {
+  const history: HistoryItem[] = game.auction.map((entry, index) => ({
+    id: `auction-${index}`,
+    label: `Bid ${index + 1}`,
+    title: `${seatName(entry.seat)} ${callLabel(entry.call)}`,
+    detail: `${controllerLabel(game, entry.seat)} call`,
+    tone: 'call',
+  }))
+
+  game.completedTricks.forEach((trick, trickIndex) => {
+    trick.cards.forEach((played, cardIndex) => {
+      history.push({
+        id: `trick-${trickIndex}-card-${cardIndex}`,
+        label: `Trick ${trickIndex + 1}`,
+        title: `${seatName(played.seat)} ${cardLabel(played.card)}`,
+        detail: `${controllerLabel(game, played.seat)} play`,
+        tone: 'play',
+      })
+    })
+    history.push({
+      id: `trick-${trickIndex}-winner`,
+      label: `Trick ${trickIndex + 1}`,
+      title: `${seatName(trick.winner)} wins`,
+      detail: `Led by ${seatName(trick.leader)}`,
+      tone: 'trick',
+    })
+  })
+
+  game.currentTrick.forEach((played, index) => {
+    history.push({
+      id: `current-trick-card-${index}`,
+      label: `Trick ${game.completedTricks.length + 1}`,
+      title: `${seatName(played.seat)} ${cardLabel(played.card)}`,
+      detail: `${controllerLabel(game, played.seat)} play`,
+      tone: 'play',
+    })
+  })
+
+  if (game.phase === 'passedOut') {
+    history.push({
+      id: 'result-passed-out',
+      label: 'Result',
+      title: 'Board passed out',
+      detail: 'No contract',
+      tone: 'result',
+    })
+  }
+
+  if (game.score) {
+    history.push({
+      id: 'result-score',
+      label: 'Result',
+      title: game.score.label,
+      detail: `NS ${game.score.nsScore > 0 ? '+' : ''}${game.score.nsScore}`,
+      tone: 'result',
+    })
+  }
+
+  return history
+}
+
+function controllerLabel(game: GameState, seat: Seat) {
+  return game.seats[seat] === 'human' ? 'Human' : 'Bot'
+}
+
+function MoveHistory({ game }: { game: GameState }) {
+  const history = moveHistory(game)
+  return (
+    <section className="move-history" aria-label="Move history">
+      <header>
+        <div>
+          <span className="eyebrow">History</span>
+          <strong>Moves</strong>
+        </div>
+        <span>{history.length}</span>
+      </header>
+      {history.length === 0 ? (
+        <p className="history-empty">Waiting for the first call.</p>
+      ) : (
+        <ol>
+          {history.map((item) => (
+            <li key={item.id} className={`history-item history-${item.tone}`}>
+              <span>{item.label}</span>
+              <strong>{item.title}</strong>
+              <small>{item.detail}</small>
+            </li>
+          ))}
+        </ol>
+      )}
+    </section>
   )
 }
 

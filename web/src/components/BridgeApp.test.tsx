@@ -17,6 +17,22 @@ describe('BridgeApp', () => {
     expect(screen.getByText('Waiting')).not.toBeNull()
   })
 
+  it('shows public move history instead of a bot pace control', () => {
+    render(<BridgeApp />)
+
+    expect(screen.queryByText(/bot pace/i)).toBeNull()
+
+    const history = screen.getByRole('region', { name: /move history/i })
+    expect(within(history).getByText(/waiting for the first call/i)).not.toBeNull()
+
+    fireEvent.click(screen.getByRole('button', { name: /^Step$/i }))
+
+    expect(within(history).queryByText(/waiting for the first call/i)).toBeNull()
+    expect(within(history).getByText('Bid 1')).not.toBeNull()
+    expect(within(history).getByText(/^North /i)).not.toBeNull()
+    expect(within(history).getByText('Bot call')).not.toBeNull()
+  })
+
   it('supports 0 to 4 human seats from the setup controls', () => {
     render(<BridgeApp />)
     const seatControls = within(screen.getByRole('group', { name: /human seats/i }))
