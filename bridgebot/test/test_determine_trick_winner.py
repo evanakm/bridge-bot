@@ -1,13 +1,7 @@
 import pytest
-import sys
-import os
-
-# sys.path.insert(0, os.path.abspath('../bridgebot'))
-sys.path.insert(0, os.path.abspath('..'))
-
-from game import cardplay
-from game.enums import Strains, Suits, Ranks
-from game.bridgehand import Card
+from bridgebot.game import cardplay
+from bridgebot.game.enums import Strains, Suits, Ranks
+from bridgebot.game.bridgehand import Card
 
 
 @pytest.mark.parametrize('played_cards, trump_strain, expected', [

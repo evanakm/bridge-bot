@@ -1,4 +1,4 @@
-from game.get_input import get_input_card
+from bridgebot.game.get_input import get_input_card
 from abc import abstractmethod
 
 
@@ -6,6 +6,11 @@ class User:
     @staticmethod
     @abstractmethod
     def play_card(current_player, dummy, dummy_hand, all_cards, legal_cards, bid_history, card_history, leader_history):
+        pass
+
+    @staticmethod
+    @abstractmethod
+    def bid(current_player, legal_bids, bid_history):
         pass
 
     @staticmethod
@@ -30,5 +35,10 @@ class HumanUser(User):
 
         return get_input_card(legal_cards)
 
+    @staticmethod
+    def bid(current_player, legal_bids, bid_history):
+        from bridgebot.game.get_input import get_input_list
+
+        return get_input_list(legal_bids, "bid")
 
 
