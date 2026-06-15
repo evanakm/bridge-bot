@@ -47,7 +47,7 @@ button:disabled {
   border: 1px solid rgba(234, 211, 153, 0.34);
   background: color-mix(in oklch, #123827 84%, #e2c77d 16%);
   box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.28);
-  overflow: hidden;
+  overflow: auto;
 }
 
 .control-rail {
@@ -69,7 +69,7 @@ button:disabled {
   display: block;
   color: #d4b86c;
   font-size: 0.68rem;
-  letter-spacing: 0.08em;
+  letter-spacing: 0;
   text-transform: uppercase;
 }
 
@@ -155,17 +155,34 @@ button:disabled {
 }
 
 .felt-grid {
-  position: relative;
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(320px, 1.25fr) minmax(220px, 1fr);
+  grid-template-rows: auto minmax(320px, 1fr) auto;
+  grid-template-areas:
+    ". north ."
+    "west center east"
+    ". south .";
+  gap: 14px;
+  align-items: center;
   min-height: 760px;
   padding: 74px 22px 22px;
 }
 
+.felt-grid.phase-auction {
+  grid-template-columns: minmax(185px, 1fr) minmax(290px, 1.25fr) minmax(185px, 1fr) minmax(280px, 0.9fr);
+  grid-template-rows: auto minmax(300px, 1fr) auto;
+  grid-template-areas:
+    ". north north bid"
+    "west center east bid"
+    ". south south bid";
+}
+
 .seat-panel {
-  position: absolute;
   display: grid;
   gap: 8px;
-  min-width: 260px;
-  max-width: 420px;
+  width: 100%;
+  min-width: 0;
+  max-width: none;
   padding: 12px;
   border: 1px solid rgba(239, 218, 159, 0.28);
   background: rgba(11, 35, 28, 0.78);
@@ -177,27 +194,19 @@ button:disabled {
 }
 
 .seat-N {
-  top: 86px;
-  left: 50%;
-  transform: translateX(-50%);
+  grid-area: north;
 }
 
 .seat-S {
-  bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%);
+  grid-area: south;
 }
 
 .seat-E {
-  top: 50%;
-  right: 20px;
-  transform: translateY(-42%);
+  grid-area: east;
 }
 
 .seat-W {
-  top: 50%;
-  left: 20px;
-  transform: translateY(-42%);
+  grid-area: west;
 }
 
 .seat-panel header,
@@ -207,6 +216,12 @@ button:disabled {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+}
+
+.seat-panel header > div {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .seat-code,
@@ -229,8 +244,8 @@ button:disabled {
 .hand {
   display: flex;
   flex-wrap: wrap;
-  gap: 5px;
-  min-height: 48px;
+  gap: 4px;
+  min-height: 42px;
 }
 
 .playing-card,
@@ -238,8 +253,8 @@ button:disabled {
 .trick-card {
   display: grid;
   place-items: center;
-  width: 42px;
-  height: 56px;
+  width: 36px;
+  height: 48px;
   border: 1px solid rgba(49, 45, 36, 0.2);
   background: #f4ead8;
   color: #161816;
@@ -265,6 +280,16 @@ button:disabled {
   background-size: 12px 12px;
 }
 
+.seat-panel.hidden .hand {
+  display: grid;
+  grid-template-columns: repeat(13, minmax(8px, 1fr));
+  gap: 2px;
+}
+
+.seat-panel.hidden .card-back {
+  width: 100%;
+}
+
 .suit-H {
   color: #b72f35;
 }
@@ -282,12 +307,12 @@ button:disabled {
 }
 
 .center-table {
-  position: absolute;
-  inset: 220px 330px 190px;
+  grid-area: center;
   display: grid;
   grid-template-rows: auto 1fr auto auto;
   gap: 12px;
   min-width: 260px;
+  min-height: 360px;
   padding: 16px;
   border: 1px solid rgba(232, 207, 139, 0.3);
   background: rgba(10, 28, 22, 0.54);
@@ -356,13 +381,14 @@ button:disabled {
 }
 
 .bidding-box {
-  position: absolute;
+  grid-area: bid;
   z-index: 4;
-  right: 22px;
-  bottom: 22px;
   display: grid;
+  align-self: center;
   gap: 10px;
-  width: min(480px, calc(100% - 150px));
+  justify-self: center;
+  width: 100%;
+  max-width: 720px;
   padding: 12px;
   border: 1px solid rgba(232, 207, 139, 0.32);
   background: rgba(9, 29, 23, 0.92);
@@ -434,32 +460,25 @@ button:disabled {
   }
 
   .felt-grid {
-    min-height: 980px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: auto minmax(320px, auto) auto auto;
+    grid-template-areas:
+      "north north"
+      "center center"
+      "west east"
+      "south south";
+    min-height: auto;
     padding-top: 150px;
   }
 
-  .seat-panel {
-    min-width: min(330px, calc(100vw - 52px));
-  }
-
-  .seat-E,
-  .seat-W {
-    top: auto;
-    transform: none;
-  }
-
-  .seat-W {
-    left: 20px;
-    bottom: 300px;
-  }
-
-  .seat-E {
-    right: 20px;
-    bottom: 300px;
-  }
-
-  .center-table {
-    inset: 320px 22px 430px;
+  .felt-grid.phase-auction {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas:
+      "north north"
+      "center center"
+      "west east"
+      "south south"
+      "bid bid";
   }
 }
 
@@ -473,27 +492,45 @@ button:disabled {
     position: static;
   }
 
-  .setup-strip,
   .control-rail {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: stretch;
+  }
+
+  .control-rail > div:first-child,
+  .speed-control,
+  .rail-status {
+    grid-column: 1 / -1;
+  }
+
+  .setup-strip {
     display: grid;
     grid-template-columns: 1fr;
   }
 
   .felt-grid {
     display: grid;
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "north"
+      "west"
+      "center"
+      "east"
+      "south";
     gap: 10px;
     min-height: auto;
     padding: 12px;
   }
 
-  .seat-panel,
-  .center-table,
-  .bidding-box {
-    position: static;
-    inset: auto;
-    transform: none;
-    width: 100%;
-    max-width: none;
+  .felt-grid.phase-auction {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "south"
+      "bid"
+      "center"
+      "north"
+      "west"
+      "east";
   }
 
   .center-table {

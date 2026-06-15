@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 
 import { BridgeApp } from './BridgeApp'
@@ -10,14 +10,33 @@ describe('BridgeApp', () => {
     expect(screen.getByRole('main').className).toContain('bridge-app')
     expect(screen.getByRole('group', { name: /human seats/i })).not.toBeNull()
     expect(screen.getByRole('region', { name: /current deal/i })).not.toBeNull()
+    expect(screen.getByRole('region', { name: /bidding box/i }).parentElement?.className).toContain('felt-grid')
   })
 
-  it('supports 0 human watch mode from the setup controls', () => {
+  it('supports 0 to 4 human seats from the setup controls', () => {
     render(<BridgeApp />)
+    const seatControls = within(screen.getByRole('group', { name: /human seats/i }))
 
-    fireEvent.click(screen.getByRole('button', { name: /south/i }))
+    fireEvent.click(seatControls.getByRole('button', { name: /north/i }))
+    fireEvent.click(seatControls.getByRole('button', { name: /east/i }))
+    fireEvent.click(seatControls.getByRole('button', { name: /west/i }))
+
+    expect(screen.getByText('4-seat hotseat')).not.toBeNull()
+
+    fireEvent.click(seatControls.getByRole('button', { name: /north/i }))
+    fireEvent.click(seatControls.getByRole('button', { name: /east/i }))
+    fireEvent.click(seatControls.getByRole('button', { name: /south/i }))
+    fireEvent.click(seatControls.getByRole('button', { name: /west/i }))
 
     expect(screen.getByText('Watch mode')).not.toBeNull()
+  })
+
+  it('applies seat changes to the active game immediately', () => {
+    render(<BridgeApp />)
+
+    fireEvent.click(screen.getByRole('button', { name: /north/i }))
+
+    expect(screen.getByRole('dialog', { name: /pass to north/i })).not.toBeNull()
   })
 
   it('toggles practice mode to show all hands', () => {
@@ -27,5 +46,6 @@ describe('BridgeApp', () => {
 
     expect(screen.getByRole('button', { name: /practice/i }).className).toContain('active')
     expect(screen.getAllByLabelText(/hand/i).length).toBe(4)
+    expect(screen.getAllByRole('button', { name: /play /i })).toHaveLength(52)
   })
 })

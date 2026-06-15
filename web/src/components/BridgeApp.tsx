@@ -73,9 +73,16 @@ export function BridgeApp() {
   }
 
   function toggleSeat(seat: Seat) {
-    setSeatConfig((current) => ({
+    const nextConfig: SeatConfig = {
+      ...seatConfig,
+      [seat]: seatConfig[seat] === 'human' ? 'bot' : 'human',
+    }
+    setSeatConfig(nextConfig)
+    setReadySeat(null)
+    setThinkingSeat(null)
+    setGame((current) => ({
       ...current,
-      [seat]: current[seat] === 'human' ? 'bot' : 'human',
+      seats: nextConfig,
     }))
   }
 
@@ -136,7 +143,7 @@ export function BridgeApp() {
           </button>
         </section>
 
-        <div className="felt-grid">
+        <div className={`felt-grid phase-${game.phase}`}>
           {compassSeats.map((seat) => (
             <SeatPanel
               key={seat}
@@ -150,15 +157,15 @@ export function BridgeApp() {
           ))}
 
           <CenterTable game={game} />
-        </div>
 
-        {game.phase === 'auction' && (
-          <BiddingBox
-            game={game}
-            disabled={!humanTurn}
-            onCall={makeCall}
-          />
-        )}
+          {game.phase === 'auction' && (
+            <BiddingBox
+              game={game}
+              disabled={!humanTurn}
+              onCall={makeCall}
+            />
+          )}
+        </div>
 
         {handoffSeat && (
           <div className="handoff" role="dialog" aria-label={`Pass to ${seatName(handoffSeat)}`}>
