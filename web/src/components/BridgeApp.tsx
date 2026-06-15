@@ -1,0 +1,378 @@
+import { Bot, Eye, EyeOff, RotateCcw, StepForward, UserRound } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
+
+import { callLabel, contractCalls, isCallLegal } from '../game/auction'
+import { cardLabel, seatName, sortCards, suitLabel } from '../game/cards'
+import {
+  activeControllerSeat,
+  advanceBotOnce,
+  allLegalCalls,
+  applyCall,
+  createGame,
+  defaultSeats,
+  isCardLegal,
+  isHumanTurn,
+  handStrengthLabel,
+  needsHotseatReady,
+  playCard,
+  visibleSeatCards,
+} from '../game/engine'
+import type { Call, Card, GameState, Seat, SeatConfig } from '../game/types'
+
+const compassSeats: Seat[] = ['N', 'E', 'S', 'W']
+
+function nextSeed() {
+  return Math.floor(Date.now() % 1_000_000)
+}
+
+export function BridgeApp() {
+  const [seatConfig, setSeatConfig] = useState<SeatConfig>(defaultSeats)
+  const [practice, setPractice] = useState(false)
+  const [seed, setSeed] = useState(20260615)
+  const [speed, setSpeed] = useState(420)
+  const [readySeat, setReadySeat] = useState<Seat | null>(null)
+  const [thinkingSeat, setThinkingSeat] = useState<Seat | null>(null)
+  const [game, setGame] = useState(() => createGame({
+    seats: defaultSeats,
+    practice: false,
+    seed: 20260615,
+  }))
+
+  const humans = useMemo(() => compassSeats.filter((seat) => seatConfig[seat] === 'human'), [seatConfig])
+  const handoffSeat = needsHotseatReady(game, readySeat)
+  const humanTurn = isHumanTurn(game) && !handoffSeat
+
+  useEffect(() => {
+    if (game.phase === 'complete' || game.phase === 'passedOut' || isHumanTurn(game)) {
+      setThinkingSeat(null)
+      return
+    }
+    setThinkingSeat(game.turn)
+    const timer = window.setTimeout(() => {
+      setGame((current) => advanceBotOnce(current))
+      setThinkingSeat(null)
+    }, speed)
+    return () => window.clearTimeout(timer)
+  }, [game, speed])
+
+  useEffect(() => {
+    if (humans.length <= 1 || practice) {
+      setReadySeat(null)
+    }
+  }, [humans.length, practice, game.turn])
+
+  function startDeal(next = seed) {
+    setSeed(next)
+    setReadySeat(null)
+    setThinkingSeat(null)
+    setGame(createGame({
+      seats: seatConfig,
+      practice,
+      seed: next,
+    }))
+  }
+
+  function toggleSeat(seat: Seat) {
+    setSeatConfig((current) => ({
+      ...current,
+      [seat]: current[seat] === 'human' ? 'bot' : 'human',
+    }))
+  }
+
+  function setPracticeMode(enabled: boolean) {
+    setPractice(enabled)
+    setGame((current) => ({
+      ...current,
+      practice: enabled,
+    }))
+  }
+
+  function makeCall(call: Call) {
+    setGame((current) => applyCall(current, call))
+    setReadySeat(null)
+  }
+
+  function play(seat: Seat, card: Card) {
+    setGame((current) => playCard(current, seat, card.id))
+    setReadySeat(null)
+  }
+
+  return (
+    <main className="bridge-app">
+      <section className="table-shell" aria-label="Bridge table">
+        <ControlRail
+          game={game}
+          humans={humans.length}
+          practice={practice}
+          speed={speed}
+          onPractice={setPracticeMode}
+          onSpeed={setSpeed}
+          onNewDeal={() => startDeal(nextSeed())}
+          onStep={() => setGame((current) => advanceBotOnce(current))}
+        />
+
+        <section className="setup-strip" aria-label="Seat setup">
+          <div>
+            <span className="eyebrow">Take a seat</span>
+            <strong>{humans.length === 0 ? 'Watch mode' : humans.length === 1 ? 'Solo table' : `${humans.length}-seat hotseat`}</strong>
+          </div>
+          <div className="seat-toggles" role="group" aria-label="Human seats">
+            {compassSeats.map((seat) => (
+              <button
+                key={seat}
+                className={`seat-toggle ${seatConfig[seat] === 'human' ? 'active' : ''}`}
+                type="button"
+                onClick={() => toggleSeat(seat)}
+                aria-pressed={seatConfig[seat] === 'human'}
+              >
+                {seatConfig[seat] === 'human' ? <UserRound aria-hidden="true" /> : <Bot aria-hidden="true" />}
+                {seatName(seat)}
+              </button>
+            ))}
+          </div>
+          <button className="primary-action" type="button" onClick={() => startDeal(seed)}>
+            <RotateCcw aria-hidden="true" />
+            Restart deal
+          </button>
+        </section>
+
+        <div className="felt-grid">
+          {compassSeats.map((seat) => (
+            <SeatPanel
+              key={seat}
+              seat={seat}
+              game={game}
+              visible={visibleSeatCards(game, seat, readySeat)}
+              thinking={thinkingSeat === seat}
+              canAct={humanTurn && game.turn === seat}
+              onPlay={play}
+            />
+          ))}
+
+          <CenterTable game={game} />
+        </div>
+
+        {game.phase === 'auction' && (
+          <BiddingBox
+            game={game}
+            disabled={!humanTurn}
+            onCall={makeCall}
+          />
+        )}
+
+        {handoffSeat && (
+          <div className="handoff" role="dialog" aria-label={`Pass to ${seatName(handoffSeat)}`}>
+            <div>
+              <span className="eyebrow">Hotseat</span>
+              <h2>Pass to {seatName(handoffSeat)}</h2>
+              <p>Hidden hands stay covered until the next player is ready.</p>
+            </div>
+            <button type="button" className="primary-action" onClick={() => setReadySeat(handoffSeat)}>
+              <Eye aria-hidden="true" />
+              Show {seatName(handoffSeat)} hand
+            </button>
+          </div>
+        )}
+      </section>
+    </main>
+  )
+}
+
+function ControlRail({
+  game,
+  humans,
+  practice,
+  speed,
+  onPractice,
+  onSpeed,
+  onNewDeal,
+  onStep,
+}: {
+  game: GameState
+  humans: number
+  practice: boolean
+  speed: number
+  onPractice: (enabled: boolean) => void
+  onSpeed: (speed: number) => void
+  onNewDeal: () => void
+  onStep: () => void
+}) {
+  return (
+    <aside className="control-rail" aria-label="Table controls">
+      <div>
+        <span className="eyebrow">Bridge Bot</span>
+        <h1>Table</h1>
+      </div>
+      <button className={`icon-button ${practice ? 'active' : ''}`} type="button" onClick={() => onPractice(!practice)}>
+        {practice ? <Eye aria-hidden="true" /> : <EyeOff aria-hidden="true" />}
+        <span>Practice</span>
+      </button>
+      <label className="speed-control">
+        <span>Bot pace</span>
+        <input
+          type="range"
+          min="80"
+          max="900"
+          step="40"
+          value={speed}
+          onChange={(event) => onSpeed(Number(event.target.value))}
+        />
+      </label>
+      <button className="icon-button" type="button" onClick={onStep} disabled={isHumanTurn(game) || game.phase === 'complete' || game.phase === 'passedOut'}>
+        <StepForward aria-hidden="true" />
+        <span>Step</span>
+      </button>
+      <button className="icon-button" type="button" onClick={onNewDeal}>
+        <RotateCcw aria-hidden="true" />
+        <span>New</span>
+      </button>
+      <div className="rail-status">
+        <span>{humans} human{humans === 1 ? '' : 's'}</span>
+        <strong>{game.phase}</strong>
+      </div>
+    </aside>
+  )
+}
+
+function SeatPanel({
+  seat,
+  game,
+  visible,
+  thinking,
+  canAct,
+  onPlay,
+}: {
+  seat: Seat
+  game: GameState
+  visible: boolean
+  thinking: boolean
+  canAct: boolean
+  onPlay: (seat: Seat, card: Card) => void
+}) {
+  const hand = game.hands[seat]
+  const isTurn = game.turn === seat
+
+  return (
+    <section className={`seat-panel seat-${seat} ${isTurn ? 'turn' : ''} ${visible ? 'visible' : 'hidden'}`} aria-label={`${seatName(seat)} seat`}>
+      <header>
+        <div>
+          <span className="seat-code">{seat}</span>
+          <strong>{seatName(seat)}</strong>
+        </div>
+        <span className={`controller ${game.seats[seat]}`}>{game.seats[seat]}</span>
+      </header>
+      <div className="seat-meta">
+        <span>{visible ? handStrengthLabel(hand) : `${hand.length} cards`}</span>
+        {thinking && <span className="thinking">thinking</span>}
+        {game.contract && seat === partnerOfContract(game) && game.completedTricks.length + game.currentTrick.length > 0 && <span>dummy</span>}
+      </div>
+      <div className="hand" aria-label={`${seatName(seat)} hand`}>
+        {visible
+          ? sortCards(hand).map((card) => (
+            <button
+              key={card.id}
+              className={`playing-card suit-${card.suit} ${canAct && isCardLegal(game, seat, card.id) ? 'legal' : ''}`}
+              type="button"
+              disabled={!canAct || !isCardLegal(game, seat, card.id)}
+              onClick={() => onPlay(seat, card)}
+              aria-label={`Play ${cardLabel(card)}`}
+            >
+              <span>{cardLabel(card)}</span>
+            </button>
+          ))
+          : Array.from({ length: Math.min(hand.length, 13) }).map((_, index) => (
+            <span key={index} className="card-back" aria-hidden="true" />
+          ))}
+      </div>
+    </section>
+  )
+}
+
+function partnerOfContract(game: GameState) {
+  if (!game.contract) return null
+  return ({ N: 'S', E: 'W', S: 'N', W: 'E' } as Record<Seat, Seat>)[game.contract.declarer]
+}
+
+function CenterTable({ game }: { game: GameState }) {
+  const contract = game.contract
+  return (
+    <section className="center-table" aria-label="Current deal">
+      <div className="contract-panel">
+        <span className="eyebrow">Contract</span>
+        {contract ? (
+          <strong>{contract.level}{contract.strain} by {seatName(contract.declarer)} {contract.doubled !== 'none' ? contract.doubled : ''}</strong>
+        ) : game.phase === 'passedOut' ? (
+          <strong>Passed out</strong>
+        ) : (
+          <strong>Auction open</strong>
+        )}
+      </div>
+      <div className="trick-zone">
+        {game.currentTrick.length === 0 && <span className="empty-trick">Current trick</span>}
+        {game.currentTrick.map((played) => (
+          <div key={`${played.seat}-${played.card.id}`} className={`trick-card trick-${played.seat} suit-${played.card.suit}`}>
+            <small>{played.seat}</small>
+            <strong>{cardLabel(played.card)}</strong>
+          </div>
+        ))}
+      </div>
+      <div className="score-row">
+        <span>NS {game.tricksWon.NS}</span>
+        <span>EW {game.tricksWon.EW}</span>
+      </div>
+      {game.score && (
+        <div className="result-panel">
+          <strong>{game.score.label}</strong>
+          <span>NS {game.score.nsScore > 0 ? '+' : ''}{game.score.nsScore}</span>
+        </div>
+      )}
+      <AuctionRecord game={game} />
+    </section>
+  )
+}
+
+function AuctionRecord({ game }: { game: GameState }) {
+  return (
+    <div className="auction-record" aria-label="Auction record">
+      {compassSeats.map((seat) => <strong key={seat}>{seat}</strong>)}
+      {game.auction.map((entry, index) => (
+        <span key={`${entry.seat}-${index}`} className={`auction-call seat-call-${entry.seat}`}>
+          {callLabel(entry.call)}
+        </span>
+      ))}
+    </div>
+  )
+}
+
+function BiddingBox({ game, disabled, onCall }: { game: GameState; disabled: boolean; onCall: (call: Call) => void }) {
+  const legal = allLegalCalls(game)
+  const actionCalls: Call[] = [{ kind: 'pass' }, { kind: 'double' }, { kind: 'redouble' }]
+  return (
+    <section className="bidding-box" aria-label="Bidding box">
+      <div className="bid-grid">
+        {contractCalls().map((call) => (
+          <button
+            key={`${call.level}-${call.strain}`}
+            type="button"
+            disabled={disabled || !isCallLegal(game.auction, game.turn, call)}
+            onClick={() => onCall(call)}
+          >
+            {call.level}{call.strain === 'NT' ? 'NT' : suitLabel(call.strain)}
+          </button>
+        ))}
+      </div>
+      <div className="bid-actions">
+        {actionCalls.map((call) => (
+          <button
+            key={call.kind}
+            type="button"
+            disabled={disabled || !legal.some((legalCall) => callLabel(legalCall) === callLabel(call))}
+            onClick={() => onCall(call)}
+          >
+            {callLabel(call)}
+          </button>
+        ))}
+      </div>
+    </section>
+  )
+}

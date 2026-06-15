@@ -197,7 +197,10 @@ export function visibleSeatCards(state: GameState, seat: Seat, readySeat: Seat |
   if (state.phase === 'play' && state.contract && seat === partner(state.contract.declarer) && state.completedTricks.length + state.currentTrick.length > 0) {
     return true
   }
-  if (state.seats[seat] === 'human') return readySeat === seat
+  if (state.seats[seat] === 'human') {
+    if (humanSeats(state.seats).length <= 1) return true
+    return readySeat === seat
+  }
   return false
 }
 

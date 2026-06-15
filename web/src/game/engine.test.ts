@@ -122,6 +122,16 @@ describe('game engine', () => {
     expect(visibleSeatCards({ ...state, practice: true }, 'S', null)).toBe(true)
   })
 
+  it('shows the only human player hand without a handoff gate', () => {
+    const state = createGame({
+      seats: { N: 'bot', E: 'bot', S: 'human', W: 'bot' },
+      practice: false,
+      seed: 11,
+    })
+
+    expect(visibleSeatCards(state, 'S', null)).toBe(true)
+  })
+
   it('plays a card through the same state path humans and bots use', () => {
     const state = createGame({ seats: defaultSeats, practice: false, seed: 1 })
     const contract: Contract = { level: 1, strain: 'NT', declarer: 'S', bidder: 'S', doubled: 'none' }
