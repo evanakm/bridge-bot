@@ -10,6 +10,8 @@ Welcome to bridgebot's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   ai_players
+   specs
 
 
 Indices and tables

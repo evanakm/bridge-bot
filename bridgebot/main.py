@@ -5,7 +5,7 @@ if __package__ is None or __package__ == "":
     sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from bridgebot import bidding
-from bridgebot.bots.randombotuser import RandomBotUser
+from bridgebot.bots.aiplayers import RuleBasedBotUser, choose_bid_for_user
 from bridgebot.game import cardplay
 from bridgebot.game.deck import Deck
 from bridgebot.game.enums import AuctionStatus, Players, Vulnerabilities
@@ -20,10 +20,10 @@ def main():
         return 1
 
     users = {
-        Players.NORTH: RandomBotUser(),
-        Players.SOUTH: RandomBotUser(),
-        Players.WEST: RandomBotUser(),
-        Players.EAST: RandomBotUser()
+        Players.NORTH: RuleBasedBotUser(),
+        Players.SOUTH: RuleBasedBotUser(),
+        Players.WEST: RuleBasedBotUser(),
+        Players.EAST: RuleBasedBotUser()
     }
 
     for i in range(0, NUMBER_OF_PLAYTHROUGHS):
@@ -36,7 +36,13 @@ def main():
         while not auction.complete():
             current_player = auction.player
             legal_bids = auction.legal_bids()
-            bid = users[current_player].bid(current_player, legal_bids, auction.record)
+            bid = choose_bid_for_user(
+                users[current_player],
+                current_player,
+                deal[current_player].cards,
+                legal_bids,
+                auction.record,
+            )
             status = auction.get_new_bid(bid)
             print(current_player.name + " bid " + bid.name)
             if status == AuctionStatus.DONE:
