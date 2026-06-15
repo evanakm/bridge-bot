@@ -30,6 +30,12 @@ button:disabled {
   cursor: not-allowed;
 }
 
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid #f4cf79;
+  outline-offset: 3px;
+}
+
 .bridge-app {
   min-height: 100vh;
   background:
@@ -82,6 +88,12 @@ button:disabled {
   border: 1px solid rgba(232, 207, 139, 0.28);
   background: rgba(255, 247, 224, 0.08);
   color: #f7ecd2;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    opacity 160ms ease,
+    transform 160ms ease;
 }
 
 .icon-button {
@@ -103,6 +115,18 @@ button:disabled {
 .primary-action {
   background: #d6b15b;
   color: #142a21;
+}
+
+.icon-button:not(:disabled):hover,
+.seat-toggle:not(:disabled):hover,
+.bid-actions button:not(:disabled):hover,
+.bid-grid button:not(:disabled):hover {
+  border-color: rgba(244, 207, 121, 0.72);
+  background: rgba(255, 247, 224, 0.14);
+}
+
+.primary-action:not(:disabled):hover {
+  background: #f0cb72;
 }
 
 .speed-control {
@@ -162,10 +186,10 @@ button:disabled {
     ". north ."
     "west center east"
     ". south .";
-  gap: 14px;
+  gap: 10px;
   align-items: center;
-  min-height: 748px;
-  padding: 74px 22px 22px;
+  min-height: 730px;
+  padding: 74px 22px 12px;
 }
 
 .felt-grid.phase-auction {
@@ -186,11 +210,18 @@ button:disabled {
   padding: 12px;
   border: 1px solid rgba(239, 218, 159, 0.28);
   background: rgba(11, 35, 28, 0.78);
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    background-color 180ms ease;
 }
 
 .seat-panel.turn {
   border-color: #e6bd62;
-  box-shadow: 0 0 0 2px rgba(230, 189, 98, 0.25);
+  background: rgba(17, 50, 39, 0.9);
+  box-shadow:
+    0 0 0 2px rgba(230, 189, 98, 0.24),
+    inset 0 0 0 1px rgba(244, 207, 121, 0.16);
 }
 
 .seat-N {
@@ -241,6 +272,13 @@ button:disabled {
   animation: pulse 1s ease-in-out infinite;
 }
 
+.turn-badge {
+  padding: 2px 7px;
+  border: 1px solid rgba(244, 207, 121, 0.4);
+  background: rgba(244, 207, 121, 0.14);
+  color: #f6db9f;
+}
+
 .hand {
   display: flex;
   flex-wrap: wrap;
@@ -263,10 +301,22 @@ button:disabled {
 
 .playing-card {
   font-weight: 700;
+  transition:
+    box-shadow 160ms ease,
+    opacity 160ms ease,
+    transform 160ms ease;
 }
 
 .playing-card.legal {
   transform: translateY(-3px);
+  border-color: rgba(224, 181, 82, 0.72);
+  box-shadow:
+    0 8px 18px rgba(0, 0, 0, 0.24),
+    0 0 0 2px rgba(214, 177, 91, 0.28);
+}
+
+.playing-card.legal:hover {
+  transform: translateY(-6px);
 }
 
 .playing-card:disabled {
@@ -310,18 +360,58 @@ button:disabled {
   grid-area: center;
   display: grid;
   grid-template-rows: auto 1fr auto auto;
-  gap: 12px;
+  gap: 9px;
   min-width: 260px;
-  min-height: 350px;
-  padding: 16px;
+  min-height: 320px;
+  padding: 12px;
   border: 1px solid rgba(232, 207, 139, 0.3);
   background: rgba(10, 28, 22, 0.54);
+}
+
+.turn-panel {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(232, 207, 139, 0.2);
+}
+
+.turn-panel strong {
+  min-width: 0;
+  font-size: clamp(0.98rem, 1.2vw, 1.16rem);
+  line-height: 1.1;
+}
+
+.turn-panel > span:last-child {
+  margin-left: auto;
+  color: #ddcfb2;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.phase-pill {
+  width: fit-content;
+  padding: 3px 8px;
+  border: 1px solid rgba(232, 207, 139, 0.28);
+  background: rgba(255, 247, 224, 0.08);
+  color: #f1d58d;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+}
+
+.phase-complete {
+  color: #cfe6d1;
+}
+
+.phase-passedOut {
+  color: #d8c69e;
 }
 
 .contract-panel strong,
 .result-panel strong {
   display: block;
-  margin-top: 4px;
+  margin-top: 3px;
   font-size: clamp(1rem, 1.6vw, 1.45rem);
 }
 
@@ -338,7 +428,7 @@ button:disabled {
   position: relative;
   display: grid;
   place-items: center;
-  min-height: 150px;
+  min-height: 110px;
   border: 1px dashed rgba(232, 207, 139, 0.24);
 }
 
@@ -403,6 +493,23 @@ button:disabled {
   background: rgba(9, 29, 23, 0.92);
 }
 
+.bid-header {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.bid-header strong {
+  display: block;
+  font-size: 1.05rem;
+}
+
+.bid-header > span {
+  color: #ddcfb2;
+  font-size: 0.8rem;
+}
+
 .bid-grid {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -412,6 +519,12 @@ button:disabled {
 .bid-grid button,
 .bid-actions button {
   padding: 7px 4px;
+}
+
+.bid-grid button:disabled,
+.bid-actions button:disabled {
+  color: rgba(247, 236, 210, 0.35);
+  background: rgba(255, 247, 224, 0.035);
 }
 
 .bid-actions {
@@ -544,5 +657,14 @@ button:disabled {
 
   .center-table {
     min-height: 280px;
+  }
+
+  .turn-panel {
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+  }
+
+  .bid-header {
+    align-items: start;
   }
 }

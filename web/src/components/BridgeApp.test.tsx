@@ -11,6 +11,10 @@ describe('BridgeApp', () => {
     expect(screen.getByRole('group', { name: /human seats/i })).not.toBeNull()
     expect(screen.getByRole('region', { name: /current deal/i })).not.toBeNull()
     expect(screen.getByRole('region', { name: /bidding box/i }).parentElement?.className).toContain('felt-grid')
+    expect(screen.getByText('North to bid')).not.toBeNull()
+    expect(screen.getByText('Bot action')).not.toBeNull()
+    expect(screen.getByText('Bidding')).not.toBeNull()
+    expect(screen.getByText('Waiting')).not.toBeNull()
   })
 
   it('supports 0 to 4 human seats from the setup controls', () => {
@@ -37,6 +41,12 @@ describe('BridgeApp', () => {
     fireEvent.click(screen.getByRole('button', { name: /north/i }))
 
     expect(screen.getByRole('dialog', { name: /pass to north/i })).not.toBeNull()
+  })
+
+  it('shows the active seat badge on the current turn', () => {
+    render(<BridgeApp />)
+
+    expect(within(screen.getByRole('region', { name: /north seat/i })).getByText('to bid')).not.toBeNull()
   })
 
   it('advances dealer and vulnerability on new deals but not restarts', () => {

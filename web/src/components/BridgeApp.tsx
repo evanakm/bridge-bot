@@ -270,6 +270,7 @@ function SeatPanel({
 }) {
   const hand = game.hands[seat]
   const isTurn = game.turn === seat
+  const turnBadge = game.phase === 'auction' ? 'to bid' : game.phase === 'play' ? 'to play' : null
 
   return (
     <section className={`seat-panel seat-${seat} ${isTurn ? 'turn' : ''} ${visible ? 'visible' : 'hidden'}`} aria-label={`${seatName(seat)} seat`}>
@@ -282,6 +283,7 @@ function SeatPanel({
       </header>
       <div className="seat-meta">
         <span>{visible ? handStrengthLabel(hand) : `${hand.length} cards`}</span>
+        {isTurn && turnBadge && <span className="turn-badge">{turnBadge}</span>}
         {thinking && <span className="thinking">thinking</span>}
         {game.contract && seat === partnerOfContract(game) && game.completedTricks.length + game.currentTrick.length > 0 && <span>dummy</span>}
       </div>
@@ -317,6 +319,11 @@ function CenterTable({ game }: { game: GameState }) {
   return (
     <section className="center-table" aria-label="Current deal">
       <div className="contract-panel">
+        <div className="turn-panel" aria-live="polite">
+          <span className={`phase-pill phase-${game.phase}`}>{phaseLabel(game.phase)}</span>
+          <strong>{turnSummary(game)}</strong>
+          <span>{turnDetail(game)}</span>
+        </div>
         <span className="eyebrow">Contract</span>
         <div className="deal-info">
           <span>Dealer {seatName(game.dealer)}</span>
@@ -354,6 +361,32 @@ function CenterTable({ game }: { game: GameState }) {
   )
 }
 
+function phaseLabel(phase: GameState['phase']) {
+  if (phase === 'passedOut') return 'Passed out'
+  if (phase === 'complete') return 'Complete'
+  return phase === 'auction' ? 'Auction' : 'Play'
+}
+
+function turnSummary(game: GameState) {
+  if (game.phase === 'passedOut') return 'Board passed out'
+  if (game.phase === 'complete') return game.score?.label ?? 'Board complete'
+  if (game.phase === 'auction') return `${seatName(game.turn)} to bid`
+  const controller = activeControllerSeat(game)
+  if (controller !== game.turn) {
+    return `${seatName(controller)} controls ${seatName(game.turn)}`
+  }
+  return `${seatName(game.turn)} to play`
+}
+
+function turnDetail(game: GameState) {
+  if (game.phase === 'complete') {
+    return game.score ? `NS ${game.score.nsScore > 0 ? '+' : ''}${game.score.nsScore}` : 'Score settled'
+  }
+  if (game.phase === 'passedOut') return 'No contract'
+  const controller = activeControllerSeat(game)
+  return game.seats[controller] === 'human' ? 'Human action' : 'Bot action'
+}
+
 function AuctionRecord({ game }: { game: GameState }) {
   return (
     <div className="auction-record" aria-label="Auction record">
@@ -372,6 +405,13 @@ function BiddingBox({ game, disabled, onCall }: { game: GameState; disabled: boo
   const actionCalls: Call[] = [{ kind: 'pass' }, { kind: 'double' }, { kind: 'redouble' }]
   return (
     <section className="bidding-box" aria-label="Bidding box">
+      <header className="bid-header">
+        <div>
+          <span className="eyebrow">Bidding</span>
+          <strong>{seatName(game.turn)}</strong>
+        </div>
+        <span>{disabled ? 'Waiting' : 'Your call'}</span>
+      </header>
       <div className="bid-grid">
         {contractCalls().map((call) => (
           <button
