@@ -1,7 +1,7 @@
-from game.interface import User
+from bridgebot.game.interface import User
 import tensorflow as tf
-from game.enums import Players
-from game.card import Card
+from bridgebot.game.enums import Players
+from bridgebot.game.card import Card
 
 
 def player_to_tensor(player):
@@ -38,4 +38,8 @@ def card_history_to_tensor(card_history):
 class BotUser(User):
     @staticmethod
     def play_card(current_player, dummy, dummy_hand, all_cards, legal_cards, bid_history, card_history, leader_history):
+        pass
+
+    @staticmethod
+    def bid(current_player, legal_bids, bid_history):
         pass
