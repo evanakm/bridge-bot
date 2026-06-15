@@ -10,6 +10,10 @@ Welcome to bridgebot's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   web_app
+   limited_information_bots
+   specs
+
 
 
 Indices and tables
