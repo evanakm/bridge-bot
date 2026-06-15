@@ -20,9 +20,17 @@ Open http://127.0.0.1:3000/ after the dev server starts.
 
 Live Cloudflare app: https://bridge.masonbrothers.ca/
 
+## AI players
+
+The Python bot package includes random, rule-based, rollout-search, and
+linear-policy player architectures. The goal is to compare simple AI strategies
+without changing the bot user API used by the bridge table.
+
 Useful verification commands:
 
 ```bash
+pytest
+pytest bridgebot/test/test_ai_players.py
 pnpm --dir web test
 pnpm --dir web e2e
 pnpm --dir web typecheck
@@ -97,7 +105,9 @@ browser details, and device details. The in-app privacy policy is available at
   Python Worker deployables.
 - `docs/source/privacy.rst` describes what optional training records include and
   exclude.
+- `docs/source/ai_players.rst` describes the Python AI player architectures.
 - `docs/specs/gameplay-web-app.md` is the implemented gameplay spec.
 - `docs/specs/limited-information-bot-adapter.md` is the privacy and adapter
   contract for outside tables.
 - `docs/specs/cloudflare-deployment.md` is the Cloudflare deployment contract.
+- `docs/specs/ai-player-architectures.md` is the implemented AI-player spec.

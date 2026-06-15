@@ -9,6 +9,8 @@ contracts that should remain stable as the project grows.
   external bridge services and physical-card tables.
 - `cloudflare-deployment.md`: Cloudflare Worker deployment contract for the web
   app and Python backend worker.
+- `ai-player-architectures.md`: implemented Python AI player architectures and
+  verification expectations.
 
 Specs are written to be testable. When changing behavior, update the relevant
 spec and the tests named in its verification section in the same commit.
