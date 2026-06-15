@@ -6,6 +6,8 @@ contracts that should remain stable as the project grows.
 - `gameplay-web-app.md`: playable TanStack Start table requirements.
 - `limited-information-bot-adapter.md`: privacy-preserving adapter contract for
   external bridge services and physical-card tables.
+- `cloudflare-deployment.md`: Cloudflare Worker deployment contract for the web
+  app and Python backend worker.
 
 Specs are written to be testable. When changing behavior, update the relevant
 spec and the tests named in its verification section in the same commit.

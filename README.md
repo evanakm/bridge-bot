@@ -34,12 +34,40 @@ card/install metadata. On a fresh machine or CI runner, install Chromium first:
 pnpm --dir web exec playwright install chromium
 ```
 
+Cloudflare web deployment:
+
+```bash
+pnpm --dir web cf:deploy
+pnpm --dir web cf:dry-run
+```
+
+## Cloudflare Python Worker backend
+
+The Python Worker backend lives in `workers/backend/`. It exposes a small
+limited-information bot API that can later host stronger Python AI policies
+without sending hidden hands to the server.
+
+```bash
+cd workers/backend
+uv run pywrangler dev
+uv run pywrangler deploy
+```
+
+Local backend contract tests are included in the root pytest suite:
+
+```bash
+pytest
+```
+
 ## Integration docs
 
 - `docs/source/web_app.rst` describes the web table, gameplay flow, and current
   limits.
 - `docs/source/limited_information_bots.rst` describes how to attach bots to
   external bridge services or physical-card tables without leaking hidden state.
+- `docs/source/cloudflare_deployment.rst` describes the Cloudflare web and
+  Python Worker deployables.
 - `docs/specs/gameplay-web-app.md` is the implemented gameplay spec.
 - `docs/specs/limited-information-bot-adapter.md` is the privacy and adapter
   contract for outside tables.
+- `docs/specs/cloudflare-deployment.md` is the Cloudflare deployment contract.
