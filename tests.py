@@ -1,6 +1,6 @@
-import os, pathlib
-import pytest
+import pathlib
+import subprocess
 
-os.chdir( pathlib.Path.cwd() / 'bridgebot' / 'test' )
+repo_root = pathlib.Path(__file__).resolve().parent
 
-pytest.main()
+raise SystemExit(subprocess.call(["pytest", "-q"], cwd=str(repo_root)))

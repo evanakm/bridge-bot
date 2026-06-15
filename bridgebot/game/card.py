@@ -1,4 +1,4 @@
-from game.enums import Suits, Ranks
+from bridgebot.game.enums import Suits, Ranks
 
 
 class InvalidCardException(Exception):

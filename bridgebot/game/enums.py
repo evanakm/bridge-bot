@@ -139,7 +139,8 @@ class Suits(Enum):
         if not isinstance(contract, Contracts):
             raise ContractNotFound("Invalid Contract")
 
-        return Suits.suits()[Contracts.contracts().index(contract) % 5]
+        strain = contract.determine_strain()
+        return strain.determine_suit()
 
 
 class InvalidTeam(Exception):
@@ -281,4 +282,3 @@ class AuctionStatus(Enum):
     DONE = "DONE"
     CONTINUE = "CONTINUE"
     INVALID = "INVALID"
-

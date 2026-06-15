@@ -1,6 +1,6 @@
-from game.enums import Suits
+from bridgebot.game.enums import Suits
 
-from game.card import Card, InvalidSuitException
+from bridgebot.game.card import Card, InvalidSuitException
 
 
 class CardDoesntFollowSuitException(Exception):
@@ -182,7 +182,7 @@ class BridgeHand:
 
         cards_of_lead_suit = self.get_cards_of_suit(led_suit)
 
-        if len(cards_of_lead_suit) is not 0:
+        if len(cards_of_lead_suit) != 0:
             return cards_of_lead_suit
         else:
             return self.cards

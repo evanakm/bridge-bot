@@ -1,4 +1,4 @@
-from game.enums import Players, Strains, AuctionStatus, Doubles, Contracts, Team, InvalidPlayerException, InvalidStrainException, Suits
+from bridgebot.game.enums import Players, Strains, AuctionStatus, Doubles, Contracts, Team, InvalidPlayerException, InvalidStrainException
 from enum import Enum
 
 from itertools import chain
@@ -21,6 +21,13 @@ class FullContract:
             raise TypeError("passout must be of type bool")
 
         if passout:
+            return
+
+        if contract is None:
+            if doubled != Doubles.NONE:
+                raise TypeError("doubled must be NONE before a contract is bid")
+            if declarer is not None:
+                raise TypeError("declarer must be None before a contract is bid")
             return
 
         if not isinstance(contract, Contracts):
@@ -87,6 +94,9 @@ class Bids(Enum):
 
     @staticmethod
     def is_sufficient_bid(bid, bidder, current_contract):
+        if not isinstance(bid, Bids):
+            raise InvalidBidException("Not a valid bid.")
+
         if not isinstance(bidder, Players):
             raise Exception("by_bidder must be a Player")
 
@@ -99,8 +109,8 @@ class Bids(Enum):
         if bid == Bids.PASS:
             return True
 
-        if isinstance(bid, Contracts):
-            return current_contract.contract < bid
+        if isinstance(bid.value, Contracts):
+            return current_contract.contract < bid.value
 
         if bid == Bids.DOUBLE:
             if current_contract.contract is None:
@@ -129,16 +139,20 @@ class Bids(Enum):
                 return True
 
     def map_to_contract(self):
-        bids = self.bids()
-        return Contracts.contracts()[bids.index(self)]
+        if not isinstance(self.value, Contracts):
+            raise InvalidBidException("Only contract bids map to contracts.")
+        return self.value
 
     @staticmethod
     def all_legal_bids(bidder, current_contract):
-        return [bid for bid in Bids.bids() if Bids.is_sufficent_bid(bid, bidder, current_contract)]
+        return [bid for bid in Bids.bids() if Bids.is_sufficient_bid(bid, bidder, current_contract)]
 
 
 class Record:
     def __init__(self, dealer):
+        if not isinstance(dealer, Players):
+            raise InvalidDealerException('Invalid dealer')
+
         self.__dealer = dealer
         self.__record = {
             Players.NORTH: [],
@@ -147,6 +161,7 @@ class Record:
             Players.WEST: []
         }
         self.__player_currently_bidding = dealer
+        self.__current_contract = FullContract(None, Doubles.NONE, None, False)
 
     @staticmethod
     def __cycle_of_players(dealer):
@@ -185,8 +200,26 @@ class Record:
 
         if not isinstance(bid, Bids):
             raise TypeError("bid must be of type Bids")
+
+        if not Bids.is_sufficient_bid(bid, self.__player_currently_bidding, self.__current_contract):
+            raise InvalidBidException("Insufficient bid.")
+
         self.__record[self.__player_currently_bidding].append(bid)
+        self.__update_current_contract(bid)
         self.__player_currently_bidding = self.__player_currently_bidding.next_player()
+
+    def __update_current_contract(self, bid):
+        if isinstance(bid.value, Contracts):
+            self.__current_contract = FullContract(
+                bid.map_to_contract(),
+                Doubles.NONE,
+                self.__player_currently_bidding,
+                False,
+            )
+        elif bid == Bids.DOUBLE:
+            self.__current_contract.doubled = Doubles.DOUBLE
+        elif bid == Bids.REDOUBLE:
+            self.__current_contract.doubled = Doubles.REDOUBLE
 
     @property
     def record(self):
@@ -195,6 +228,14 @@ class Record:
     @property
     def dealer(self):
         return self.__dealer
+
+    @property
+    def current_contract(self):
+        return self.__current_contract
+
+    @property
+    def player_currently_bidding(self):
+        return self.__player_currently_bidding
 
     @staticmethod
     def __is_passout(record):
@@ -229,9 +270,9 @@ class Record:
         highest_bid_index = zipped.index(highest_bid)
         bids_after_highest_bid = zipped[highest_bid_index:]
 
-        if Doubles.REDOUBLE in bids_after_highest_bid:
+        if Bids.REDOUBLE in bids_after_highest_bid:
             return Doubles.REDOUBLE
-        elif Doubles.DOUBLE in bids_after_highest_bid:
+        elif Bids.DOUBLE in bids_after_highest_bid:
             return Doubles.DOUBLE
         else:
             return Doubles.NONE
@@ -293,55 +334,34 @@ class Auction:
 
     # For debugging purposes, easier to reset than to create a new Auction
     def reset(self):
-        self.player_index = Players.players().index(self.dealer)
-        self.last_bidder_index = None
         self.record = Record(self.dealer)
-        self.last_bid = None
-        self.redoubled = False
-        self.consecutive_passes = 0
+        self.contract = self.record.current_contract
+        self.player = self.dealer
 
-        self.contract = FullContract()
+    def complete(self):
+        return self.record.complete()
 
-    def __increment_player(self):
-        self.player = self.player.next_player()
+    def legal_bids(self):
+        if self.complete():
+            return []
+        return Bids.all_legal_bids(self.player, self.record.current_contract)
+
+    def determine_full_contract(self):
+        return self.record.determine_full_contract()
 
     def get_new_bid(self, new_bid):
         if not isinstance(new_bid, Bids):
             raise InvalidBidException("Not a valid bid.")
-        if not new_bid.is_sufficient_bid(self.player, self.contract):
-            raise InvalidBidException("Insufficient bid.")
+        try:
+            self.record.add_bid(new_bid)
+        except InvalidBidException:
+            raise
+        except Exception as exc:
+            raise InvalidBidException(str(exc)) from exc
 
-        self.record[self.player].append(new_bid)
+        self.contract = self.record.current_contract
+        self.player = self.record.player_currently_bidding
 
-        if new_bid == Bids.PASS:
-            if self.contract.contract is None:
-                if self.consecutive_passes == 3:  # Passing out
-                    return AuctionStatus.DONE
-                else:  # Passing before an opening bid
-                    self.__increment_player()
-                    return AuctionStatus.CONTINUE
-            elif self.consecutive_passes != 2:  # Passing but not finishing
-                self.__increment_player()
-                return AuctionStatus.CONTINUE
-            else:  # Three passes in a row after at least one bid. Auction over.
-                return AuctionStatus.DONE
-        elif isinstance(new_bid, Contracts):
-            self.contract.contract = new_bid.map_to_contract()
-            self.contract.doubled = Doubles.NONE
-            self.contract.last_bid_by = self.player
-
-            # The logic behind finding self.contract.declarer is encapsulated in self.record
-            strain = Strains.get_strain_from_contract(self.contract.contract)
-            self.record.try_to_set_first_bid(self.player, strain)
-            self.contract.declarer = self.record.get_first_bid(self.player, strain)
-
-            self.consecutive_passes = 0
-
-            return AuctionStatus.CONTINUE
-        elif new_bid == Bids.DOUBLE:
-            self.consecutive_passes = 0
-            return AuctionStatus.CONTINUE
-        elif new_bid == Bids.REDOUBLE:
-            self.consecutive_passes = 0
-            return AuctionStatus.CONTINUE
-
+        if self.record.complete():
+            return AuctionStatus.DONE
+        return AuctionStatus.CONTINUE
