@@ -9,12 +9,14 @@ import {
   allLegalCalls,
   applyCall,
   createGame,
+  dealerForBoard,
   defaultSeats,
   isCardLegal,
   isHumanTurn,
   handStrengthLabel,
   needsHotseatReady,
   playCard,
+  vulnerabilityForBoard,
   visibleSeatCards,
 } from '../game/engine'
 import type { Call, Card, GameState, Seat, SeatConfig } from '../game/types'
@@ -29,6 +31,7 @@ export function BridgeApp() {
   const [seatConfig, setSeatConfig] = useState<SeatConfig>(defaultSeats)
   const [practice, setPractice] = useState(false)
   const [seed, setSeed] = useState(20260615)
+  const [boardIndex, setBoardIndex] = useState(0)
   const [speed, setSpeed] = useState(420)
   const [readySeat, setReadySeat] = useState<Seat | null>(null)
   const [thinkingSeat, setThinkingSeat] = useState<Seat | null>(null)
@@ -36,6 +39,8 @@ export function BridgeApp() {
     seats: defaultSeats,
     practice: false,
     seed: 20260615,
+    dealer: dealerForBoard(0),
+    vulnerability: vulnerabilityForBoard(0),
   }))
 
   const humans = useMemo(() => compassSeats.filter((seat) => seatConfig[seat] === 'human'), [seatConfig])
@@ -61,14 +66,17 @@ export function BridgeApp() {
     }
   }, [humans.length, practice, game.turn])
 
-  function startDeal(next = seed) {
+  function startDeal(next = seed, nextBoardIndex = boardIndex) {
     setSeed(next)
+    setBoardIndex(nextBoardIndex)
     setReadySeat(null)
     setThinkingSeat(null)
     setGame(createGame({
       seats: seatConfig,
       practice,
       seed: next,
+      dealer: dealerForBoard(nextBoardIndex),
+      vulnerability: vulnerabilityForBoard(nextBoardIndex),
     }))
   }
 
@@ -112,9 +120,10 @@ export function BridgeApp() {
           humans={humans.length}
           practice={practice}
           speed={speed}
+          boardNumber={boardIndex + 1}
           onPractice={setPracticeMode}
           onSpeed={setSpeed}
-          onNewDeal={() => startDeal(nextSeed())}
+          onNewDeal={() => startDeal(nextSeed(), boardIndex + 1)}
           onStep={() => setGame((current) => advanceBotOnce(current))}
         />
 
@@ -137,7 +146,7 @@ export function BridgeApp() {
               </button>
             ))}
           </div>
-          <button className="primary-action" type="button" onClick={() => startDeal(seed)}>
+          <button className="primary-action" type="button" onClick={() => startDeal(seed, boardIndex)}>
             <RotateCcw aria-hidden="true" />
             Restart deal
           </button>
@@ -190,6 +199,7 @@ function ControlRail({
   humans,
   practice,
   speed,
+  boardNumber,
   onPractice,
   onSpeed,
   onNewDeal,
@@ -199,6 +209,7 @@ function ControlRail({
   humans: number
   practice: boolean
   speed: number
+  boardNumber: number
   onPractice: (enabled: boolean) => void
   onSpeed: (speed: number) => void
   onNewDeal: () => void
@@ -234,6 +245,7 @@ function ControlRail({
         <span>New</span>
       </button>
       <div className="rail-status">
+        <span>Board {boardNumber}</span>
         <span>{humans} human{humans === 1 ? '' : 's'}</span>
         <strong>{game.phase}</strong>
       </div>
@@ -306,6 +318,10 @@ function CenterTable({ game }: { game: GameState }) {
     <section className="center-table" aria-label="Current deal">
       <div className="contract-panel">
         <span className="eyebrow">Contract</span>
+        <div className="deal-info">
+          <span>Dealer {seatName(game.dealer)}</span>
+          <span>Vul {game.vulnerability}</span>
+        </div>
         {contract ? (
           <strong>{contract.level}{contract.strain} by {seatName(contract.declarer)} {contract.doubled !== 'none' ? contract.doubled : ''}</strong>
         ) : game.phase === 'passedOut' ? (

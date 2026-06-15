@@ -7,12 +7,14 @@ import {
   advanceBots,
   allLegalCalls,
   createGame,
+  dealerForBoard,
   defaultSeats,
   determineTrickWinner,
   isHumanTurn,
   legalCards,
   needsHotseatReady,
   playCard,
+  vulnerabilityForBoard,
   visibleSeatCards,
 } from './engine'
 import { scoreContract } from './scoring'
@@ -38,6 +40,29 @@ describe('game engine', () => {
     expect(state.turn).toBe('N')
     expect(allLegalCalls(state).map(callLabel)).toContain('Pass')
     expect(allLegalCalls(state).map(callLabel)).toContain('1C')
+  })
+
+  it('rotates dealer and vulnerability by duplicate board', () => {
+    expect([0, 1, 2, 3, 4].map(dealerForBoard)).toEqual(['N', 'E', 'S', 'W', 'N'])
+    expect(Array.from({ length: 16 }, (_, index) => vulnerabilityForBoard(index))).toEqual([
+      'None',
+      'NS',
+      'EW',
+      'Both',
+      'NS',
+      'EW',
+      'Both',
+      'None',
+      'EW',
+      'Both',
+      'None',
+      'NS',
+      'Both',
+      'None',
+      'NS',
+      'EW',
+    ])
+    expect(vulnerabilityForBoard(16)).toBe('None')
   })
 
   it('recognizes bot-only games and advances them to a terminal state', () => {

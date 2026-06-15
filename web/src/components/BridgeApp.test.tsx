@@ -39,6 +39,26 @@ describe('BridgeApp', () => {
     expect(screen.getByRole('dialog', { name: /pass to north/i })).not.toBeNull()
   })
 
+  it('advances dealer and vulnerability on new deals but not restarts', () => {
+    render(<BridgeApp />)
+
+    expect(screen.getByText('Board 1')).not.toBeNull()
+    expect(screen.getByText('Dealer North')).not.toBeNull()
+    expect(screen.getByText('Vul None')).not.toBeNull()
+
+    fireEvent.click(screen.getByRole('button', { name: /^New$/i }))
+
+    expect(screen.getByText('Board 2')).not.toBeNull()
+    expect(screen.getByText('Dealer East')).not.toBeNull()
+    expect(screen.getByText('Vul NS')).not.toBeNull()
+
+    fireEvent.click(screen.getByRole('button', { name: /restart deal/i }))
+
+    expect(screen.getByText('Board 2')).not.toBeNull()
+    expect(screen.getByText('Dealer East')).not.toBeNull()
+    expect(screen.getByText('Vul NS')).not.toBeNull()
+  })
+
   it('toggles practice mode to show all hands', () => {
     render(<BridgeApp />)
 

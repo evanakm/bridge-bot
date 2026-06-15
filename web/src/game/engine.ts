@@ -1,13 +1,57 @@
 import { chooseBotCall, deriveContract, isAuctionComplete, isCallLegal, isPassout, legalCalls, nextAuctionSeat } from './auction'
 import { deal, findCard, highCardPoints, nextSeat, partner, removeCard, sortCards, teamOf } from './cards'
 import { scoreContract } from './scoring'
-import type { AuctionEntry, Call, Card, GameState, NewGameOptions, PlayedCard, Seat, SeatConfig, Strain, Trick } from './types'
+import { seats } from './types'
+import type {
+  AuctionEntry,
+  Call,
+  Card,
+  GameState,
+  NewGameOptions,
+  PlayedCard,
+  Seat,
+  SeatConfig,
+  Strain,
+  Trick,
+  Vulnerability,
+} from './types'
 
 export const defaultSeats: SeatConfig = {
   N: 'bot',
   E: 'bot',
   S: 'human',
   W: 'bot',
+}
+
+const vulnerabilityCycle: Vulnerability[] = [
+  'None',
+  'NS',
+  'EW',
+  'Both',
+  'NS',
+  'EW',
+  'Both',
+  'None',
+  'EW',
+  'Both',
+  'None',
+  'NS',
+  'Both',
+  'None',
+  'NS',
+  'EW',
+]
+
+export function dealerForBoard(boardIndex: number): Seat {
+  return seats[positiveModulo(boardIndex, seats.length)]!
+}
+
+export function vulnerabilityForBoard(boardIndex: number): Vulnerability {
+  return vulnerabilityCycle[positiveModulo(boardIndex, vulnerabilityCycle.length)]!
+}
+
+function positiveModulo(value: number, divisor: number) {
+  return ((value % divisor) + divisor) % divisor
 }
 
 export function createGame(options: NewGameOptions): GameState {
