@@ -98,6 +98,7 @@ class TrainingResult:
     bid_weights: dict[str, float]
     card_weights: dict[str, float]
     final_score_vs_initial: float
+    final_selection: str
     champion_updates: int
     generations: list[dict]
 
@@ -107,6 +108,9 @@ def train_linear_policy(output_path=DEFAULT_MODEL_PATH, config=None):
     rng = random.Random(config.seed)
     initial_weights = linear_policy_weights()
     champion = copy.deepcopy(initial_weights)
+    best_validated = copy.deepcopy(initial_weights)
+    best_validation_score = 0.0
+    best_validation_label = "initial"
     generation_records = []
     champion_updates = 0
 
@@ -149,6 +153,9 @@ def train_linear_policy(output_path=DEFAULT_MODEL_PATH, config=None):
         if validation.average_delta < 0:
             champion = copy.deepcopy(initial_weights)
             champion_updates = 0
+            best_validated = copy.deepcopy(initial_weights)
+            best_validation_score = 0.0
+            best_validation_label = "initial"
             best_record = {
                 **best_record,
                 "accepted": False,
@@ -159,34 +166,37 @@ def train_linear_policy(output_path=DEFAULT_MODEL_PATH, config=None):
                 initial_weights,
                 _board_seeds(config.seed + 97_531, generation, config.validation_boards),
             )
+        elif validation.average_delta > best_validation_score:
+            best_validated = copy.deepcopy(champion)
+            best_validation_score = validation.average_delta
+            best_validation_label = f"generation-{generation}"
 
         generation_records.append({
             "generation": generation,
             "selected": best_record,
             "validation_average_delta_vs_initial": validation.average_delta,
             "validation_total_delta_vs_initial": validation.total_delta,
+            "best_validation_average_delta_vs_initial": best_validation_score,
+            "best_validation_label": best_validation_label,
         })
 
-    final_validation = evaluate_linear_policy(
-        champion,
+    final_weights, final_selection, final_validation = _select_final_weights(
+        {
+            "initial": initial_weights,
+            "last_champion": champion,
+            "best_validated": best_validated,
+        },
         initial_weights,
         _board_seeds(config.seed + 250_001, 0, config.validation_boards),
     )
-    if final_validation.average_delta < 0:
-        champion = copy.deepcopy(initial_weights)
-        champion_updates = 0
-        final_validation = evaluate_linear_policy(
-            champion,
-            initial_weights,
-            _board_seeds(config.seed + 250_001, 0, config.validation_boards),
-        )
 
     result = TrainingResult(
         model_path=str(output_path),
         config=asdict(config),
-        bid_weights=champion["bid_weights"],
-        card_weights=champion["card_weights"],
+        bid_weights=final_weights["bid_weights"],
+        card_weights=final_weights["card_weights"],
         final_score_vs_initial=final_validation.average_delta,
+        final_selection=final_selection,
         champion_updates=champion_updates,
         generations=generation_records,
     )
@@ -218,6 +228,24 @@ def evaluate_linear_policy(candidate_weights, opponent_weights, board_seeds):
         boards=board_count,
         passouts=passouts,
     )
+
+
+def _select_final_weights(candidates, initial_weights, board_seeds):
+    best_label = None
+    best_weights = None
+    best_match = None
+
+    for label, weights in candidates.items():
+        if label == "initial":
+            match = MatchScore(0.0, 0, len(board_seeds) * 2, 0)
+        else:
+            match = evaluate_linear_policy(weights, initial_weights, board_seeds)
+        if best_match is None or match.average_delta > best_match.average_delta:
+            best_label = label
+            best_weights = copy.deepcopy(weights)
+            best_match = match
+
+    return best_weights, best_label, best_match
 
 
 def play_board(users, seed, dealer=Players.NORTH, vulnerability=Vulnerabilities.BOTH):

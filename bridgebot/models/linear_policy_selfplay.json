@@ -1,129 +1,202 @@
 {
   "architecture": "LinearPolicyBotUser",
   "bid_weights": {
-    "balanced_nt": 0.5172,
-    "double_points": 0.6154,
-    "length": 0.5674,
-    "level_cost": -3.4003,
-    "major": 1.3658,
-    "pass_floor": 6.0,
-    "points": 0.0791
+    "balanced_nt": -0.46,
+    "double_points": 1.1998,
+    "length": 0.0099,
+    "level_cost": -5.0676,
+    "major": 1.0458,
+    "pass_floor": 10.6055,
+    "points": 0.375
   },
   "card_weights": {
-    "conserve_honor": -0.1003,
-    "partner_winning": -0.6979,
-    "rank": -0.0332,
-    "trump": 0.9057,
-    "wins_now": 1.7435
+    "conserve_honor": -0.1396,
+    "partner_winning": -1.7442,
+    "rank": 0.0141,
+    "trump": 0.5601,
+    "wins_now": 2.7738
   },
   "schema_version": 1,
   "training": {
     "algorithm": "evolutionary_self_play",
     "result": {
       "bid_weights": {
-        "balanced_nt": 0.5172,
-        "double_points": 0.6154,
-        "length": 0.5674,
-        "level_cost": -3.4003,
-        "major": 1.3658,
-        "pass_floor": 6.0,
-        "points": 0.0791
+        "balanced_nt": -0.46,
+        "double_points": 1.1998,
+        "length": 0.0099,
+        "level_cost": -5.0676,
+        "major": 1.0458,
+        "pass_floor": 10.6055,
+        "points": 0.375
       },
       "card_weights": {
-        "conserve_honor": -0.1003,
-        "partner_winning": -0.6979,
-        "rank": -0.0332,
-        "trump": 0.9057,
-        "wins_now": 1.7435
+        "conserve_honor": -0.1396,
+        "partner_winning": -1.7442,
+        "rank": 0.0141,
+        "trump": 0.5601,
+        "wins_now": 2.7738
       },
-      "champion_updates": 6,
+      "champion_updates": 10,
       "config": {
-        "boards_per_generation": 10,
-        "generations": 6,
+        "boards_per_generation": 12,
+        "generations": 10,
         "mutation_scale": 0.45,
         "population": 8,
         "seed": 20260615,
-        "validation_boards": 12
+        "validation_boards": 16
       },
-      "final_score_vs_initial": 11.0,
+      "final_score_vs_initial": 11.1875,
+      "final_selection": "last_champion",
       "generations": [
         {
+          "best_validation_average_delta_vs_initial": 6.90625,
+          "best_validation_label": "generation-0",
           "generation": 0,
           "selected": {
             "accepted": true,
-            "average_delta": 8.25,
-            "boards": 20,
+            "average_delta": 7.958333333333333,
+            "boards": 24,
             "candidate": "mutation-0-3",
             "passouts": 0,
-            "total_delta": 165
+            "total_delta": 191
           },
-          "validation_average_delta_vs_initial": 5.916666666666667,
-          "validation_total_delta_vs_initial": 142
+          "validation_average_delta_vs_initial": 6.90625,
+          "validation_total_delta_vs_initial": 221
         },
         {
+          "best_validation_average_delta_vs_initial": 10.4375,
+          "best_validation_label": "generation-1",
           "generation": 1,
           "selected": {
             "accepted": true,
-            "average_delta": 6.55,
-            "boards": 20,
+            "average_delta": 4.958333333333333,
+            "boards": 24,
             "candidate": "mutation-1-6",
             "passouts": 0,
-            "total_delta": 131
+            "total_delta": 119
           },
-          "validation_average_delta_vs_initial": 11.666666666666666,
-          "validation_total_delta_vs_initial": 280
+          "validation_average_delta_vs_initial": 10.4375,
+          "validation_total_delta_vs_initial": 334
         },
         {
+          "best_validation_average_delta_vs_initial": 10.4375,
+          "best_validation_label": "generation-1",
           "generation": 2,
           "selected": {
             "accepted": true,
-            "average_delta": 5.6,
-            "boards": 20,
+            "average_delta": 3.5833333333333335,
+            "boards": 24,
             "candidate": "mutation-2-7",
             "passouts": 0,
-            "total_delta": 112
+            "total_delta": 86
           },
-          "validation_average_delta_vs_initial": 10.833333333333334,
-          "validation_total_delta_vs_initial": 260
+          "validation_average_delta_vs_initial": 9.5625,
+          "validation_total_delta_vs_initial": 306
         },
         {
+          "best_validation_average_delta_vs_initial": 10.4375,
+          "best_validation_label": "generation-1",
           "generation": 3,
           "selected": {
             "accepted": true,
-            "average_delta": 3.65,
-            "boards": 20,
+            "average_delta": 4.125,
+            "boards": 24,
             "candidate": "mutation-3-6",
             "passouts": 0,
-            "total_delta": 73
+            "total_delta": 99
           },
-          "validation_average_delta_vs_initial": 8.541666666666666,
-          "validation_total_delta_vs_initial": 205
+          "validation_average_delta_vs_initial": 9.40625,
+          "validation_total_delta_vs_initial": 301
         },
         {
+          "best_validation_average_delta_vs_initial": 10.4375,
+          "best_validation_label": "generation-1",
           "generation": 4,
           "selected": {
             "accepted": true,
-            "average_delta": 3.4,
-            "boards": 20,
-            "candidate": "mutation-4-5",
+            "average_delta": 3.4166666666666665,
+            "boards": 24,
+            "candidate": "mutation-4-3",
             "passouts": 0,
-            "total_delta": 68
+            "total_delta": 82
           },
-          "validation_average_delta_vs_initial": 9.75,
-          "validation_total_delta_vs_initial": 234
+          "validation_average_delta_vs_initial": 9.25,
+          "validation_total_delta_vs_initial": 296
         },
         {
+          "best_validation_average_delta_vs_initial": 10.4375,
+          "best_validation_label": "generation-1",
           "generation": 5,
           "selected": {
             "accepted": true,
-            "average_delta": 1.1,
-            "boards": 20,
-            "candidate": "mutation-5-2",
+            "average_delta": 1.4583333333333333,
+            "boards": 24,
+            "candidate": "mutation-5-5",
             "passouts": 0,
-            "total_delta": 22
+            "total_delta": 35
           },
-          "validation_average_delta_vs_initial": 11.208333333333334,
-          "validation_total_delta_vs_initial": 269
+          "validation_average_delta_vs_initial": 9.90625,
+          "validation_total_delta_vs_initial": 317
+        },
+        {
+          "best_validation_average_delta_vs_initial": 10.4375,
+          "best_validation_label": "generation-1",
+          "generation": 6,
+          "selected": {
+            "accepted": true,
+            "average_delta": 0.041666666666666664,
+            "boards": 24,
+            "candidate": "mutation-6-1",
+            "passouts": 1,
+            "total_delta": 1
+          },
+          "validation_average_delta_vs_initial": 8.0625,
+          "validation_total_delta_vs_initial": 258
+        },
+        {
+          "best_validation_average_delta_vs_initial": 10.4375,
+          "best_validation_label": "generation-1",
+          "generation": 7,
+          "selected": {
+            "accepted": true,
+            "average_delta": 1.1666666666666667,
+            "boards": 24,
+            "candidate": "mutation-7-0",
+            "passouts": 5,
+            "total_delta": 28
+          },
+          "validation_average_delta_vs_initial": 9.8125,
+          "validation_total_delta_vs_initial": 314
+        },
+        {
+          "best_validation_average_delta_vs_initial": 10.4375,
+          "best_validation_label": "generation-1",
+          "generation": 8,
+          "selected": {
+            "accepted": true,
+            "average_delta": 0.16666666666666666,
+            "boards": 24,
+            "candidate": "mutation-8-2",
+            "passouts": 3,
+            "total_delta": 4
+          },
+          "validation_average_delta_vs_initial": 8.125,
+          "validation_total_delta_vs_initial": 260
+        },
+        {
+          "best_validation_average_delta_vs_initial": 10.4375,
+          "best_validation_label": "generation-1",
+          "generation": 9,
+          "selected": {
+            "accepted": true,
+            "average_delta": 0.5,
+            "boards": 24,
+            "candidate": "mutation-9-6",
+            "passouts": 1,
+            "total_delta": 12
+          },
+          "validation_average_delta_vs_initial": 10.4375,
+          "validation_total_delta_vs_initial": 334
         }
       ],
       "model_path": "bridgebot/models/linear_policy_selfplay.json"

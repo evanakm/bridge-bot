@@ -3,7 +3,9 @@ import json
 from bridgebot.bidding import Bids
 from bridgebot.bots.aiplayers import LinearPolicyBotUser
 from bridgebot.game.enums import Players
+from bridgebot.training import self_play
 from bridgebot.training.self_play import (
+    MatchScore,
     TrainingConfig,
     deal_from_seed,
     evaluate_linear_policy,
@@ -137,3 +139,43 @@ def test_self_play_training_writes_loadable_non_regressing_model(tmp_path):
     assert loaded.card_weights == result.card_weights
     assert result.final_score_vs_initial >= 0
     assert result.champion_updates >= 1
+
+
+def test_self_play_saves_best_validated_champion(monkeypatch, tmp_path):
+    first_candidate = linear_policy_weights()
+    first_candidate["bid_weights"]["pass_floor"] = 15.0
+    later_candidate = linear_policy_weights()
+    later_candidate["bid_weights"]["pass_floor"] = 14.0
+
+    def fake_candidates(_champion, _rng, _population, _mutation_scale, generation):
+        if generation == 0:
+            return [("first-candidate", first_candidate)]
+        return [("later-candidate", later_candidate)]
+
+    def fake_evaluate(candidate, _opponent, board_seeds):
+        if board_seeds[0] < 50_000:
+            return MatchScore(1.0, 1, 2, 0)
+
+        pass_floor = candidate["bid_weights"]["pass_floor"]
+        if pass_floor == 15.0:
+            return MatchScore(8.0, 8, 2, 0)
+        if pass_floor == 14.0:
+            return MatchScore(2.0, 2, 2, 0)
+        return MatchScore(0.0, 0, 2, 0)
+
+    monkeypatch.setattr(self_play, "_candidate_weights", fake_candidates)
+    monkeypatch.setattr(self_play, "evaluate_linear_policy", fake_evaluate)
+
+    result = train_linear_policy(
+        output_path=tmp_path / "linear_policy_selfplay.json",
+        config=TrainingConfig(
+            seed=7,
+            generations=2,
+            population=1,
+            boards_per_generation=1,
+            validation_boards=1,
+        ),
+    )
+
+    assert result.bid_weights["pass_floor"] == 15.0
+    assert result.final_selection == "best_validated"

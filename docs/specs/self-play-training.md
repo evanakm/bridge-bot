@@ -34,6 +34,8 @@ For each generation:
 6. Accept the best positive candidate as the new champion.
 7. Validate the champion against the initial baseline and revert if validation
    drops below zero.
+8. Save the best final-validation candidate from the initial baseline, the last
+   champion, and the best held-out validation champion seen during training.
 
 This is evolutionary self-play, not gradient training. It is intentionally small
 and deterministic so it can run in CI and on developer machines without heavy ML
@@ -73,13 +75,14 @@ not receive full opponent hands.
 Small local run:
 
 ```bash
-python3 -m bridgebot.training.self_play --generations 2 --population 3 --boards 3 --validation-boards 4
+python3 -m venv .venv
+.venv/bin/python -m bridgebot.training.self_play --generations 2 --population 3 --boards 3 --validation-boards 4
 ```
 
 Default training run:
 
 ```bash
-python3 -m bridgebot.training.self_play
+.venv/bin/python -m bridgebot.training.self_play
 ```
 
 ## Verification
@@ -98,4 +101,6 @@ Required test coverage:
 - real board play returns a scored bridge result;
 - self-play writes a loadable JSON artifact;
 - the training guard preserves or improves validation score versus the initial
-  baseline for deterministic test seeds.
+  baseline for deterministic test seeds;
+- the saved artifact uses the best validated champion rather than a later
+  accepted candidate with weaker held-out validation.

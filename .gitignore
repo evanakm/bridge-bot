@@ -1,6 +1,7 @@
 *.pyc
 .idea/
 .ipynb_checkpoints/
+.venv/
 __pycache__
 build
 node_modules/

@@ -102,7 +102,8 @@ iteratively play duplicate boards against the current champion, mutate its bid
 and card-play weights, and write a versioned JSON artifact.
 
 ```bash
-python3 -m bridgebot.training.self_play
+python3 -m venv .venv
+.venv/bin/python -m bridgebot.training.self_play
 ```
 
 The default model artifact is
