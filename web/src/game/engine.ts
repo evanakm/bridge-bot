@@ -1,5 +1,6 @@
-import { chooseBotCall, deriveContract, isAuctionComplete, isCallLegal, isPassout, legalCalls, nextAuctionSeat } from './auction'
-import { deal, findCard, highCardPoints, nextSeat, partner, removeCard, sortCards, teamOf } from './cards'
+import { deriveContract, isAuctionComplete, isCallLegal, isPassout, legalCalls, nextAuctionSeat } from './auction'
+import { chooseBotActionForGame, chooseBotCardFromView, createBotViewFromGame, legalCardsFromKnownHand } from './bot'
+import { deal, findCard, highCardPoints, nextSeat, partner, removeCard, teamOf } from './cards'
 import { scoreContract } from './scoring'
 import { seats } from './types'
 import type {
@@ -129,11 +130,7 @@ export function applyCall(state: GameState, call: Call): GameState {
 }
 
 export function legalCards(state: GameState, seat: Seat): Card[] {
-  const hand = state.hands[seat]
-  if (state.currentTrick.length === 0) return hand
-  const ledSuit = state.currentTrick[0]!.card.suit
-  const followingSuit = hand.filter((card) => card.suit === ledSuit)
-  return followingSuit.length > 0 ? followingSuit : hand
+  return legalCardsFromKnownHand(state.hands[seat], state.currentTrick)
 }
 
 export function isCardLegal(state: GameState, seat: Seat, cardId: string) {
@@ -212,17 +209,21 @@ export function determineTrickWinner(cards: PlayedCard[], strain: Strain, leader
 }
 
 export function chooseBotCard(state: GameState, seat: Seat): Card {
-  const legal = legalCards(state, seat)
-  return sortCards(legal).at(-1)!
+  const view = createBotViewFromGame(state)
+  if (view.actionSeat !== seat) {
+    throw new Error(`Bot view is for ${view.actionSeat}, not ${seat}.`)
+  }
+  return chooseBotCardFromView(view)
 }
 
 export function advanceBotOnce(state: GameState): GameState {
   if (state.phase === 'auction' && !isHumanTurn(state)) {
-    return applyCall(state, chooseBotCall(state.auction, state.turn, state.hands[state.turn]))
+    const action = chooseBotActionForGame(state)
+    return action.kind === 'call' ? applyCall(state, action.call) : state
   }
   if (state.phase === 'play' && !isHumanTurn(state)) {
-    const card = chooseBotCard(state, state.turn)
-    return playCard(state, state.turn, card.id)
+    const action = chooseBotActionForGame(state)
+    return action.kind === 'play' ? playCard(state, action.seat, action.cardId) : state
   }
   return state
 }
