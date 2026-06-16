@@ -19,6 +19,10 @@ card-play weights are already explicit constructor arguments. Rule-based and
 rollout players remain comparison baselines rather than directly trained
 models.
 
+The primary baseline is the untrained default `LinearPolicyBotUser`. It uses the
+same architecture as the trained policy, but with the hand-written default
+weights from `bridgebot/bots/aiplayers.py`.
+
 ## Training Loop
 
 For each generation:
@@ -36,6 +40,8 @@ For each generation:
    drops below zero.
 8. Save the best final-validation candidate from the initial baseline, the last
    champion, and the best held-out validation champion seen during training.
+9. Benchmark the saved policy against the untrained linear policy, random legal
+   play, rule-based play, and a light rollout policy.
 
 This is evolutionary self-play, not gradient training. It is intentionally small
 and deterministic so it can run in CI and on developer machines without heavy ML
@@ -53,7 +59,9 @@ The model artifact is JSON:
   "card_weights": {},
   "training": {
     "algorithm": "evolutionary_self_play",
-    "result": {}
+    "result": {
+      "baseline_scores": {}
+    }
   }
 }
 ```
@@ -97,9 +105,12 @@ Required test coverage:
 
 - seeded deals are deterministic and contain all 52 cards;
 - identical linear policies score zero in duplicate play;
+- trained linear policies can be scored against arbitrary bot baselines;
 - score deltas use standard IMP cutoffs;
 - real board play returns a scored bridge result;
 - self-play writes a loadable JSON artifact;
+- self-play artifacts include baseline scores for untrained linear, random,
+  rule-based, and rollout players;
 - the training guard preserves or improves validation score versus the initial
   baseline for deterministic test seeds;
 - the saved artifact uses the best validated champion rather than a later

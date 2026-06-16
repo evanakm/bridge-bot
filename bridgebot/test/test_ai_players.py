@@ -2,6 +2,7 @@ from bridgebot.bidding import Auction, Bids
 from bridgebot.bots.aiplayers import (
     EnsembleBotUser,
     LinearPolicyBotUser,
+    RandomBotUser,
     RolloutBotUser,
     RuleBasedBotUser,
     choose_bid_for_user,
@@ -201,6 +202,7 @@ def test_every_ai_architecture_returns_legal_bid_and_card():
 
     for bot in [
         RuleBasedBotUser(),
+        RandomBotUser(seed=3),
         LinearPolicyBotUser(),
         RolloutBotUser(trials=8),
         EnsembleBotUser(),
@@ -227,6 +229,57 @@ def test_every_ai_architecture_returns_legal_bid_and_card():
         assert played in legal_cards
 
 
+def test_random_bot_is_seeded_and_chooses_only_legal_actions():
+    legal_bids = legal_opening_bids()
+    legal_cards = {
+        card(Suits.CLUBS, Ranks.TWO),
+        card(Suits.CLUBS, Ranks.ACE),
+        card(Suits.HEARTS, Ranks.KING),
+    }
+    first = RandomBotUser(seed=11)
+    second = RandomBotUser(seed=11)
+
+    first_bid = choose_bid_for_user(
+        first,
+        Players.NORTH,
+        balanced_15_count_hand(),
+        legal_bids,
+        Auction(Players.NORTH).record,
+    )
+    second_bid = choose_bid_for_user(
+        second,
+        Players.NORTH,
+        balanced_15_count_hand(),
+        legal_bids,
+        Auction(Players.NORTH).record,
+    )
+    first_card = first.play_card(
+        Players.NORTH,
+        Players.SOUTH,
+        set(),
+        legal_cards,
+        legal_cards,
+        Auction(Players.NORTH).record,
+        empty_card_history(),
+        [],
+    )
+    second_card = second.play_card(
+        Players.NORTH,
+        Players.SOUTH,
+        set(),
+        legal_cards,
+        legal_cards,
+        Auction(Players.NORTH).record,
+        empty_card_history(),
+        [],
+    )
+
+    assert first_bid == second_bid
+    assert first_bid in legal_bids
+    assert first_card == second_card
+    assert first_card in legal_cards
+
+
 def test_rollout_bot_does_not_require_hidden_opponent_hands():
     legal_cards = {
         card(Suits.SPADES, Ranks.TWO),
@@ -238,6 +291,31 @@ def test_rollout_bot_does_not_require_hidden_opponent_hands():
         Players.SOUTH,
         set(),
         legal_cards,
+        legal_cards,
+        Auction(Players.NORTH).record,
+        empty_card_history(),
+        [],
+    )
+
+    assert played in legal_cards
+
+
+def test_rollout_bot_handles_exhausted_hidden_card_samples():
+    all_cards = {
+        card(suit, rank)
+        for suit in Suits.suits()
+        for rank in Ranks.ranks()
+    }
+    legal_cards = {
+        card(Suits.SPADES, Ranks.TWO),
+        card(Suits.HEARTS, Ranks.ACE),
+    }
+
+    played = RolloutBotUser(trials=4, seed=9).play_card(
+        Players.NORTH,
+        Players.SOUTH,
+        set(),
+        all_cards,
         legal_cards,
         Auction(Players.NORTH).record,
         empty_card_history(),

@@ -3,12 +3,14 @@ import json
 from bridgebot.bidding import Bids
 from bridgebot.bots.aiplayers import LinearPolicyBotUser
 from bridgebot.game.enums import Players
+from bridgebot.game.interface import User
 from bridgebot.training import self_play
 from bridgebot.training.self_play import (
     MatchScore,
     TrainingConfig,
     deal_from_seed,
     evaluate_linear_policy,
+    evaluate_linear_policy_against_bot,
     linear_policy_weights,
     load_linear_policy_model,
     play_board,
@@ -17,11 +19,15 @@ from bridgebot.training.self_play import (
 )
 
 
-class AlwaysPassBot:
+class AlwaysPassBot(User):
     @staticmethod
     def bid(_current_player, legal_bids, _bid_history):
         assert Bids.PASS in legal_bids
         return Bids.PASS
+
+    @staticmethod
+    def play_card(_current_player, _dummy, _dummy_hand, _all_cards, legal_cards, _bid_history, _card_history, _leader_history):
+        return sorted(legal_cards, key=lambda card: card.to_int())[0]
 
 
 class RecordingLinearPolicyBot(LinearPolicyBotUser):
@@ -135,10 +141,47 @@ def test_self_play_training_writes_loadable_non_regressing_model(tmp_path):
     assert payload["architecture"] == "LinearPolicyBotUser"
     assert payload["bid_weights"] == result.bid_weights
     assert payload["card_weights"] == result.card_weights
+    assert set(payload["training"]["result"]["baseline_scores"]) == {
+        "initial_linear",
+        "random",
+        "rule_based",
+        "rollout_8",
+    }
     assert loaded.bid_weights == result.bid_weights
     assert loaded.card_weights == result.card_weights
     assert result.final_score_vs_initial >= 0
     assert result.champion_updates >= 1
+
+
+def test_self_play_training_is_reproducible_for_same_seed(tmp_path):
+    config = TrainingConfig(
+        seed=303,
+        generations=1,
+        population=2,
+        boards_per_generation=2,
+        validation_boards=2,
+    )
+
+    first = train_linear_policy(output_path=tmp_path / "first.json", config=config)
+    second = train_linear_policy(output_path=tmp_path / "second.json", config=config)
+
+    assert first.bid_weights == second.bid_weights
+    assert first.card_weights == second.card_weights
+    assert first.baseline_scores == second.baseline_scores
+    assert first.generations == second.generations
+
+
+def test_linear_policy_can_be_scored_against_arbitrary_bot_baseline():
+    weights = linear_policy_weights()
+
+    match = evaluate_linear_policy_against_bot(
+        weights,
+        lambda _player: AlwaysPassBot(),
+        [101, 202],
+    )
+
+    assert match.boards == 4
+    assert match.passouts >= 0
 
 
 def test_self_play_saves_best_validated_champion(monkeypatch, tmp_path):
@@ -165,6 +208,16 @@ def test_self_play_saves_best_validated_champion(monkeypatch, tmp_path):
 
     monkeypatch.setattr(self_play, "_candidate_weights", fake_candidates)
     monkeypatch.setattr(self_play, "evaluate_linear_policy", fake_evaluate)
+    monkeypatch.setattr(
+        self_play,
+        "benchmark_linear_policy",
+        lambda *_args: {
+            "initial_linear": {"average_delta": 8.0, "total_delta": 8, "boards": 2, "passouts": 0},
+            "random": {"average_delta": 9.0, "total_delta": 9, "boards": 2, "passouts": 0},
+            "rule_based": {"average_delta": 1.0, "total_delta": 1, "boards": 2, "passouts": 0},
+            "rollout_8": {"average_delta": 0.0, "total_delta": 0, "boards": 2, "passouts": 0},
+        },
+    )
 
     result = train_linear_policy(
         output_path=tmp_path / "linear_policy_selfplay.json",

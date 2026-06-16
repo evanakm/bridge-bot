@@ -8,7 +8,13 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 
 from bridgebot import bidding
-from bridgebot.bots.aiplayers import LinearPolicyBotUser, choose_bid_for_user
+from bridgebot.bots.aiplayers import (
+    LinearPolicyBotUser,
+    RandomBotUser,
+    RolloutBotUser,
+    RuleBasedBotUser,
+    choose_bid_for_user,
+)
 from bridgebot.game import cardplay
 from bridgebot.game.bridgehand import BridgeHand
 from bridgebot.game.deck import Deck
@@ -99,6 +105,7 @@ class TrainingResult:
     card_weights: dict[str, float]
     final_score_vs_initial: float
     final_selection: str
+    baseline_scores: dict[str, dict]
     champion_updates: int
     generations: list[dict]
 
@@ -189,6 +196,12 @@ def train_linear_policy(output_path=DEFAULT_MODEL_PATH, config=None):
         initial_weights,
         _board_seeds(config.seed + 250_001, 0, config.validation_boards),
     )
+    baseline_scores = benchmark_linear_policy(
+        final_weights,
+        initial_weights,
+        _board_seeds(config.seed + 350_003, 0, config.validation_boards),
+        config.seed,
+    )
 
     result = TrainingResult(
         model_path=str(output_path),
@@ -197,6 +210,7 @@ def train_linear_policy(output_path=DEFAULT_MODEL_PATH, config=None):
         card_weights=final_weights["card_weights"],
         final_score_vs_initial=final_validation.average_delta,
         final_selection=final_selection,
+        baseline_scores=baseline_scores,
         champion_updates=champion_updates,
         generations=generation_records,
     )
@@ -205,16 +219,32 @@ def train_linear_policy(output_path=DEFAULT_MODEL_PATH, config=None):
 
 
 def evaluate_linear_policy(candidate_weights, opponent_weights, board_seeds):
+    return evaluate_user_factories(
+        _linear_policy_factory(candidate_weights),
+        _linear_policy_factory(opponent_weights),
+        board_seeds,
+    )
+
+
+def evaluate_linear_policy_against_bot(candidate_weights, opponent_factory, board_seeds):
+    return evaluate_user_factories(
+        _linear_policy_factory(candidate_weights),
+        opponent_factory,
+        board_seeds,
+    )
+
+
+def evaluate_user_factories(candidate_factory, opponent_factory, board_seeds):
     total_delta = 0
     passouts = 0
     board_count = 0
     for seed in board_seeds:
         candidate_ns = play_board(
-            _users_for_match(candidate_weights, opponent_weights, candidate_team="NS"),
+            _users_for_factories(candidate_factory, opponent_factory, candidate_team="NS"),
             seed,
         )
         candidate_ew = play_board(
-            _users_for_match(candidate_weights, opponent_weights, candidate_team="EW"),
+            _users_for_factories(candidate_factory, opponent_factory, candidate_team="EW"),
             seed,
         )
         total_delta += score_to_imps(candidate_ns.ns_score - candidate_ew.ns_score)
@@ -228,6 +258,35 @@ def evaluate_linear_policy(candidate_weights, opponent_weights, board_seeds):
         boards=board_count,
         passouts=passouts,
     )
+
+
+def benchmark_linear_policy(candidate_weights, initial_weights, board_seeds, seed):
+    baselines = {
+        "initial_linear": evaluate_linear_policy(
+            candidate_weights,
+            initial_weights,
+            board_seeds,
+        ),
+        "random": evaluate_linear_policy_against_bot(
+            candidate_weights,
+            _random_bot_factory(seed),
+            board_seeds,
+        ),
+        "rule_based": evaluate_linear_policy_against_bot(
+            candidate_weights,
+            lambda _player: RuleBasedBotUser(),
+            board_seeds,
+        ),
+        "rollout_8": evaluate_linear_policy_against_bot(
+            candidate_weights,
+            _rollout_bot_factory(seed, trials=8),
+            board_seeds,
+        ),
+    }
+    return {
+        name: asdict(match)
+        for name, match in baselines.items()
+    }
 
 
 def _select_final_weights(candidates, initial_weights, board_seeds):
@@ -406,21 +465,35 @@ def _mutate_group(weights, ranges, rng, mutation_scale):
         weights[key] = round(min(high, max(low, mutated)), 4)
 
 
-def _users_for_match(candidate_weights, opponent_weights, candidate_team):
-    candidate = lambda: LinearPolicyBotUser(**copy.deepcopy(candidate_weights))
-    opponent = lambda: LinearPolicyBotUser(**copy.deepcopy(opponent_weights))
+def _linear_policy_factory(weights):
+    return lambda _player: LinearPolicyBotUser(**copy.deepcopy(weights))
+
+
+def _random_bot_factory(seed):
+    return lambda player: RandomBotUser(seed + _player_seed_offset(player))
+
+
+def _rollout_bot_factory(seed, trials):
+    return lambda player: RolloutBotUser(trials=trials, seed=seed + _player_seed_offset(player))
+
+
+def _player_seed_offset(player):
+    return Players.players().index(player) * 10_009
+
+
+def _users_for_factories(candidate_factory, opponent_factory, candidate_team):
     if candidate_team == "NS":
         return {
-            Players.NORTH: candidate(),
-            Players.SOUTH: candidate(),
-            Players.EAST: opponent(),
-            Players.WEST: opponent(),
+            Players.NORTH: candidate_factory(Players.NORTH),
+            Players.SOUTH: candidate_factory(Players.SOUTH),
+            Players.EAST: opponent_factory(Players.EAST),
+            Players.WEST: opponent_factory(Players.WEST),
         }
     return {
-        Players.NORTH: opponent(),
-        Players.SOUTH: opponent(),
-        Players.EAST: candidate(),
-        Players.WEST: candidate(),
+        Players.NORTH: opponent_factory(Players.NORTH),
+        Players.SOUTH: opponent_factory(Players.SOUTH),
+        Players.EAST: candidate_factory(Players.EAST),
+        Players.WEST: candidate_factory(Players.WEST),
     }
 
 
@@ -461,6 +534,7 @@ def main(argv=None):
         "model_path": result.model_path,
         "final_score_vs_initial": result.final_score_vs_initial,
         "champion_updates": result.champion_updates,
+        "baseline_scores": result.baseline_scores,
     }, indent=2, sort_keys=True))
     return 0
 
