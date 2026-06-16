@@ -35,6 +35,7 @@ export function BridgeApp() {
   const [boardIndex, setBoardIndex] = useState(0)
   const [readySeat, setReadySeat] = useState<Seat | null>(null)
   const [thinkingSeat, setThinkingSeat] = useState<Seat | null>(null)
+  const mobileTableLayout = useMobileTableLayout()
   const [game, setGame] = useState(() => createGame({
     seats: defaultSeats,
     practice: false,
@@ -120,6 +121,7 @@ export function BridgeApp() {
           humans={humans.length}
           practice={practice}
           boardNumber={boardIndex + 1}
+          showHistory={!mobileTableLayout}
           onPractice={setPracticeMode}
           onNewDeal={() => startDeal(nextSeed(), boardIndex + 1)}
           onStep={() => setGame((current) => advanceBotOnce(current))}
@@ -174,6 +176,8 @@ export function BridgeApp() {
           )}
         </div>
 
+        {mobileTableLayout && <MoveHistory game={game} className="mobile-history" />}
+
         {handoffSeat && (
           <div className="handoff" role="dialog" aria-label={`Pass to ${seatName(handoffSeat)}`}>
             <div>
@@ -192,11 +196,27 @@ export function BridgeApp() {
   )
 }
 
+function useMobileTableLayout() {
+  const [matches, setMatches] = useState(false)
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return
+    const query = window.matchMedia('(max-width: 720px)')
+    const update = () => setMatches(query.matches)
+    update()
+    query.addEventListener('change', update)
+    return () => query.removeEventListener('change', update)
+  }, [])
+
+  return matches
+}
+
 function ControlRail({
   game,
   humans,
   practice,
   boardNumber,
+  showHistory,
   onPractice,
   onNewDeal,
   onStep,
@@ -205,6 +225,7 @@ function ControlRail({
   humans: number
   practice: boolean
   boardNumber: number
+  showHistory: boolean
   onPractice: (enabled: boolean) => void
   onNewDeal: () => void
   onStep: () => void
@@ -233,7 +254,7 @@ function ControlRail({
         <span>{automationStatus(game)}</span>
         <strong>{game.phase}</strong>
       </div>
-      <MoveHistory game={game} />
+      {showHistory && <MoveHistory game={game} className="rail-history" />}
     </aside>
   )
 }
@@ -318,7 +339,7 @@ function controllerLabel(game: GameState, seat: Seat) {
   return game.seats[seat] === 'human' ? 'Human' : 'Bot'
 }
 
-function MoveHistory({ game }: { game: GameState }) {
+function MoveHistory({ game, className = '' }: { game: GameState; className?: string }) {
   const history = moveHistory(game)
   const latest = history.at(-1)
   const listRef = useRef<HTMLOListElement | null>(null)
@@ -329,7 +350,7 @@ function MoveHistory({ game }: { game: GameState }) {
   }, [history.length])
 
   return (
-    <section className="move-history" aria-label="Move history">
+    <section className={`move-history ${className}`.trim()} aria-label="Move history">
       <header>
         <div>
           <span className="eyebrow">History</span>

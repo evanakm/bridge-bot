@@ -5,6 +5,7 @@
   color: #f5ecd8;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+  -webkit-text-size-adjust: 100%;
 }
 
 * {
@@ -15,6 +16,7 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  min-height: 100dvh;
 }
 
 button,
@@ -38,6 +40,7 @@ input:focus-visible {
 
 .bridge-app {
   min-height: 100vh;
+  min-height: 100dvh;
   background:
     radial-gradient(circle at 50% 46%, rgba(255, 255, 255, 0.08), transparent 38%),
     linear-gradient(140deg, #112e24, #1f4938 44%, #122c23);
@@ -175,6 +178,10 @@ input:focus-visible {
   padding-top: 8px;
   border-top: 1px solid rgba(232, 207, 139, 0.2);
   overflow: hidden;
+}
+
+.mobile-history {
+  display: none;
 }
 
 .move-history header {
@@ -729,7 +736,15 @@ input:focus-visible {
 
 @media (max-width: 720px) {
   .bridge-app {
+    min-height: 100dvh;
     padding: 0;
+  }
+
+  .table-shell {
+    gap: 8px;
+    min-height: 100dvh;
+    border: 0;
+    overflow: visible;
   }
 
   .control-rail,
@@ -740,32 +755,86 @@ input:focus-visible {
   .control-rail {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     grid-template-rows: auto;
+    gap: 8px;
     align-items: stretch;
+    padding: 10px;
   }
 
   .control-rail > div:first-child,
-  .rail-status,
-  .move-history {
+  .rail-status {
     grid-column: 1 / -1;
+  }
+
+  .control-rail > div:first-child {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .control-rail h1 {
+    font-size: 1.18rem;
+  }
+
+  .icon-button,
+  .primary-action,
+  .seat-toggle,
+  .bid-actions button,
+  .bid-grid button {
+    min-height: 44px;
+  }
+
+  .control-rail .rail-history {
+    display: none;
+  }
+
+  .rail-status {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+    padding-top: 0;
+  }
+
+  .rail-status span,
+  .rail-status strong {
+    min-width: 0;
+    padding: 5px 7px;
+    border: 1px solid rgba(232, 207, 139, 0.16);
+    background: rgba(255, 247, 224, 0.055);
+    overflow-wrap: anywhere;
   }
 
   .setup-strip {
     display: grid;
     grid-template-columns: 1fr;
+    gap: 10px;
+    margin: 0 10px;
+    padding: 10px;
+  }
+
+  .seat-toggles {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .seat-toggle,
+  .primary-action {
+    justify-content: center;
+    padding: 9px 10px;
   }
 
   .felt-grid {
     display: grid;
     grid-template-columns: 1fr;
     grid-template-areas:
-      "north"
-      "west"
       "center"
+      "south"
+      "west"
       "east"
-      "south";
-    gap: 10px;
+      "north";
+    gap: 8px;
     min-height: auto;
-    padding: 12px;
+    padding: 4px 10px 0;
   }
 
   .felt-grid.phase-auction {
@@ -774,21 +843,81 @@ input:focus-visible {
       "south"
       "bid"
       "center"
-      "north"
       "west"
-      "east";
+      "east"
+      "north";
+  }
+
+  .seat-panel {
+    gap: 7px;
+    padding: 10px;
+  }
+
+  .seat-panel header,
+  .seat-meta,
+  .score-row {
+    gap: 8px;
+  }
+
+  .hand {
+    gap: 6px;
+    min-height: 52px;
+  }
+
+  .playing-card {
+    width: 44px;
+    height: 56px;
+  }
+
+  .card-back {
+    height: 42px;
   }
 
   .center-table {
-    min-height: 280px;
+    min-width: 0;
+    min-height: 240px;
+    gap: 8px;
+    padding: 10px;
   }
 
   .turn-panel {
+    flex-wrap: wrap;
     margin-bottom: 10px;
     padding-bottom: 10px;
   }
 
+  .turn-panel > span:last-child {
+    margin-left: 0;
+  }
+
+  .trick-zone {
+    min-height: 96px;
+  }
+
+  .bidding-box {
+    gap: 8px;
+    padding: 10px;
+  }
+
   .bid-header {
     align-items: start;
+  }
+
+  .bid-grid button,
+  .bid-actions button {
+    padding: 8px 4px;
+  }
+
+  .mobile-history {
+    display: grid;
+    max-height: 180px;
+    margin: 0 10px 12px;
+    padding-top: 10px;
+  }
+}
+
+@media (max-width: 720px) and (hover: none) {
+  .playing-card.legal:hover {
+    transform: translateY(-3px);
   }
 }
