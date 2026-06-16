@@ -21,8 +21,17 @@ Useful verification commands:
 
 ```bash
 pnpm --dir web test
+pnpm --dir web e2e
 pnpm --dir web typecheck
 pnpm --dir web build
+```
+
+`pnpm --dir web e2e` starts the local Vite server and runs Playwright browser
+checks for the bridge table, mobile layout, move-history scrolling, and social
+card/install metadata. On a fresh machine or CI runner, install Chromium first:
+
+```bash
+pnpm --dir web exec playwright install chromium
 ```
 
 ## Integration docs
