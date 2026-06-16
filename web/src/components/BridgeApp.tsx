@@ -321,10 +321,11 @@ function controllerLabel(game: GameState, seat: Seat) {
 function MoveHistory({ game }: { game: GameState }) {
   const history = moveHistory(game)
   const latest = history.at(-1)
-  const endRef = useRef<HTMLLIElement | null>(null)
+  const listRef = useRef<HTMLOListElement | null>(null)
 
   useEffect(() => {
-    endRef.current?.scrollIntoView?.({ block: 'end' })
+    const list = listRef.current
+    if (list) list.scrollTop = list.scrollHeight
   }, [history.length])
 
   return (
@@ -346,7 +347,7 @@ function MoveHistory({ game }: { game: GameState }) {
       {history.length === 0 ? (
         <p className="history-empty">Waiting for the first call.</p>
       ) : (
-        <ol>
+        <ol ref={listRef}>
           {history.map((item) => (
             <li key={item.id} className={`history-item history-${item.tone}`}>
               <span>{item.label}</span>
@@ -354,7 +355,6 @@ function MoveHistory({ game }: { game: GameState }) {
               <small>{item.detail}</small>
             </li>
           ))}
-          <li className="history-end" ref={endRef} aria-hidden="true" />
         </ol>
       )}
     </section>

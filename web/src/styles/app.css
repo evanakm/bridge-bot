@@ -62,9 +62,22 @@ input:focus-visible {
   align-content: start;
   gap: 12px;
   min-width: 0;
+  min-height: 0;
   padding: 16px 12px;
   border-right: 1px solid rgba(234, 211, 153, 0.3);
   background: rgba(13, 31, 25, 0.74);
+  overflow: hidden;
+}
+
+@media (min-width: 1121px) {
+  .table-shell {
+    height: calc(100vh - clamp(24px, 4vw, 56px));
+  }
+
+  .control-rail {
+    height: 100%;
+    max-height: 100%;
+  }
 }
 
 .control-rail h1 {
@@ -161,6 +174,7 @@ input:focus-visible {
   min-height: 0;
   padding-top: 8px;
   border-top: 1px solid rgba(232, 207, 139, 0.2);
+  overflow: hidden;
 }
 
 .move-history header {
@@ -190,8 +204,11 @@ input:focus-visible {
   gap: 7px;
   min-height: 0;
   margin: 0;
-  padding: 0;
-  overflow: auto;
+  padding: 0 4px 0 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-color: rgba(214, 177, 91, 0.86) rgba(255, 247, 224, 0.1);
   list-style: none;
 }
 
@@ -260,10 +277,6 @@ input:focus-visible {
 .history-result {
   border-left-color: #f0cb72;
   background: rgba(214, 177, 91, 0.14);
-}
-
-.history-end {
-  min-height: 1px;
 }
 
 .seat-toggles {
@@ -678,6 +691,7 @@ input:focus-visible {
     grid-template-rows: auto auto;
     border-right: 0;
     border-bottom: 1px solid rgba(234, 211, 153, 0.3);
+    overflow: visible;
   }
 
   .setup-strip {
