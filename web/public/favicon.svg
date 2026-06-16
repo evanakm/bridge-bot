@@ -1,5 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="10" fill="#123827"/>
-  <rect x="16" y="10" width="32" height="44" rx="4" fill="#f4ead8"/>
-  <path d="M32 21c5-7 16-2 10 7L32 43 22 28c-6-9 5-14 10-7Z" fill="#b72f35"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Bridge Bot">
+  <rect width="64" height="64" rx="12" fill="#10241d"/>
+  <rect x="5" y="5" width="54" height="54" rx="10" fill="#173d2e" stroke="#d6b15b" stroke-width="2"/>
+  <g transform="rotate(-8 31 33)">
+    <rect x="16" y="12" width="30" height="40" rx="5" fill="#f4ead8" stroke="#322d24" stroke-opacity=".22" stroke-width="1.5"/>
+    <path d="M31 25c4.2-6.2 13.8-1.7 8.3 6.1L31 43 22.7 31.1C17.2 23.3 26.8 18.8 31 25Z" fill="#b72f35"/>
+    <circle cx="24" cy="20" r="2.2" fill="#157044"/>
+    <path d="M38 18 42 24H34Z" fill="#2468ba"/>
+  </g>
+  <circle cx="47.5" cy="17" r="4.5" fill="#d6b15b"/>
 </svg>

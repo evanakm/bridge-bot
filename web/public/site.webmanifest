@@ -1,0 +1,24 @@
+{
+  "name": "Bridge Bot Table",
+  "short_name": "Bridge Bot",
+  "description": "Play a complete bridge hand with bots, practice visibility, move history, and optional training-game sharing.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#10241d",
+  "theme_color": "#123827",
+  "icons": [
+    {
+      "src": "/app-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/app-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
