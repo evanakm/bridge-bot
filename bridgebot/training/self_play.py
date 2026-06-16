@@ -1,6 +1,7 @@
 import argparse
 import contextlib
 import copy
+import hashlib
 import io
 import json
 import random
@@ -24,6 +25,7 @@ from bridgebot.game.scoring import get_score_from_result
 
 DEFAULT_MODEL_PATH = Path("bridgebot/models/linear_policy_selfplay.json")
 MODEL_SCHEMA_VERSION = 1
+MODEL_HISTORY_SCHEMA_VERSION = 1
 
 BID_WEIGHT_RANGES = {
     "points": (0.0, 2.5),
@@ -455,6 +457,82 @@ def save_linear_policy_model(path, result):
         "card_weights": result.card_weights,
     }
     path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n")
+    save_model_weight_history(_history_path_for(path), result)
+
+
+def save_model_weight_history(path, result):
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    snapshot = model_weight_snapshot(result)
+    history = _load_model_weight_history(path)
+    snapshots = [
+        existing
+        for existing in history["snapshots"]
+        if existing["snapshot_id"] != snapshot["snapshot_id"]
+    ]
+    snapshots.append(snapshot)
+    history["snapshots"] = snapshots
+    history["latest_snapshot_id"] = snapshot["snapshot_id"]
+    path.write_text(json.dumps(history, indent=2, sort_keys=True) + "\n")
+
+
+def model_weight_snapshot(result):
+    best_validation = max(
+        (
+            generation.get("best_validation_average_delta_vs_initial", 0.0)
+            for generation in result.generations
+        ),
+        default=0.0,
+    )
+    snapshot = {
+        "architecture": "LinearPolicyBotUser",
+        "baseline_scores": result.baseline_scores,
+        "bid_weights": result.bid_weights,
+        "card_weights": result.card_weights,
+        "champion_updates": result.champion_updates,
+        "config": result.config,
+        "final_score_vs_initial": result.final_score_vs_initial,
+        "final_selection": result.final_selection,
+        "generation_count": len(result.generations),
+        "model_path": result.model_path,
+        "pair_scores": result.pair_scores,
+        "schema_version": MODEL_SCHEMA_VERSION,
+        "training_algorithm": "evolutionary_self_play",
+        "validation_best_score_vs_initial": best_validation,
+    }
+    snapshot["snapshot_id"] = _snapshot_id(snapshot)
+    return snapshot
+
+
+def _load_model_weight_history(path):
+    if not path.exists():
+        return {
+            "schema_version": MODEL_HISTORY_SCHEMA_VERSION,
+            "architecture": "LinearPolicyBotUser",
+            "snapshots": [],
+            "latest_snapshot_id": None,
+        }
+    payload = json.loads(path.read_text())
+    if payload.get("schema_version") != MODEL_HISTORY_SCHEMA_VERSION:
+        raise ValueError("unsupported model history schema version")
+    if payload.get("architecture") != "LinearPolicyBotUser":
+        raise ValueError("unsupported model history architecture")
+    payload.setdefault("snapshots", [])
+    return payload
+
+
+def _history_path_for(model_path):
+    return model_path.with_name(f"{model_path.stem}_history.json")
+
+
+def _snapshot_id(snapshot):
+    comparable = {
+        key: value
+        for key, value in snapshot.items()
+        if key != "snapshot_id"
+    }
+    encoded = json.dumps(comparable, sort_keys=True, separators=(",", ":")).encode()
+    return hashlib.sha256(encoded).hexdigest()[:16]
 
 
 def load_linear_policy_model(path=DEFAULT_MODEL_PATH):

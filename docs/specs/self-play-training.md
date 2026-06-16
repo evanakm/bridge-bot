@@ -4,7 +4,8 @@
 
 Train dependency-light bridge bot policies by having candidate models play
 duplicate boards against the current champion. Training should produce a
-versioned JSON artifact that can be loaded by the Python bot code.
+versioned JSON artifact that can be loaded by the Python bot code, plus a
+sidecar weight-history file for comparing model snapshots over time.
 
 ## Scope
 
@@ -77,6 +78,17 @@ The default output path is:
 bridgebot/models/linear_policy_selfplay.json
 ```
 
+The trainer also writes a sidecar history file:
+
+```text
+bridgebot/models/linear_policy_selfplay_history.json
+```
+
+The history file stores comparable snapshots of bid weights, card weights,
+training config, single-policy baseline scores, pair-composition scores, and
+summary validation metrics. Identical deterministic snapshots are deduplicated
+by a stable `snapshot_id`.
+
 ## Privacy
 
 Training uses the existing `User` bot API. `LinearPolicyBotUser` sees its own
@@ -114,6 +126,9 @@ Required test coverage:
 - score deltas use standard IMP cutoffs;
 - real board play returns a scored bridge result;
 - self-play writes a loadable JSON artifact;
+- self-play writes a sidecar weight-history artifact for comparing model
+  snapshots over time;
+- identical deterministic training snapshots are deduplicated in history;
 - self-play artifacts include baseline scores for untrained linear, random,
   rule-based, and rollout players;
 - self-play artifacts include pair-composition scores for trained+random,

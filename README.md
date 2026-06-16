@@ -107,7 +107,9 @@ python3 -m venv .venv
 ```
 
 The default model artifact is
-`bridgebot/models/linear_policy_selfplay.json`.
+`bridgebot/models/linear_policy_selfplay.json`. Training also updates
+`bridgebot/models/linear_policy_selfplay_history.json` so model weights and
+benchmark metrics can be compared across runs.
 
 ## Integration docs
 

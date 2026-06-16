@@ -1,0 +1,101 @@
+{
+  "architecture": "LinearPolicyBotUser",
+  "latest_snapshot_id": "2e00f127ccfcc907",
+  "schema_version": 1,
+  "snapshots": [
+    {
+      "architecture": "LinearPolicyBotUser",
+      "baseline_scores": {
+        "initial_linear": {
+          "average_delta": 11.0625,
+          "boards": 32,
+          "passouts": 0,
+          "total_delta": 354
+        },
+        "random": {
+          "average_delta": 11.46875,
+          "boards": 32,
+          "passouts": 0,
+          "total_delta": 367
+        },
+        "rollout_8": {
+          "average_delta": -2.96875,
+          "boards": 32,
+          "passouts": 0,
+          "total_delta": -95
+        },
+        "rule_based": {
+          "average_delta": -4.34375,
+          "boards": 32,
+          "passouts": 0,
+          "total_delta": -139
+        }
+      },
+      "bid_weights": {
+        "balanced_nt": 0.843,
+        "double_points": 0.664,
+        "length": 0.8129,
+        "level_cost": -5.043,
+        "major": 1.4871,
+        "pass_floor": 6.0,
+        "points": 0.1131
+      },
+      "card_weights": {
+        "conserve_honor": -0.7746,
+        "partner_winning": -3.8232,
+        "rank": 0.386,
+        "trump": 0.1456,
+        "wins_now": 6.8419
+      },
+      "champion_updates": 9,
+      "config": {
+        "boards_per_generation": 12,
+        "generations": 10,
+        "mutation_scale": 0.45,
+        "population": 8,
+        "seed": 20260615,
+        "validation_boards": 16
+      },
+      "final_score_vs_initial": 10.09375,
+      "final_selection": "best_validated",
+      "generation_count": 10,
+      "model_path": "bridgebot/models/linear_policy_selfplay.json",
+      "pair_scores": {
+        "random_random_vs_random_random": {
+          "average_delta": 0.0,
+          "boards": 32,
+          "passouts": 0,
+          "total_delta": 0
+        },
+        "trained_random_vs_random_random": {
+          "average_delta": 1.78125,
+          "boards": 32,
+          "passouts": 0,
+          "total_delta": 57
+        },
+        "trained_trained_vs_random_random": {
+          "average_delta": 10.65625,
+          "boards": 32,
+          "passouts": 0,
+          "total_delta": 341
+        },
+        "trained_trained_vs_trained_random": {
+          "average_delta": 11.15625,
+          "boards": 32,
+          "passouts": 0,
+          "total_delta": 357
+        },
+        "trained_trained_vs_trained_trained": {
+          "average_delta": 0.0,
+          "boards": 32,
+          "passouts": 0,
+          "total_delta": 0
+        }
+      },
+      "schema_version": 1,
+      "snapshot_id": "2e00f127ccfcc907",
+      "training_algorithm": "evolutionary_self_play",
+      "validation_best_score_vs_initial": 10.625
+    }
+  ]
+}

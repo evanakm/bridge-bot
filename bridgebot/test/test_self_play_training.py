@@ -137,6 +137,7 @@ def test_self_play_training_writes_loadable_non_regressing_model(tmp_path):
     )
 
     payload = json.loads(output.read_text())
+    history = json.loads((tmp_path / "linear_policy_selfplay_history.json").read_text())
     loaded = load_linear_policy_model(output)
 
     assert payload["schema_version"] == 1
@@ -158,8 +159,31 @@ def test_self_play_training_writes_loadable_non_regressing_model(tmp_path):
     }
     assert loaded.bid_weights == result.bid_weights
     assert loaded.card_weights == result.card_weights
+    assert history["latest_snapshot_id"] == history["snapshots"][0]["snapshot_id"]
+    assert history["snapshots"][0]["bid_weights"] == result.bid_weights
+    assert history["snapshots"][0]["card_weights"] == result.card_weights
+    assert history["snapshots"][0]["pair_scores"] == result.pair_scores
     assert result.final_score_vs_initial >= 0
     assert result.champion_updates >= 1
+
+
+def test_self_play_history_deduplicates_identical_snapshots(tmp_path):
+    output = tmp_path / "linear_policy_selfplay.json"
+    config = TrainingConfig(
+        seed=404,
+        generations=1,
+        population=2,
+        boards_per_generation=2,
+        validation_boards=2,
+    )
+
+    train_linear_policy(output_path=output, config=config)
+    train_linear_policy(output_path=output, config=config)
+
+    history = json.loads((tmp_path / "linear_policy_selfplay_history.json").read_text())
+
+    assert len(history["snapshots"]) == 1
+    assert history["latest_snapshot_id"] == history["snapshots"][0]["snapshot_id"]
 
 
 def test_self_play_training_is_reproducible_for_same_seed(tmp_path):
