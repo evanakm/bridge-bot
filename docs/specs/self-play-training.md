@@ -42,6 +42,10 @@ For each generation:
    champion, and the best held-out validation champion seen during training.
 9. Benchmark the saved policy against the untrained linear policy, random legal
    play, rule-based play, and a light rollout policy.
+10. Benchmark partnership compositions so mixed teams can be compared directly:
+    trained+random vs random+random, trained+trained vs random+random,
+    trained+trained vs trained+random, random+random vs random+random, and
+    trained+trained vs trained+trained.
 
 This is evolutionary self-play, not gradient training. It is intentionally small
 and deterministic so it can run in CI and on developer machines without heavy ML
@@ -60,7 +64,8 @@ The model artifact is JSON:
   "training": {
     "algorithm": "evolutionary_self_play",
     "result": {
-      "baseline_scores": {}
+      "baseline_scores": {},
+      "pair_scores": {}
     }
   }
 }
@@ -111,6 +116,10 @@ Required test coverage:
 - self-play writes a loadable JSON artifact;
 - self-play artifacts include baseline scores for untrained linear, random,
   rule-based, and rollout players;
+- self-play artifacts include pair-composition scores for trained+random,
+  trained+trained, and random+random partnerships;
+- identical partnership compositions score zero under duplicate seat-flipped
+  comparison;
 - the training guard preserves or improves validation score versus the initial
   baseline for deterministic test seeds;
 - the saved artifact uses the best validated champion rather than a later

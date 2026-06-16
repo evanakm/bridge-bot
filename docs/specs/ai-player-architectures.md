@@ -130,4 +130,6 @@ Current training method:
 - validation guard against the initial baseline;
 - benchmark reporting against untrained linear, random, rule-based, and
   rollout baselines;
+- partnership benchmark reporting for trained+random, trained+trained, and
+  random+random team compositions;
 - JSON model artifact at `bridgebot/models/linear_policy_selfplay.json`.

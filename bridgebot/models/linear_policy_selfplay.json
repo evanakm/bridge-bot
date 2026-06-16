@@ -223,7 +223,39 @@
           "validation_total_delta_vs_initial": 241
         }
       ],
-      "model_path": "bridgebot/models/linear_policy_selfplay.json"
+      "model_path": "bridgebot/models/linear_policy_selfplay.json",
+      "pair_scores": {
+        "random_random_vs_random_random": {
+          "average_delta": 0.0,
+          "boards": 32,
+          "passouts": 0,
+          "total_delta": 0
+        },
+        "trained_random_vs_random_random": {
+          "average_delta": 1.78125,
+          "boards": 32,
+          "passouts": 0,
+          "total_delta": 57
+        },
+        "trained_trained_vs_random_random": {
+          "average_delta": 10.65625,
+          "boards": 32,
+          "passouts": 0,
+          "total_delta": 341
+        },
+        "trained_trained_vs_trained_random": {
+          "average_delta": 11.15625,
+          "boards": 32,
+          "passouts": 0,
+          "total_delta": 357
+        },
+        "trained_trained_vs_trained_trained": {
+          "average_delta": 0.0,
+          "boards": 32,
+          "passouts": 0,
+          "total_delta": 0
+        }
+      }
     }
   }
 }

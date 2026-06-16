@@ -1,16 +1,18 @@
 import json
 
 from bridgebot.bidding import Bids
-from bridgebot.bots.aiplayers import LinearPolicyBotUser
+from bridgebot.bots.aiplayers import LinearPolicyBotUser, RandomBotUser
 from bridgebot.game.enums import Players
 from bridgebot.game.interface import User
 from bridgebot.training import self_play
 from bridgebot.training.self_play import (
     MatchScore,
     TrainingConfig,
+    benchmark_team_compositions,
     deal_from_seed,
     evaluate_linear_policy,
     evaluate_linear_policy_against_bot,
+    evaluate_team_factories,
     linear_policy_weights,
     load_linear_policy_model,
     play_board,
@@ -147,6 +149,13 @@ def test_self_play_training_writes_loadable_non_regressing_model(tmp_path):
         "rule_based",
         "rollout_8",
     }
+    assert set(payload["training"]["result"]["pair_scores"]) == {
+        "trained_random_vs_random_random",
+        "trained_trained_vs_random_random",
+        "trained_trained_vs_trained_random",
+        "random_random_vs_random_random",
+        "trained_trained_vs_trained_trained",
+    }
     assert loaded.bid_weights == result.bid_weights
     assert loaded.card_weights == result.card_weights
     assert result.final_score_vs_initial >= 0
@@ -168,7 +177,37 @@ def test_self_play_training_is_reproducible_for_same_seed(tmp_path):
     assert first.bid_weights == second.bid_weights
     assert first.card_weights == second.card_weights
     assert first.baseline_scores == second.baseline_scores
+    assert first.pair_scores == second.pair_scores
     assert first.generations == second.generations
+
+
+def test_identical_team_compositions_score_zero_in_duplicate_match():
+    random_factory = lambda player: RandomBotUser(seed=Players.players().index(player))
+    random_pair = (random_factory, random_factory)
+
+    match = evaluate_team_factories(random_pair, random_pair, [101, 202])
+
+    assert match.boards == 4
+    assert match.total_delta == 0
+    assert match.average_delta == 0
+
+
+def test_team_composition_benchmark_reports_requested_pairs():
+    pair_scores = benchmark_team_compositions(
+        linear_policy_weights(),
+        [101, 202],
+        seed=55,
+    )
+
+    assert set(pair_scores) == {
+        "trained_random_vs_random_random",
+        "trained_trained_vs_random_random",
+        "trained_trained_vs_trained_random",
+        "random_random_vs_random_random",
+        "trained_trained_vs_trained_trained",
+    }
+    assert pair_scores["random_random_vs_random_random"]["average_delta"] == 0
+    assert pair_scores["trained_trained_vs_trained_trained"]["average_delta"] == 0
 
 
 def test_linear_policy_can_be_scored_against_arbitrary_bot_baseline():
@@ -216,6 +255,17 @@ def test_self_play_saves_best_validated_champion(monkeypatch, tmp_path):
             "random": {"average_delta": 9.0, "total_delta": 9, "boards": 2, "passouts": 0},
             "rule_based": {"average_delta": 1.0, "total_delta": 1, "boards": 2, "passouts": 0},
             "rollout_8": {"average_delta": 0.0, "total_delta": 0, "boards": 2, "passouts": 0},
+        },
+    )
+    monkeypatch.setattr(
+        self_play,
+        "benchmark_team_compositions",
+        lambda *_args: {
+            "trained_random_vs_random_random": {"average_delta": 2.0, "total_delta": 2, "boards": 2, "passouts": 0},
+            "trained_trained_vs_random_random": {"average_delta": 8.0, "total_delta": 8, "boards": 2, "passouts": 0},
+            "trained_trained_vs_trained_random": {"average_delta": 1.0, "total_delta": 1, "boards": 2, "passouts": 0},
+            "random_random_vs_random_random": {"average_delta": 0.0, "total_delta": 0, "boards": 2, "passouts": 0},
+            "trained_trained_vs_trained_trained": {"average_delta": 0.0, "total_delta": 0, "boards": 2, "passouts": 0},
         },
     )
 

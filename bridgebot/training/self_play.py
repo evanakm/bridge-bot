@@ -106,6 +106,7 @@ class TrainingResult:
     final_score_vs_initial: float
     final_selection: str
     baseline_scores: dict[str, dict]
+    pair_scores: dict[str, dict]
     champion_updates: int
     generations: list[dict]
 
@@ -202,6 +203,11 @@ def train_linear_policy(output_path=DEFAULT_MODEL_PATH, config=None):
         _board_seeds(config.seed + 350_003, 0, config.validation_boards),
         config.seed,
     )
+    pair_scores = benchmark_team_compositions(
+        final_weights,
+        _board_seeds(config.seed + 450_007, 0, config.validation_boards),
+        config.seed,
+    )
 
     result = TrainingResult(
         model_path=str(output_path),
@@ -211,6 +217,7 @@ def train_linear_policy(output_path=DEFAULT_MODEL_PATH, config=None):
         final_score_vs_initial=final_validation.average_delta,
         final_selection=final_selection,
         baseline_scores=baseline_scores,
+        pair_scores=pair_scores,
         champion_updates=champion_updates,
         generations=generation_records,
     )
@@ -235,16 +242,24 @@ def evaluate_linear_policy_against_bot(candidate_weights, opponent_factory, boar
 
 
 def evaluate_user_factories(candidate_factory, opponent_factory, board_seeds):
+    return evaluate_team_factories(
+        (candidate_factory, candidate_factory),
+        (opponent_factory, opponent_factory),
+        board_seeds,
+    )
+
+
+def evaluate_team_factories(candidate_factories, opponent_factories, board_seeds):
     total_delta = 0
     passouts = 0
     board_count = 0
     for seed in board_seeds:
         candidate_ns = play_board(
-            _users_for_factories(candidate_factory, opponent_factory, candidate_team="NS"),
+            _users_for_team_factories(candidate_factories, opponent_factories, candidate_team="NS"),
             seed,
         )
         candidate_ew = play_board(
-            _users_for_factories(candidate_factory, opponent_factory, candidate_team="EW"),
+            _users_for_team_factories(candidate_factories, opponent_factories, candidate_team="EW"),
             seed,
         )
         total_delta += score_to_imps(candidate_ns.ns_score - candidate_ew.ns_score)
@@ -286,6 +301,46 @@ def benchmark_linear_policy(candidate_weights, initial_weights, board_seeds, see
     return {
         name: asdict(match)
         for name, match in baselines.items()
+    }
+
+
+def benchmark_team_compositions(candidate_weights, board_seeds, seed):
+    trained = _linear_policy_factory(candidate_weights)
+    random_baseline = _random_bot_factory(seed)
+    trained_trained = (trained, trained)
+    trained_random = (trained, random_baseline)
+    random_random = (random_baseline, random_baseline)
+
+    pairs = {
+        "trained_random_vs_random_random": evaluate_team_factories(
+            trained_random,
+            random_random,
+            board_seeds,
+        ),
+        "trained_trained_vs_random_random": evaluate_team_factories(
+            trained_trained,
+            random_random,
+            board_seeds,
+        ),
+        "trained_trained_vs_trained_random": evaluate_team_factories(
+            trained_trained,
+            trained_random,
+            board_seeds,
+        ),
+        "random_random_vs_random_random": evaluate_team_factories(
+            random_random,
+            random_random,
+            board_seeds,
+        ),
+        "trained_trained_vs_trained_trained": evaluate_team_factories(
+            trained_trained,
+            trained_trained,
+            board_seeds,
+        ),
+    }
+    return {
+        name: asdict(match)
+        for name, match in pairs.items()
     }
 
 
@@ -481,19 +536,21 @@ def _player_seed_offset(player):
     return Players.players().index(player) * 10_009
 
 
-def _users_for_factories(candidate_factory, opponent_factory, candidate_team):
+def _users_for_team_factories(candidate_factories, opponent_factories, candidate_team):
+    candidate_first, candidate_second = candidate_factories
+    opponent_first, opponent_second = opponent_factories
     if candidate_team == "NS":
         return {
-            Players.NORTH: candidate_factory(Players.NORTH),
-            Players.SOUTH: candidate_factory(Players.SOUTH),
-            Players.EAST: opponent_factory(Players.EAST),
-            Players.WEST: opponent_factory(Players.WEST),
+            Players.NORTH: candidate_first(Players.NORTH),
+            Players.SOUTH: candidate_second(Players.SOUTH),
+            Players.EAST: opponent_first(Players.EAST),
+            Players.WEST: opponent_second(Players.WEST),
         }
     return {
-        Players.NORTH: opponent_factory(Players.NORTH),
-        Players.SOUTH: opponent_factory(Players.SOUTH),
-        Players.EAST: candidate_factory(Players.EAST),
-        Players.WEST: candidate_factory(Players.WEST),
+        Players.NORTH: opponent_first(Players.NORTH),
+        Players.SOUTH: opponent_second(Players.SOUTH),
+        Players.EAST: candidate_first(Players.EAST),
+        Players.WEST: candidate_second(Players.WEST),
     }
 
 
@@ -535,6 +592,7 @@ def main(argv=None):
         "final_score_vs_initial": result.final_score_vs_initial,
         "champion_updates": result.champion_updates,
         "baseline_scores": result.baseline_scores,
+        "pair_scores": result.pair_scores,
     }, indent=2, sort_keys=True))
     return 0
 
