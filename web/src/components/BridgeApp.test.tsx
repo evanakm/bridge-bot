@@ -6,6 +6,7 @@ import { BridgeApp } from './BridgeApp'
 describe('BridgeApp', () => {
   afterEach(() => {
     vi.useRealTimers()
+    vi.unstubAllGlobals()
   })
 
   it('renders the table as the first screen', () => {
@@ -19,6 +20,8 @@ describe('BridgeApp', () => {
     expect(screen.getByText('Bot action')).not.toBeNull()
     expect(screen.getByText('Bidding')).not.toBeNull()
     expect(screen.getByText('Waiting')).not.toBeNull()
+    expect(screen.getByRole('checkbox', { name: /share games/i })).not.toBeNull()
+    expect(screen.getByRole('link', { name: /privacy/i }).getAttribute('href')).toBe('/privacy')
   })
 
   it('shows public move history instead of a bot pace control', () => {
@@ -149,4 +152,5 @@ describe('BridgeApp', () => {
     expect(container.querySelectorAll('.playing-card')).toHaveLength(52)
     expect(screen.queryAllByRole('button', { name: /play /i })).toHaveLength(0)
   })
+
 })

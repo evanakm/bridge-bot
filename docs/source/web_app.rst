@@ -24,6 +24,7 @@ The app supports:
   off.
 * Practice mode, which reveals all cards in the UI.
 * Duplicate-style board progression for dealer and vulnerability.
+* Optional anonymous sharing of completed boards for bot training.
 * Legal auction calls, passout detection, double/redouble legality, contract
   derivation, declarer and dummy assignment.
 * Legal play, including follow-suit enforcement, trump trick winners, trick
@@ -50,6 +51,10 @@ Primary Files
    Limited-information bot decision boundary used by local bots and external
    table adapters.
 
+``web/src/game/trainingRecord.ts``
+   Privacy-scoped serialization and submission of completed-game records for
+   training.
+
 ``web/src/game/*.test.ts`` and ``web/src/components/*.test.tsx``
    Regression tests for gameplay rules, UI behavior, and hidden-state privacy.
 
@@ -73,6 +78,8 @@ Known Limits
 
 * Bot bidding and card play are heuristic.
 * There is no persistence or multiplayer network transport.
+* Training sharing is opt-in and posts only terminal boards to the configured
+  backend endpoint.
 * External service adapters are not service-specific yet; they should be built
   on top of the limited-information observation contract described in
   :doc:`limited_information_bots`.

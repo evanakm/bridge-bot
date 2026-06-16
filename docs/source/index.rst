@@ -13,6 +13,7 @@ Welcome to bridgebot's documentation!
    web_app
    limited_information_bots
    cloudflare_deployment
+   privacy
    specs
 
 

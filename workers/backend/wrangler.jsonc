@@ -3,6 +3,13 @@
   "main": "src/entry.py",
   "compatibility_date": "2026-06-15",
   "compatibility_flags": ["python_workers"],
+  "r2_buckets": [
+    {
+      "binding": "TRAINING_GAMES",
+      "bucket_name": "bridgebot-training-games",
+      "preview_bucket_name": "bridgebot-training-games-preview"
+    }
+  ],
   "observability": {
     "enabled": true
   }

@@ -68,6 +68,17 @@ behavior.
 - Completed contracts are scored for the declaring partnership and mirrored to
   the defending partnership.
 
+### Training Records
+
+- Game sharing is off by default.
+- When enabled, only completed or passed-out boards are submitted.
+- Submitted records must include consent metadata and the privacy policy
+  version.
+- Records may include the full final deal, auction, tricks, score, seed,
+  dealer, vulnerability, and seat controller types for offline training.
+- Records must not include player names, emails, account IDs, visitor IDs,
+  session IDs, IP addresses, user agents, browser details, or device details.
+
 ### Responsive UI
 
 - Desktop layout keeps seats, center trick area, and bidding controls in
@@ -78,7 +89,7 @@ behavior.
 ## Non-Goals
 
 - Network multiplayer.
-- Persistent saved games.
+- User-account persistence or multiplayer saved games.
 - Expert bridge bidding or card-play strategy.
 - Service-specific bridge platform integration. See
   `limited-information-bot-adapter.md` for the generic integration boundary.

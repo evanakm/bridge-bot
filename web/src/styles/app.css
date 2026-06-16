@@ -61,7 +61,7 @@ input:focus-visible {
 
 .control-rail {
   display: grid;
-  grid-template-rows: auto auto auto auto auto minmax(0, 1fr);
+  grid-template-rows: auto auto auto auto auto auto auto minmax(0, 1fr);
   align-content: start;
   gap: 12px;
   min-width: 0;
@@ -100,6 +100,8 @@ input:focus-visible {
 .icon-button,
 .primary-action,
 .seat-toggle,
+.record-toggle,
+.privacy-link,
 .bid-actions button,
 .bid-grid button {
   min-height: 38px;
@@ -123,7 +125,9 @@ input:focus-visible {
 
 .icon-button svg,
 .primary-action svg,
-.seat-toggle svg {
+.seat-toggle svg,
+.record-toggle svg,
+.privacy-link svg {
   width: 17px;
   height: 17px;
 }
@@ -137,10 +141,61 @@ input:focus-visible {
 
 .icon-button:not(:disabled):hover,
 .seat-toggle:not(:disabled):hover,
+.privacy-link:hover,
 .bid-actions button:not(:disabled):hover,
 .bid-grid button:not(:disabled):hover {
   border-color: rgba(244, 207, 121, 0.72);
   background: rgba(255, 247, 224, 0.14);
+}
+
+.record-toggle {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+}
+
+.record-toggle input {
+  width: 16px;
+  height: 16px;
+  accent-color: #d6b15b;
+}
+
+.record-toggle span {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.record-toggle strong,
+.privacy-link span {
+  font-size: 0.78rem;
+  line-height: 1.1;
+}
+
+.record-toggle small {
+  color: #d6c5a2;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+}
+
+.record-saved {
+  border-color: rgba(141, 187, 141, 0.62);
+}
+
+.record-failed {
+  border-color: rgba(183, 47, 53, 0.72);
+}
+
+.privacy-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 8px;
+  color: #f7ecd2;
+  text-decoration: none;
 }
 
 .primary-action:not(:disabled):hover {
@@ -678,6 +733,44 @@ input:focus-visible {
   color: #d8c69e;
 }
 
+.privacy-page {
+  min-height: 100vh;
+  background: #10241d;
+  color: #f5ecd8;
+  padding: clamp(20px, 5vw, 56px);
+}
+
+.privacy-page article {
+  max-width: 780px;
+}
+
+.privacy-page a {
+  color: #f0cb72;
+}
+
+.privacy-page h1 {
+  margin: 18px 0;
+  font-size: clamp(2rem, 5vw, 3.6rem);
+  line-height: 1;
+}
+
+.privacy-page h2 {
+  margin: 28px 0 8px;
+  color: #f0cb72;
+  font-size: 1.05rem;
+  text-transform: uppercase;
+}
+
+.privacy-page p,
+.privacy-page li {
+  color: #e2d5b9;
+  line-height: 1.6;
+}
+
+.privacy-page ul {
+  padding-left: 20px;
+}
+
 @keyframes pulse {
   0%,
   100% {
@@ -761,6 +854,8 @@ input:focus-visible {
   }
 
   .control-rail > div:first-child,
+  .record-toggle,
+  .privacy-link,
   .rail-status {
     grid-column: 1 / -1;
   }

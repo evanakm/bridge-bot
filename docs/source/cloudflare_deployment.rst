@@ -5,7 +5,8 @@ The project is split into two Cloudflare deployables:
 
 * ``web/``: the TanStack Start table, deployed as a Cloudflare Worker with
   Wrangler.
-* ``workers/backend/``: a Python Worker API for server-side bot decisions.
+* ``workers/backend/``: a Python Worker API for server-side bot decisions and
+  anonymous completed-game training records.
 
 The split keeps the UI runtime and Python AI/runtime experiments independent.
 It also reinforces the limited-information boundary: the backend API accepts a
@@ -21,8 +22,12 @@ Useful commands::
 
    pnpm --dir web dev
    pnpm --dir web build
-   pnpm --dir web cf:dry-run
-   pnpm --dir web cf:deploy
+   VITE_BRIDGEBOT_API_URL=https://bridgebot-api.<your-account>.workers.dev pnpm --dir web cf:dry-run
+   VITE_BRIDGEBOT_API_URL=https://bridgebot-api.<your-account>.workers.dev pnpm --dir web cf:deploy
+
+If ``VITE_BRIDGEBOT_API_URL`` is not set, the web app posts training records to
+same-origin ``/api/training/games``. Set it when the web and backend Workers use
+separate ``*.workers.dev`` hostnames.
 
 Python Worker backend
 ---------------------
@@ -33,7 +38,13 @@ The backend worker is intentionally small for now:
   object to pure Python request handling.
 * ``workers/backend/src/bridgebot_api.py`` implements the testable API contract.
 * ``workers/backend/wrangler.jsonc`` enables the ``python_workers``
-  compatibility flag.
+  compatibility flag and binds the ``TRAINING_GAMES`` R2 bucket used for
+  training records.
+
+Create the R2 buckets before deploying the backend::
+
+   pnpm --dir web exec wrangler r2 bucket create bridgebot-training-games
+   pnpm --dir web exec wrangler r2 bucket create bridgebot-training-games-preview
 
 Useful commands::
 
@@ -52,10 +63,21 @@ Backend API
    plus ``legalMoves.calls`` or ``legalMoves.cards`` for clients to render only
    legal choices.
 
+``POST /api/training/games``
+   Accepts an explicitly consented, anonymous, completed-game record for model
+   training. The Python Worker stores valid records in the ``TRAINING_GAMES``
+   R2 bucket when that binding is configured.
+
 Hidden-state keys such as ``hands``, ``allHands``, ``deal``, or per-seat hand
 names are rejected. This is deliberate: integrations with online bridge tables
 or physical-card capture should never send the backend more state than the bot
 seat is allowed to know.
+
+Training-game records are the exception to the hidden-state rule because they
+are sent only after a board is complete or passed out and include the full deal
+needed for offline model evaluation. The endpoint rejects personal-data keys
+such as names, email addresses, session IDs, visitor IDs, IP addresses, and user
+agents.
 
 Verification
 ------------

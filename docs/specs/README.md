@@ -3,7 +3,8 @@
 These files describe the implemented web bridge table and the integration
 contracts that should remain stable as the project grows.
 
-- `gameplay-web-app.md`: playable TanStack Start table requirements.
+- `gameplay-web-app.md`: playable TanStack Start table requirements, including
+  consented completed-game records for training.
 - `limited-information-bot-adapter.md`: privacy-preserving adapter contract for
   external bridge services and physical-card tables.
 - `cloudflare-deployment.md`: Cloudflare Worker deployment contract for the web
