@@ -235,7 +235,7 @@ function missingInformationReason(
   if (phase === 'auction' && ownHand.length === 0) {
     return `Missing private hand for ${controllerSeat}.`
   }
-  if (phase === 'play' && ownHand.length === 0) {
+  if (phase === 'play' && actionSeat === controllerSeat && ownHand.length === 0) {
     return `Missing private hand for ${controllerSeat}.`
   }
   if (phase === 'play' && actionHand.length === 0) {

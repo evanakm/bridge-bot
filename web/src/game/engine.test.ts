@@ -74,6 +74,17 @@ describe('game engine', () => {
     expect(['passedOut', 'complete']).toContain(finalState.phase)
   })
 
+  it('lets bots finish when declarer controls a dummy with remaining cards', () => {
+    const seats: SeatConfig = { N: 'bot', E: 'bot', S: 'bot', W: 'bot' }
+    const state = createGame({ seats, practice: true, seed: 20260615, dealer: 'N', vulnerability: 'None' })
+
+    const finalState = advanceBots(state)
+
+    expect(finalState.phase).toBe('complete')
+    expect(finalState.completedTricks).toHaveLength(13)
+    expect(Object.values(finalState.hands).flat()).toHaveLength(0)
+  })
+
   it('enforces follow suit when possible', () => {
     const state = createGame({ seats: defaultSeats, practice: false, seed: 1 })
     const contract: Contract = { level: 1, strain: 'S', declarer: 'S', bidder: 'S', doubled: 'none' }
