@@ -97,6 +97,9 @@ class TrainingConfig:
     boards_per_generation: int = 10
     validation_boards: int = 12
     mutation_scale: float = 0.45
+    benchmark_boards: int = 0
+    mixed_training_boards_per_generation: int = 0
+    rollout_trials: int = 8
 
 
 @dataclass(frozen=True)
@@ -109,6 +112,7 @@ class TrainingResult:
     final_selection: str
     baseline_scores: dict[str, dict]
     pair_scores: dict[str, dict]
+    combo_scores: dict[str, dict]
     champion_updates: int
     generations: list[dict]
 
@@ -132,21 +136,31 @@ def train_linear_policy(output_path=DEFAULT_MODEL_PATH, config=None):
             "candidate": "champion",
             "average_delta": 0.0,
             "total_delta": 0,
+            "objective_average_delta": 0.0,
+            "objective_components": {},
             "accepted": False,
         }
         best_weights = opponent
 
         for candidate_id, candidate in candidates:
-            match = evaluate_linear_policy(candidate, opponent, board_seeds)
+            training_score = evaluate_training_candidate(
+                candidate,
+                opponent,
+                board_seeds,
+                config,
+                generation,
+            )
             record = {
                 "candidate": candidate_id,
-                "average_delta": match.average_delta,
-                "total_delta": match.total_delta,
-                "boards": match.boards,
-                "passouts": match.passouts,
+                "average_delta": training_score["self_play_champion"]["average_delta"],
+                "total_delta": training_score["self_play_champion"]["total_delta"],
+                "boards": training_score["self_play_champion"]["boards"],
+                "passouts": training_score["self_play_champion"]["passouts"],
+                "objective_average_delta": training_score["objective_average_delta"],
+                "objective_components": training_score["components"],
                 "accepted": False,
             }
-            if match.average_delta > best_record["average_delta"]:
+            if training_score["objective_average_delta"] > best_record["objective_average_delta"]:
                 best_record = record
                 best_weights = candidate
 
@@ -202,13 +216,22 @@ def train_linear_policy(output_path=DEFAULT_MODEL_PATH, config=None):
     baseline_scores = benchmark_linear_policy(
         final_weights,
         initial_weights,
-        _board_seeds(config.seed + 350_003, 0, config.validation_boards),
+        _board_seeds(config.seed + 350_003, 0, _benchmark_boards(config)),
         config.seed,
+        config.rollout_trials,
     )
     pair_scores = benchmark_team_compositions(
         final_weights,
-        _board_seeds(config.seed + 450_007, 0, config.validation_boards),
+        _board_seeds(config.seed + 450_007, 0, _benchmark_boards(config)),
         config.seed,
+        config.rollout_trials,
+    )
+    combo_scores = benchmark_model_combinations(
+        final_weights,
+        initial_weights,
+        _board_seeds(config.seed + 550_009, 0, _benchmark_boards(config)),
+        config.seed,
+        config.rollout_trials,
     )
 
     result = TrainingResult(
@@ -220,6 +243,7 @@ def train_linear_policy(output_path=DEFAULT_MODEL_PATH, config=None):
         final_selection=final_selection,
         baseline_scores=baseline_scores,
         pair_scores=pair_scores,
+        combo_scores=combo_scores,
         champion_updates=champion_updates,
         generations=generation_records,
     )
@@ -277,7 +301,79 @@ def evaluate_team_factories(candidate_factories, opponent_factories, board_seeds
     )
 
 
-def benchmark_linear_policy(candidate_weights, initial_weights, board_seeds, seed):
+def evaluate_training_candidate(candidate_weights, champion_weights, board_seeds, config, generation):
+    self_play_match = evaluate_linear_policy(candidate_weights, champion_weights, board_seeds)
+    components = {
+        "self_play_champion": asdict(self_play_match),
+    }
+
+    if config.mixed_training_boards_per_generation > 0:
+        mixed_board_seeds = _board_seeds(
+            config.seed + 650_011,
+            generation,
+            config.mixed_training_boards_per_generation,
+        )
+        candidate = _linear_policy_factory(candidate_weights)
+        candidate_pair = (candidate, candidate)
+        random_pair = _same_pair(_random_bot_factory(config.seed + 19_001))
+        rule_pair = _same_pair(lambda _player: RuleBasedBotUser())
+        rollout_pair = _same_pair(_rollout_bot_factory(config.seed + 29_003, max(2, config.rollout_trials // 2)))
+        candidate_random_matches = [
+            evaluate_team_factories(
+                (candidate, _random_bot_factory(config.seed + 31_001)),
+                random_pair,
+                mixed_board_seeds,
+            ),
+            evaluate_team_factories(
+                (_random_bot_factory(config.seed + 31_001), candidate),
+                random_pair,
+                mixed_board_seeds,
+            ),
+        ]
+        components.update({
+            "trained_trained_vs_random_random": asdict(evaluate_team_factories(
+                candidate_pair,
+                random_pair,
+                mixed_board_seeds,
+            )),
+            "trained_random_average_vs_random_random": asdict(average_match_scores(candidate_random_matches)),
+            "trained_trained_vs_rule_based_rule_based": asdict(evaluate_team_factories(
+                candidate_pair,
+                rule_pair,
+                mixed_board_seeds,
+            )),
+            "trained_trained_vs_rollout_rollout": asdict(evaluate_team_factories(
+                candidate_pair,
+                rollout_pair,
+                mixed_board_seeds,
+            )),
+        })
+
+    objective_average = sum(
+        component["average_delta"]
+        for component in components.values()
+    ) / len(components)
+    return {
+        "self_play_champion": components["self_play_champion"],
+        "components": components,
+        "objective_average_delta": objective_average,
+    }
+
+
+def average_match_scores(matches):
+    total_delta = sum(match.total_delta for match in matches)
+    boards = sum(match.boards for match in matches)
+    passouts = sum(match.passouts for match in matches)
+    return MatchScore(
+        average_delta=total_delta / boards if boards else 0.0,
+        total_delta=total_delta,
+        boards=boards,
+        passouts=passouts,
+    )
+
+
+def benchmark_linear_policy(candidate_weights, initial_weights, board_seeds, seed, rollout_trials=8):
+    rollout_label = f"rollout_{rollout_trials}"
     baselines = {
         "initial_linear": evaluate_linear_policy(
             candidate_weights,
@@ -294,9 +390,9 @@ def benchmark_linear_policy(candidate_weights, initial_weights, board_seeds, see
             lambda _player: RuleBasedBotUser(),
             board_seeds,
         ),
-        "rollout_8": evaluate_linear_policy_against_bot(
+        rollout_label: evaluate_linear_policy_against_bot(
             candidate_weights,
-            _rollout_bot_factory(seed, trials=8),
+            _rollout_bot_factory(seed, trials=rollout_trials),
             board_seeds,
         ),
     }
@@ -306,29 +402,52 @@ def benchmark_linear_policy(candidate_weights, initial_weights, board_seeds, see
     }
 
 
-def benchmark_team_compositions(candidate_weights, board_seeds, seed):
+def benchmark_team_compositions(candidate_weights, board_seeds, seed, rollout_trials=8):
     trained = _linear_policy_factory(candidate_weights)
     random_baseline = _random_bot_factory(seed)
     trained_trained = (trained, trained)
     trained_random = (trained, random_baseline)
+    random_trained = (random_baseline, trained)
     random_random = (random_baseline, random_baseline)
 
+    trained_random_vs_random = evaluate_team_factories(
+        trained_random,
+        random_random,
+        board_seeds,
+    )
+    random_trained_vs_random = evaluate_team_factories(
+        random_trained,
+        random_random,
+        board_seeds,
+    )
+    trained_trained_vs_trained_random = evaluate_team_factories(
+        trained_trained,
+        trained_random,
+        board_seeds,
+    )
+    trained_trained_vs_random_trained = evaluate_team_factories(
+        trained_trained,
+        random_trained,
+        board_seeds,
+    )
     pairs = {
-        "trained_random_vs_random_random": evaluate_team_factories(
-            trained_random,
-            random_random,
-            board_seeds,
-        ),
+        "trained_random_vs_random_random": trained_random_vs_random,
+        "random_trained_vs_random_random": random_trained_vs_random,
+        "mixed_trained_random_average_vs_random_random": average_match_scores([
+            trained_random_vs_random,
+            random_trained_vs_random,
+        ]),
         "trained_trained_vs_random_random": evaluate_team_factories(
             trained_trained,
             random_random,
             board_seeds,
         ),
-        "trained_trained_vs_trained_random": evaluate_team_factories(
-            trained_trained,
-            trained_random,
-            board_seeds,
-        ),
+        "trained_trained_vs_trained_random": trained_trained_vs_trained_random,
+        "trained_trained_vs_random_trained": trained_trained_vs_random_trained,
+        "trained_trained_vs_mixed_trained_random_average": average_match_scores([
+            trained_trained_vs_trained_random,
+            trained_trained_vs_random_trained,
+        ]),
         "random_random_vs_random_random": evaluate_team_factories(
             random_random,
             random_random,
@@ -344,6 +463,74 @@ def benchmark_team_compositions(candidate_weights, board_seeds, seed):
         name: asdict(match)
         for name, match in pairs.items()
     }
+
+
+def benchmark_model_combinations(candidate_weights, initial_weights, board_seeds, seed, rollout_trials=8):
+    trained = _linear_policy_factory(candidate_weights)
+    trained_pair = (trained, trained)
+    baselines = {
+        "initial_linear": _linear_policy_factory(initial_weights),
+        "random": _random_bot_factory(seed),
+        "rule_based": lambda _player: RuleBasedBotUser(),
+        f"rollout_{rollout_trials}": _rollout_bot_factory(seed, rollout_trials),
+    }
+
+    scores = {
+        "trained_trained_vs_trained_trained": asdict(evaluate_team_factories(
+            trained_pair,
+            trained_pair,
+            board_seeds,
+        )),
+    }
+    for label, baseline in baselines.items():
+        baseline_pair = (baseline, baseline)
+        trained_baseline = (trained, baseline)
+        baseline_trained = (baseline, trained)
+        trained_baseline_vs_baseline = evaluate_team_factories(
+            trained_baseline,
+            baseline_pair,
+            board_seeds,
+        )
+        baseline_trained_vs_baseline = evaluate_team_factories(
+            baseline_trained,
+            baseline_pair,
+            board_seeds,
+        )
+        trained_vs_trained_baseline = evaluate_team_factories(
+            trained_pair,
+            trained_baseline,
+            board_seeds,
+        )
+        trained_vs_baseline_trained = evaluate_team_factories(
+            trained_pair,
+            baseline_trained,
+            board_seeds,
+        )
+        scores.update({
+            f"{label}_{label}_vs_{label}_{label}": asdict(evaluate_team_factories(
+                baseline_pair,
+                baseline_pair,
+                board_seeds,
+            )),
+            f"trained_{label}_vs_{label}_{label}": asdict(trained_baseline_vs_baseline),
+            f"{label}_trained_vs_{label}_{label}": asdict(baseline_trained_vs_baseline),
+            f"mixed_trained_{label}_average_vs_{label}_{label}": asdict(average_match_scores([
+                trained_baseline_vs_baseline,
+                baseline_trained_vs_baseline,
+            ])),
+            f"trained_trained_vs_{label}_{label}": asdict(evaluate_team_factories(
+                trained_pair,
+                baseline_pair,
+                board_seeds,
+            )),
+            f"trained_trained_vs_trained_{label}": asdict(trained_vs_trained_baseline),
+            f"trained_trained_vs_{label}_trained": asdict(trained_vs_baseline_trained),
+            f"trained_trained_vs_mixed_trained_{label}_average": asdict(average_match_scores([
+                trained_vs_trained_baseline,
+                trained_vs_baseline_trained,
+            ])),
+        })
+    return scores
 
 
 def _select_final_weights(candidates, initial_weights, board_seeds):
@@ -490,6 +677,7 @@ def model_weight_snapshot(result):
         "bid_weights": result.bid_weights,
         "card_weights": result.card_weights,
         "champion_updates": result.champion_updates,
+        "combo_scores": result.combo_scores,
         "config": result.config,
         "final_score_vs_initial": result.final_score_vs_initial,
         "final_selection": result.final_selection,
@@ -518,6 +706,8 @@ def _load_model_weight_history(path):
     if payload.get("architecture") != "LinearPolicyBotUser":
         raise ValueError("unsupported model history architecture")
     payload.setdefault("snapshots", [])
+    for snapshot in payload["snapshots"]:
+        snapshot.setdefault("combo_scores", {})
     return payload
 
 
@@ -610,6 +800,10 @@ def _rollout_bot_factory(seed, trials):
     return lambda player: RolloutBotUser(trials=trials, seed=seed + _player_seed_offset(player))
 
 
+def _same_pair(factory):
+    return (factory, factory)
+
+
 def _player_seed_offset(player):
     return Players.players().index(player) * 10_009
 
@@ -643,6 +837,10 @@ def _board_seeds(seed, generation, boards):
     return [seed + generation * 1_009 + board * 37 for board in range(boards)]
 
 
+def _benchmark_boards(config):
+    return config.benchmark_boards or config.validation_boards
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Train a linear bridge policy through deterministic self-play.")
     parser.add_argument("--output", default=str(DEFAULT_MODEL_PATH), help="Path to write trained model JSON.")
@@ -652,6 +850,9 @@ def main(argv=None):
     parser.add_argument("--boards", type=int, default=TrainingConfig.boards_per_generation)
     parser.add_argument("--validation-boards", type=int, default=TrainingConfig.validation_boards)
     parser.add_argument("--mutation-scale", type=float, default=TrainingConfig.mutation_scale)
+    parser.add_argument("--benchmark-boards", type=int, default=TrainingConfig.benchmark_boards)
+    parser.add_argument("--mixed-training-boards", type=int, default=TrainingConfig.mixed_training_boards_per_generation)
+    parser.add_argument("--rollout-trials", type=int, default=TrainingConfig.rollout_trials)
     args = parser.parse_args(argv)
 
     result = train_linear_policy(
@@ -663,6 +864,9 @@ def main(argv=None):
             boards_per_generation=args.boards,
             validation_boards=args.validation_boards,
             mutation_scale=args.mutation_scale,
+            benchmark_boards=args.benchmark_boards,
+            mixed_training_boards_per_generation=args.mixed_training_boards,
+            rollout_trials=args.rollout_trials,
         ),
     )
     print(json.dumps({
@@ -671,6 +875,7 @@ def main(argv=None):
         "champion_updates": result.champion_updates,
         "baseline_scores": result.baseline_scores,
         "pair_scores": result.pair_scores,
+        "combo_scores": result.combo_scores,
     }, indent=2, sort_keys=True))
     return 0
 

@@ -1,20 +1,20 @@
 {
   "architecture": "LinearPolicyBotUser",
   "bid_weights": {
-    "balanced_nt": 0.843,
-    "double_points": 0.664,
-    "length": 0.8129,
-    "level_cost": -5.043,
-    "major": 1.4871,
-    "pass_floor": 6.0,
-    "points": 0.1131
+    "balanced_nt": -0.2161,
+    "double_points": 1.1597,
+    "length": 2.1233,
+    "level_cost": -5.8265,
+    "major": 0.3682,
+    "pass_floor": 16.4642,
+    "points": 0.9455
   },
   "card_weights": {
-    "conserve_honor": -0.7746,
-    "partner_winning": -3.8232,
-    "rank": 0.386,
-    "trump": 0.1456,
-    "wins_now": 6.8419
+    "conserve_honor": -0.1206,
+    "partner_winning": 0.5837,
+    "rank": 0.0152,
+    "trump": 4.0,
+    "wins_now": 3.5872
   },
   "schema_version": 1,
   "training": {
@@ -22,236 +22,891 @@
     "result": {
       "baseline_scores": {
         "initial_linear": {
-          "average_delta": 11.0625,
-          "boards": 32,
+          "average_delta": 8.6640625,
+          "boards": 128,
           "passouts": 0,
-          "total_delta": 354
+          "total_delta": 1109
         },
         "random": {
-          "average_delta": 11.46875,
-          "boards": 32,
+          "average_delta": 10.65625,
+          "boards": 128,
           "passouts": 0,
-          "total_delta": 367
+          "total_delta": 1364
         },
         "rollout_8": {
-          "average_delta": -2.96875,
-          "boards": 32,
+          "average_delta": -2.15625,
+          "boards": 128,
           "passouts": 0,
-          "total_delta": -95
+          "total_delta": -276
         },
         "rule_based": {
-          "average_delta": -4.34375,
-          "boards": 32,
+          "average_delta": -2.9765625,
+          "boards": 128,
           "passouts": 0,
-          "total_delta": -139
+          "total_delta": -381
         }
       },
       "bid_weights": {
-        "balanced_nt": 0.843,
-        "double_points": 0.664,
-        "length": 0.8129,
-        "level_cost": -5.043,
-        "major": 1.4871,
-        "pass_floor": 6.0,
-        "points": 0.1131
+        "balanced_nt": -0.2161,
+        "double_points": 1.1597,
+        "length": 2.1233,
+        "level_cost": -5.8265,
+        "major": 0.3682,
+        "pass_floor": 16.4642,
+        "points": 0.9455
       },
       "card_weights": {
-        "conserve_honor": -0.7746,
-        "partner_winning": -3.8232,
-        "rank": 0.386,
-        "trump": 0.1456,
-        "wins_now": 6.8419
+        "conserve_honor": -0.1206,
+        "partner_winning": 0.5837,
+        "rank": 0.0152,
+        "trump": 4.0,
+        "wins_now": 3.5872
       },
-      "champion_updates": 9,
+      "champion_updates": 12,
+      "combo_scores": {
+        "initial_linear_initial_linear_vs_initial_linear_initial_linear": {
+          "average_delta": 0.0,
+          "boards": 128,
+          "passouts": 0,
+          "total_delta": 0
+        },
+        "initial_linear_trained_vs_initial_linear_initial_linear": {
+          "average_delta": 4.2890625,
+          "boards": 128,
+          "passouts": 0,
+          "total_delta": 549
+        },
+        "mixed_trained_initial_linear_average_vs_initial_linear_initial_linear": {
+          "average_delta": 4.4140625,
+          "boards": 256,
+          "passouts": 0,
+          "total_delta": 1130
+        },
+        "mixed_trained_random_average_vs_random_random": {
+          "average_delta": -3.9453125,
+          "boards": 256,
+          "passouts": 0,
+          "total_delta": -1010
+        },
+        "mixed_trained_rollout_8_average_vs_rollout_8_rollout_8": {
+          "average_delta": -0.671875,
+          "boards": 256,
+          "passouts": 0,
+          "total_delta": -172
+        },
+        "mixed_trained_rule_based_average_vs_rule_based_rule_based": {
+          "average_delta": -0.98046875,
+          "boards": 256,
+          "passouts": 0,
+          "total_delta": -251
+        },
+        "random_random_vs_random_random": {
+          "average_delta": 0.0,
+          "boards": 128,
+          "passouts": 0,
+          "total_delta": 0
+        },
+        "random_trained_vs_random_random": {
+          "average_delta": -4.9609375,
+          "boards": 128,
+          "passouts": 0,
+          "total_delta": -635
+        },
+        "rollout_8_rollout_8_vs_rollout_8_rollout_8": {
+          "average_delta": 0.0,
+          "boards": 128,
+          "passouts": 8,
+          "total_delta": 0
+        },
+        "rollout_8_trained_vs_rollout_8_rollout_8": {
+          "average_delta": -0.96875,
+          "boards": 128,
+          "passouts": 0,
+          "total_delta": -124
+        },
+        "rule_based_rule_based_vs_rule_based_rule_based": {
+          "average_delta": 0.0,
+          "boards": 128,
+          "passouts": 8,
+          "total_delta": 0
+        },
+        "rule_based_trained_vs_rule_based_rule_based": {
+          "average_delta": -1.1328125,
+          "boards": 128,
+          "passouts": 0,
+          "total_delta": -145
+        },
+        "trained_initial_linear_vs_initial_linear_initial_linear": {
+          "average_delta": 4.5390625,
+          "boards": 128,
+          "passouts": 0,
+          "total_delta": 581
+        },
+        "trained_random_vs_random_random": {
+          "average_delta": -2.9296875,
+          "boards": 128,
+          "passouts": 0,
+          "total_delta": -375
+        },
+        "trained_rollout_8_vs_rollout_8_rollout_8": {
+          "average_delta": -0.375,
+          "boards": 128,
+          "passouts": 0,
+          "total_delta": -48
+        },
+        "trained_rule_based_vs_rule_based_rule_based": {
+          "average_delta": -0.828125,
+          "boards": 128,
+          "passouts": 0,
+          "total_delta": -106
+        },
+        "trained_trained_vs_initial_linear_initial_linear": {
+          "average_delta": 9.203125,
+          "boards": 128,
+          "passouts": 0,
+          "total_delta": 1178
+        },
+        "trained_trained_vs_initial_linear_trained": {
+          "average_delta": 6.25,
+          "boards": 128,
+          "passouts": 0,
+          "total_delta": 800
+        },
+        "trained_trained_vs_mixed_trained_initial_linear_average": {
+          "average_delta": 6.53125,
+          "boards": 256,
+          "passouts": 0,
+          "total_delta": 1672
+        },
+        "trained_trained_vs_mixed_trained_random_average": {
+          "average_delta": 10.63671875,
+          "boards": 256,
+          "passouts": 0,
+          "total_delta": 2723
+        },
+        "trained_trained_vs_mixed_trained_rollout_8_average": {
+          "average_delta": -1.24609375,
+          "boards": 256,
+          "passouts": 0,
+          "total_delta": -319
+        },
+        "trained_trained_vs_mixed_trained_rule_based_average": {
+          "average_delta": -1.44140625,
+          "boards": 256,
+          "passouts": 0,
+          "total_delta": -369
+        },
+        "trained_trained_vs_random_random": {
+          "average_delta": 10.7109375,
+          "boards": 128,
+          "passouts": 0,
+          "total_delta": 1371
+        },
+        "trained_trained_vs_random_trained": {
+          "average_delta": 11.2578125,
+          "boards": 128,
+          "passouts": 0,
+          "total_delta": 1441
+        },
+        "trained_trained_vs_rollout_8_rollout_8": {
+          "average_delta": -2.515625,
+          "boards": 128,
+          "passouts": 0,
+          "total_delta": -322
+        },
+        "trained_trained_vs_rollout_8_trained": {
+          "average_delta": -1.5390625,
+          "boards": 128,
+          "passouts": 0,
+          "total_delta": -197
+        },
+        "trained_trained_vs_rule_based_rule_based": {
+          "average_delta": -3.1171875,
+          "boards": 128,
+          "passouts": 0,
+          "total_delta": -399
+        },
+        "trained_trained_vs_rule_based_trained": {
+          "average_delta": -1.40625,
+          "boards": 128,
+          "passouts": 0,
+          "total_delta": -180
+        },
+        "trained_trained_vs_trained_initial_linear": {
+          "average_delta": 6.8125,
+          "boards": 128,
+          "passouts": 0,
+          "total_delta": 872
+        },
+        "trained_trained_vs_trained_random": {
+          "average_delta": 10.015625,
+          "boards": 128,
+          "passouts": 0,
+          "total_delta": 1282
+        },
+        "trained_trained_vs_trained_rollout_8": {
+          "average_delta": -0.953125,
+          "boards": 128,
+          "passouts": 0,
+          "total_delta": -122
+        },
+        "trained_trained_vs_trained_rule_based": {
+          "average_delta": -1.4765625,
+          "boards": 128,
+          "passouts": 0,
+          "total_delta": -189
+        },
+        "trained_trained_vs_trained_trained": {
+          "average_delta": 0.0,
+          "boards": 128,
+          "passouts": 0,
+          "total_delta": 0
+        }
+      },
       "config": {
-        "boards_per_generation": 12,
-        "generations": 10,
+        "benchmark_boards": 64,
+        "boards_per_generation": 16,
+        "generations": 12,
+        "mixed_training_boards_per_generation": 4,
         "mutation_scale": 0.45,
-        "population": 8,
+        "population": 10,
+        "rollout_trials": 8,
         "seed": 20260615,
-        "validation_boards": 16
+        "validation_boards": 24
       },
-      "final_score_vs_initial": 10.09375,
-      "final_selection": "best_validated",
+      "final_score_vs_initial": 9.020833333333334,
+      "final_selection": "last_champion",
       "generations": [
         {
-          "best_validation_average_delta_vs_initial": 7.40625,
+          "best_validation_average_delta_vs_initial": 2.4166666666666665,
           "best_validation_label": "generation-0",
           "generation": 0,
           "selected": {
             "accepted": true,
-            "average_delta": 8.0,
-            "boards": 24,
-            "candidate": "mutation-0-6",
+            "average_delta": 3.96875,
+            "boards": 32,
+            "candidate": "mutation-0-4",
+            "objective_average_delta": 3.63125,
+            "objective_components": {
+              "self_play_champion": {
+                "average_delta": 3.96875,
+                "boards": 32,
+                "passouts": 0,
+                "total_delta": 127
+              },
+              "trained_random_average_vs_random_random": {
+                "average_delta": 11.0625,
+                "boards": 16,
+                "passouts": 0,
+                "total_delta": 177
+              },
+              "trained_trained_vs_random_random": {
+                "average_delta": 9.25,
+                "boards": 8,
+                "passouts": 0,
+                "total_delta": 74
+              },
+              "trained_trained_vs_rollout_rollout": {
+                "average_delta": -3.25,
+                "boards": 8,
+                "passouts": 3,
+                "total_delta": -26
+              },
+              "trained_trained_vs_rule_based_rule_based": {
+                "average_delta": -2.875,
+                "boards": 8,
+                "passouts": 3,
+                "total_delta": -23
+              }
+            },
             "passouts": 0,
-            "total_delta": 192
+            "total_delta": 127
           },
-          "validation_average_delta_vs_initial": 7.40625,
-          "validation_total_delta_vs_initial": 237
+          "validation_average_delta_vs_initial": 2.4166666666666665,
+          "validation_total_delta_vs_initial": 116
         },
         {
-          "best_validation_average_delta_vs_initial": 10.625,
+          "best_validation_average_delta_vs_initial": 5.354166666666667,
           "best_validation_label": "generation-1",
           "generation": 1,
           "selected": {
             "accepted": true,
-            "average_delta": 3.0,
-            "boards": 24,
-            "candidate": "mutation-1-6",
-            "passouts": 0,
-            "total_delta": 72
+            "average_delta": 1.0,
+            "boards": 32,
+            "candidate": "mutation-1-0",
+            "objective_average_delta": 3.325,
+            "objective_components": {
+              "self_play_champion": {
+                "average_delta": 1.0,
+                "boards": 32,
+                "passouts": 8,
+                "total_delta": 32
+              },
+              "trained_random_average_vs_random_random": {
+                "average_delta": 8.375,
+                "boards": 16,
+                "passouts": 0,
+                "total_delta": 134
+              },
+              "trained_trained_vs_random_random": {
+                "average_delta": 8.75,
+                "boards": 8,
+                "passouts": 0,
+                "total_delta": 70
+              },
+              "trained_trained_vs_rollout_rollout": {
+                "average_delta": -1.125,
+                "boards": 8,
+                "passouts": 1,
+                "total_delta": -9
+              },
+              "trained_trained_vs_rule_based_rule_based": {
+                "average_delta": -0.375,
+                "boards": 8,
+                "passouts": 1,
+                "total_delta": -3
+              }
+            },
+            "passouts": 8,
+            "total_delta": 32
           },
-          "validation_average_delta_vs_initial": 10.625,
-          "validation_total_delta_vs_initial": 340
+          "validation_average_delta_vs_initial": 5.354166666666667,
+          "validation_total_delta_vs_initial": 257
         },
         {
-          "best_validation_average_delta_vs_initial": 10.625,
-          "best_validation_label": "generation-1",
+          "best_validation_average_delta_vs_initial": 5.75,
+          "best_validation_label": "generation-2",
           "generation": 2,
           "selected": {
             "accepted": true,
-            "average_delta": 0.4166666666666667,
-            "boards": 24,
-            "candidate": "mutation-2-7",
+            "average_delta": -0.5,
+            "boards": 32,
+            "candidate": "mutation-2-0",
+            "objective_average_delta": 3.3625,
+            "objective_components": {
+              "self_play_champion": {
+                "average_delta": -0.5,
+                "boards": 32,
+                "passouts": 0,
+                "total_delta": -16
+              },
+              "trained_random_average_vs_random_random": {
+                "average_delta": 10.1875,
+                "boards": 16,
+                "passouts": 0,
+                "total_delta": 163
+              },
+              "trained_trained_vs_random_random": {
+                "average_delta": 12.0,
+                "boards": 8,
+                "passouts": 0,
+                "total_delta": 96
+              },
+              "trained_trained_vs_rollout_rollout": {
+                "average_delta": -4.25,
+                "boards": 8,
+                "passouts": 0,
+                "total_delta": -34
+              },
+              "trained_trained_vs_rule_based_rule_based": {
+                "average_delta": -0.625,
+                "boards": 8,
+                "passouts": 0,
+                "total_delta": -5
+              }
+            },
             "passouts": 0,
-            "total_delta": 10
+            "total_delta": -16
           },
-          "validation_average_delta_vs_initial": 10.5625,
-          "validation_total_delta_vs_initial": 338
+          "validation_average_delta_vs_initial": 5.75,
+          "validation_total_delta_vs_initial": 276
         },
         {
-          "best_validation_average_delta_vs_initial": 10.625,
-          "best_validation_label": "generation-1",
+          "best_validation_average_delta_vs_initial": 8.0625,
+          "best_validation_label": "generation-3",
           "generation": 3,
           "selected": {
             "accepted": true,
-            "average_delta": 2.7083333333333335,
-            "boards": 24,
+            "average_delta": 2.4375,
+            "boards": 32,
             "candidate": "mutation-3-6",
+            "objective_average_delta": 4.2375,
+            "objective_components": {
+              "self_play_champion": {
+                "average_delta": 2.4375,
+                "boards": 32,
+                "passouts": 0,
+                "total_delta": 78
+              },
+              "trained_random_average_vs_random_random": {
+                "average_delta": 11.25,
+                "boards": 16,
+                "passouts": 0,
+                "total_delta": 180
+              },
+              "trained_trained_vs_random_random": {
+                "average_delta": 9.875,
+                "boards": 8,
+                "passouts": 0,
+                "total_delta": 79
+              },
+              "trained_trained_vs_rollout_rollout": {
+                "average_delta": -0.625,
+                "boards": 8,
+                "passouts": 0,
+                "total_delta": -5
+              },
+              "trained_trained_vs_rule_based_rule_based": {
+                "average_delta": -1.75,
+                "boards": 8,
+                "passouts": 0,
+                "total_delta": -14
+              }
+            },
             "passouts": 0,
-            "total_delta": 65
+            "total_delta": 78
           },
-          "validation_average_delta_vs_initial": 7.75,
-          "validation_total_delta_vs_initial": 248
+          "validation_average_delta_vs_initial": 8.0625,
+          "validation_total_delta_vs_initial": 387
         },
         {
-          "best_validation_average_delta_vs_initial": 10.625,
-          "best_validation_label": "generation-1",
+          "best_validation_average_delta_vs_initial": 8.0625,
+          "best_validation_label": "generation-3",
           "generation": 4,
           "selected": {
             "accepted": true,
-            "average_delta": 0.2916666666666667,
-            "boards": 24,
-            "candidate": "mutation-4-4",
-            "passouts": 0,
-            "total_delta": 7
-          },
-          "validation_average_delta_vs_initial": 7.71875,
-          "validation_total_delta_vs_initial": 247
-        },
-        {
-          "best_validation_average_delta_vs_initial": 10.625,
-          "best_validation_label": "generation-1",
-          "generation": 5,
-          "selected": {
-            "accepted": false,
-            "average_delta": 0.0,
-            "candidate": "champion",
-            "total_delta": 0
-          },
-          "validation_average_delta_vs_initial": 7.65625,
-          "validation_total_delta_vs_initial": 245
-        },
-        {
-          "best_validation_average_delta_vs_initial": 10.625,
-          "best_validation_label": "generation-1",
-          "generation": 6,
-          "selected": {
-            "accepted": true,
-            "average_delta": 1.7916666666666667,
-            "boards": 24,
-            "candidate": "mutation-6-3",
-            "passouts": 0,
-            "total_delta": 43
-          },
-          "validation_average_delta_vs_initial": 9.90625,
-          "validation_total_delta_vs_initial": 317
-        },
-        {
-          "best_validation_average_delta_vs_initial": 10.625,
-          "best_validation_label": "generation-1",
-          "generation": 7,
-          "selected": {
-            "accepted": true,
-            "average_delta": 1.2083333333333333,
-            "boards": 24,
-            "candidate": "mutation-7-3",
-            "passouts": 0,
-            "total_delta": 29
-          },
-          "validation_average_delta_vs_initial": 5.125,
-          "validation_total_delta_vs_initial": 164
-        },
-        {
-          "best_validation_average_delta_vs_initial": 10.625,
-          "best_validation_label": "generation-1",
-          "generation": 8,
-          "selected": {
-            "accepted": true,
-            "average_delta": 0.4166666666666667,
-            "boards": 24,
-            "candidate": "mutation-8-2",
+            "average_delta": 0.3125,
+            "boards": 32,
+            "candidate": "mutation-4-5",
+            "objective_average_delta": 3.9125,
+            "objective_components": {
+              "self_play_champion": {
+                "average_delta": 0.3125,
+                "boards": 32,
+                "passouts": 0,
+                "total_delta": 10
+              },
+              "trained_random_average_vs_random_random": {
+                "average_delta": 11.125,
+                "boards": 16,
+                "passouts": 0,
+                "total_delta": 178
+              },
+              "trained_trained_vs_random_random": {
+                "average_delta": 10.375,
+                "boards": 8,
+                "passouts": 0,
+                "total_delta": 83
+              },
+              "trained_trained_vs_rollout_rollout": {
+                "average_delta": -1.625,
+                "boards": 8,
+                "passouts": 0,
+                "total_delta": -13
+              },
+              "trained_trained_vs_rule_based_rule_based": {
+                "average_delta": -0.625,
+                "boards": 8,
+                "passouts": 0,
+                "total_delta": -5
+              }
+            },
             "passouts": 0,
             "total_delta": 10
           },
-          "validation_average_delta_vs_initial": 6.59375,
-          "validation_total_delta_vs_initial": 211
+          "validation_average_delta_vs_initial": 6.708333333333333,
+          "validation_total_delta_vs_initial": 322
         },
         {
-          "best_validation_average_delta_vs_initial": 10.625,
-          "best_validation_label": "generation-1",
+          "best_validation_average_delta_vs_initial": 8.0625,
+          "best_validation_label": "generation-3",
+          "generation": 5,
+          "selected": {
+            "accepted": true,
+            "average_delta": -0.25,
+            "boards": 32,
+            "candidate": "mutation-5-0",
+            "objective_average_delta": 3.8125,
+            "objective_components": {
+              "self_play_champion": {
+                "average_delta": -0.25,
+                "boards": 32,
+                "passouts": 0,
+                "total_delta": -8
+              },
+              "trained_random_average_vs_random_random": {
+                "average_delta": 11.1875,
+                "boards": 16,
+                "passouts": 0,
+                "total_delta": 179
+              },
+              "trained_trained_vs_random_random": {
+                "average_delta": 8.125,
+                "boards": 8,
+                "passouts": 0,
+                "total_delta": 65
+              },
+              "trained_trained_vs_rollout_rollout": {
+                "average_delta": 0.375,
+                "boards": 8,
+                "passouts": 0,
+                "total_delta": 3
+              },
+              "trained_trained_vs_rule_based_rule_based": {
+                "average_delta": -0.375,
+                "boards": 8,
+                "passouts": 0,
+                "total_delta": -3
+              }
+            },
+            "passouts": 0,
+            "total_delta": -8
+          },
+          "validation_average_delta_vs_initial": 5.4375,
+          "validation_total_delta_vs_initial": 261
+        },
+        {
+          "best_validation_average_delta_vs_initial": 8.0625,
+          "best_validation_label": "generation-3",
+          "generation": 6,
+          "selected": {
+            "accepted": true,
+            "average_delta": 0.5,
+            "boards": 32,
+            "candidate": "mutation-6-6",
+            "objective_average_delta": 4.1,
+            "objective_components": {
+              "self_play_champion": {
+                "average_delta": 0.5,
+                "boards": 32,
+                "passouts": 2,
+                "total_delta": 16
+              },
+              "trained_random_average_vs_random_random": {
+                "average_delta": 10.375,
+                "boards": 16,
+                "passouts": 0,
+                "total_delta": 166
+              },
+              "trained_trained_vs_random_random": {
+                "average_delta": 7.875,
+                "boards": 8,
+                "passouts": 0,
+                "total_delta": 63
+              },
+              "trained_trained_vs_rollout_rollout": {
+                "average_delta": 2.125,
+                "boards": 8,
+                "passouts": 0,
+                "total_delta": 17
+              },
+              "trained_trained_vs_rule_based_rule_based": {
+                "average_delta": -0.375,
+                "boards": 8,
+                "passouts": 0,
+                "total_delta": -3
+              }
+            },
+            "passouts": 2,
+            "total_delta": 16
+          },
+          "validation_average_delta_vs_initial": 6.375,
+          "validation_total_delta_vs_initial": 306
+        },
+        {
+          "best_validation_average_delta_vs_initial": 8.0625,
+          "best_validation_label": "generation-3",
+          "generation": 7,
+          "selected": {
+            "accepted": true,
+            "average_delta": -0.59375,
+            "boards": 32,
+            "candidate": "mutation-7-2",
+            "objective_average_delta": 4.28125,
+            "objective_components": {
+              "self_play_champion": {
+                "average_delta": -0.59375,
+                "boards": 32,
+                "passouts": 0,
+                "total_delta": -19
+              },
+              "trained_random_average_vs_random_random": {
+                "average_delta": 10.0,
+                "boards": 16,
+                "passouts": 0,
+                "total_delta": 160
+              },
+              "trained_trained_vs_random_random": {
+                "average_delta": 8.0,
+                "boards": 8,
+                "passouts": 0,
+                "total_delta": 64
+              },
+              "trained_trained_vs_rollout_rollout": {
+                "average_delta": 3.0,
+                "boards": 8,
+                "passouts": 0,
+                "total_delta": 24
+              },
+              "trained_trained_vs_rule_based_rule_based": {
+                "average_delta": 1.0,
+                "boards": 8,
+                "passouts": 0,
+                "total_delta": 8
+              }
+            },
+            "passouts": 0,
+            "total_delta": -19
+          },
+          "validation_average_delta_vs_initial": 6.375,
+          "validation_total_delta_vs_initial": 306
+        },
+        {
+          "best_validation_average_delta_vs_initial": 8.0625,
+          "best_validation_label": "generation-3",
+          "generation": 8,
+          "selected": {
+            "accepted": true,
+            "average_delta": -0.09375,
+            "boards": 32,
+            "candidate": "mutation-8-4",
+            "objective_average_delta": 3.70625,
+            "objective_components": {
+              "self_play_champion": {
+                "average_delta": -0.09375,
+                "boards": 32,
+                "passouts": 0,
+                "total_delta": -3
+              },
+              "trained_random_average_vs_random_random": {
+                "average_delta": 9.875,
+                "boards": 16,
+                "passouts": 0,
+                "total_delta": 158
+              },
+              "trained_trained_vs_random_random": {
+                "average_delta": 10.25,
+                "boards": 8,
+                "passouts": 0,
+                "total_delta": 82
+              },
+              "trained_trained_vs_rollout_rollout": {
+                "average_delta": -1.375,
+                "boards": 8,
+                "passouts": 0,
+                "total_delta": -11
+              },
+              "trained_trained_vs_rule_based_rule_based": {
+                "average_delta": -0.125,
+                "boards": 8,
+                "passouts": 0,
+                "total_delta": -1
+              }
+            },
+            "passouts": 0,
+            "total_delta": -3
+          },
+          "validation_average_delta_vs_initial": 8.041666666666666,
+          "validation_total_delta_vs_initial": 386
+        },
+        {
+          "best_validation_average_delta_vs_initial": 8.0625,
+          "best_validation_label": "generation-3",
           "generation": 9,
           "selected": {
             "accepted": true,
-            "average_delta": 0.5833333333333334,
-            "boards": 24,
-            "candidate": "mutation-9-6",
+            "average_delta": -0.5625,
+            "boards": 32,
+            "candidate": "mutation-9-1",
+            "objective_average_delta": 3.9,
+            "objective_components": {
+              "self_play_champion": {
+                "average_delta": -0.5625,
+                "boards": 32,
+                "passouts": 0,
+                "total_delta": -18
+              },
+              "trained_random_average_vs_random_random": {
+                "average_delta": 11.0625,
+                "boards": 16,
+                "passouts": 0,
+                "total_delta": 177
+              },
+              "trained_trained_vs_random_random": {
+                "average_delta": 8.75,
+                "boards": 8,
+                "passouts": 0,
+                "total_delta": 70
+              },
+              "trained_trained_vs_rollout_rollout": {
+                "average_delta": 0.5,
+                "boards": 8,
+                "passouts": 0,
+                "total_delta": 4
+              },
+              "trained_trained_vs_rule_based_rule_based": {
+                "average_delta": -0.25,
+                "boards": 8,
+                "passouts": 0,
+                "total_delta": -2
+              }
+            },
             "passouts": 0,
-            "total_delta": 14
+            "total_delta": -18
           },
-          "validation_average_delta_vs_initial": 7.53125,
-          "validation_total_delta_vs_initial": 241
+          "validation_average_delta_vs_initial": 7.333333333333333,
+          "validation_total_delta_vs_initial": 352
+        },
+        {
+          "best_validation_average_delta_vs_initial": 8.0625,
+          "best_validation_label": "generation-3",
+          "generation": 10,
+          "selected": {
+            "accepted": true,
+            "average_delta": -0.875,
+            "boards": 32,
+            "candidate": "mutation-10-8",
+            "objective_average_delta": 3.575,
+            "objective_components": {
+              "self_play_champion": {
+                "average_delta": -0.875,
+                "boards": 32,
+                "passouts": 0,
+                "total_delta": -28
+              },
+              "trained_random_average_vs_random_random": {
+                "average_delta": 11.125,
+                "boards": 16,
+                "passouts": 0,
+                "total_delta": 178
+              },
+              "trained_trained_vs_random_random": {
+                "average_delta": 9.625,
+                "boards": 8,
+                "passouts": 0,
+                "total_delta": 77
+              },
+              "trained_trained_vs_rollout_rollout": {
+                "average_delta": 0.125,
+                "boards": 8,
+                "passouts": 0,
+                "total_delta": 1
+              },
+              "trained_trained_vs_rule_based_rule_based": {
+                "average_delta": -2.125,
+                "boards": 8,
+                "passouts": 0,
+                "total_delta": -17
+              }
+            },
+            "passouts": 0,
+            "total_delta": -28
+          },
+          "validation_average_delta_vs_initial": 7.083333333333333,
+          "validation_total_delta_vs_initial": 340
+        },
+        {
+          "best_validation_average_delta_vs_initial": 8.458333333333334,
+          "best_validation_label": "generation-11",
+          "generation": 11,
+          "selected": {
+            "accepted": true,
+            "average_delta": 0.3125,
+            "boards": 32,
+            "candidate": "mutation-11-9",
+            "objective_average_delta": 4.05,
+            "objective_components": {
+              "self_play_champion": {
+                "average_delta": 0.3125,
+                "boards": 32,
+                "passouts": 0,
+                "total_delta": 10
+              },
+              "trained_random_average_vs_random_random": {
+                "average_delta": 11.1875,
+                "boards": 16,
+                "passouts": 0,
+                "total_delta": 179
+              },
+              "trained_trained_vs_random_random": {
+                "average_delta": 12.0,
+                "boards": 8,
+                "passouts": 0,
+                "total_delta": 96
+              },
+              "trained_trained_vs_rollout_rollout": {
+                "average_delta": -1.25,
+                "boards": 8,
+                "passouts": 0,
+                "total_delta": -10
+              },
+              "trained_trained_vs_rule_based_rule_based": {
+                "average_delta": -2.0,
+                "boards": 8,
+                "passouts": 0,
+                "total_delta": -16
+              }
+            },
+            "passouts": 0,
+            "total_delta": 10
+          },
+          "validation_average_delta_vs_initial": 8.458333333333334,
+          "validation_total_delta_vs_initial": 406
         }
       ],
       "model_path": "bridgebot/models/linear_policy_selfplay.json",
       "pair_scores": {
+        "mixed_trained_random_average_vs_random_random": {
+          "average_delta": -2.80859375,
+          "boards": 256,
+          "passouts": 0,
+          "total_delta": -719
+        },
         "random_random_vs_random_random": {
           "average_delta": 0.0,
-          "boards": 32,
+          "boards": 128,
           "passouts": 0,
           "total_delta": 0
         },
-        "trained_random_vs_random_random": {
-          "average_delta": 1.78125,
-          "boards": 32,
+        "random_trained_vs_random_random": {
+          "average_delta": -6.703125,
+          "boards": 128,
           "passouts": 0,
-          "total_delta": 57
+          "total_delta": -858
+        },
+        "trained_random_vs_random_random": {
+          "average_delta": 1.0859375,
+          "boards": 128,
+          "passouts": 0,
+          "total_delta": 139
+        },
+        "trained_trained_vs_mixed_trained_random_average": {
+          "average_delta": 10.98046875,
+          "boards": 256,
+          "passouts": 0,
+          "total_delta": 2811
         },
         "trained_trained_vs_random_random": {
-          "average_delta": 10.65625,
-          "boards": 32,
+          "average_delta": 10.6796875,
+          "boards": 128,
           "passouts": 0,
-          "total_delta": 341
+          "total_delta": 1367
+        },
+        "trained_trained_vs_random_trained": {
+          "average_delta": 11.4296875,
+          "boards": 128,
+          "passouts": 0,
+          "total_delta": 1463
         },
         "trained_trained_vs_trained_random": {
-          "average_delta": 11.15625,
-          "boards": 32,
+          "average_delta": 10.53125,
+          "boards": 128,
           "passouts": 0,
-          "total_delta": 357
+          "total_delta": 1348
         },
         "trained_trained_vs_trained_trained": {
           "average_delta": 0.0,
-          "boards": 32,
+          "boards": 128,
           "passouts": 0,
           "total_delta": 0
         }

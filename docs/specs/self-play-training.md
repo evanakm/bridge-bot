@@ -44,9 +44,17 @@ For each generation:
 9. Benchmark the saved policy against the untrained linear policy, random legal
    play, rule-based play, and a light rollout policy.
 10. Benchmark partnership compositions so mixed teams can be compared directly:
-    trained+random vs random+random, trained+trained vs random+random,
-    trained+trained vs trained+random, random+random vs random+random, and
-    trained+trained vs trained+trained.
+    trained+random vs random+random, random+trained vs random+random, the
+    averaged mixed orientation, trained+trained vs random+random,
+    trained+trained vs both mixed orientations, random+random vs random+random,
+    and trained+trained vs trained+trained.
+11. Optionally include a mixed training objective. When
+    `mixed_training_boards_per_generation` is non-zero, candidates are selected
+    by averaging self-play against the current champion with smaller-board
+    evaluations against random, rule-based, and rollout partnerships.
+12. Benchmark model combinations beyond random pairs by comparing trained pairs
+    and averaged trained+baseline mixed pairs against initial-linear, random,
+    rule-based, and rollout baselines.
 
 This is evolutionary self-play, not gradient training. It is intentionally small
 and deterministic so it can run in CI and on developer machines without heavy ML
@@ -66,7 +74,8 @@ The model artifact is JSON:
     "algorithm": "evolutionary_self_play",
     "result": {
       "baseline_scores": {},
-      "pair_scores": {}
+      "pair_scores": {},
+      "combo_scores": {}
     }
   }
 }
@@ -110,6 +119,19 @@ Default training run:
 .venv/bin/python -m bridgebot.training.self_play
 ```
 
+Longer mixed-opponent run:
+
+```bash
+.venv/bin/python -m bridgebot.training.self_play \
+  --generations 12 \
+  --population 10 \
+  --boards 16 \
+  --validation-boards 24 \
+  --benchmark-boards 64 \
+  --mixed-training-boards 4 \
+  --rollout-trials 8
+```
+
 ## Verification
 
 Run:
@@ -132,7 +154,13 @@ Required test coverage:
 - self-play artifacts include baseline scores for untrained linear, random,
   rule-based, and rollout players;
 - self-play artifacts include pair-composition scores for trained+random,
-  trained+trained, and random+random partnerships;
+  random+trained, trained+trained, and random+random partnerships;
+- mixed-orientation partnership scores aggregate both trained+random and
+  random+trained orderings;
+- self-play artifacts include combo scores for trained models paired with
+  initial-linear, random, rule-based, and rollout baselines;
+- optional mixed training objectives include random, rule-based, and rollout
+  partnership pressure;
 - identical partnership compositions score zero under duplicate seat-flipped
   comparison;
 - the training guard preserves or improves validation score versus the initial

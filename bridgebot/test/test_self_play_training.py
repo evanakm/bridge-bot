@@ -13,6 +13,7 @@ from bridgebot.training.self_play import (
     evaluate_linear_policy,
     evaluate_linear_policy_against_bot,
     evaluate_team_factories,
+    evaluate_training_candidate,
     linear_policy_weights,
     load_linear_policy_model,
     play_board,
@@ -133,6 +134,7 @@ def test_self_play_training_writes_loadable_non_regressing_model(tmp_path):
             population=3,
             boards_per_generation=3,
             validation_boards=4,
+            benchmark_boards=2,
         ),
     )
 
@@ -152,17 +154,24 @@ def test_self_play_training_writes_loadable_non_regressing_model(tmp_path):
     }
     assert set(payload["training"]["result"]["pair_scores"]) == {
         "trained_random_vs_random_random",
+        "random_trained_vs_random_random",
+        "mixed_trained_random_average_vs_random_random",
         "trained_trained_vs_random_random",
         "trained_trained_vs_trained_random",
+        "trained_trained_vs_random_trained",
+        "trained_trained_vs_mixed_trained_random_average",
         "random_random_vs_random_random",
         "trained_trained_vs_trained_trained",
     }
+    assert "combo_scores" in payload["training"]["result"]
+    assert "mixed_trained_random_average_vs_random_random" in payload["training"]["result"]["combo_scores"]
     assert loaded.bid_weights == result.bid_weights
     assert loaded.card_weights == result.card_weights
     assert history["latest_snapshot_id"] == history["snapshots"][0]["snapshot_id"]
     assert history["snapshots"][0]["bid_weights"] == result.bid_weights
     assert history["snapshots"][0]["card_weights"] == result.card_weights
     assert history["snapshots"][0]["pair_scores"] == result.pair_scores
+    assert history["snapshots"][0]["combo_scores"] == result.combo_scores
     assert result.final_score_vs_initial >= 0
     assert result.champion_updates >= 1
 
@@ -175,6 +184,7 @@ def test_self_play_history_deduplicates_identical_snapshots(tmp_path):
         population=2,
         boards_per_generation=2,
         validation_boards=2,
+        benchmark_boards=1,
     )
 
     train_linear_policy(output_path=output, config=config)
@@ -186,6 +196,20 @@ def test_self_play_history_deduplicates_identical_snapshots(tmp_path):
     assert history["latest_snapshot_id"] == history["snapshots"][0]["snapshot_id"]
 
 
+def test_self_play_history_loads_older_snapshots_without_combo_scores(tmp_path):
+    history_path = tmp_path / "linear_policy_selfplay_history.json"
+    history_path.write_text(json.dumps({
+        "schema_version": 1,
+        "architecture": "LinearPolicyBotUser",
+        "latest_snapshot_id": "old",
+        "snapshots": [{"snapshot_id": "old"}],
+    }))
+
+    history = self_play._load_model_weight_history(history_path)
+
+    assert history["snapshots"][0]["combo_scores"] == {}
+
+
 def test_self_play_training_is_reproducible_for_same_seed(tmp_path):
     config = TrainingConfig(
         seed=303,
@@ -193,6 +217,7 @@ def test_self_play_training_is_reproducible_for_same_seed(tmp_path):
         population=2,
         boards_per_generation=2,
         validation_boards=2,
+        benchmark_boards=1,
     )
 
     first = train_linear_policy(output_path=tmp_path / "first.json", config=config)
@@ -202,6 +227,7 @@ def test_self_play_training_is_reproducible_for_same_seed(tmp_path):
     assert first.card_weights == second.card_weights
     assert first.baseline_scores == second.baseline_scores
     assert first.pair_scores == second.pair_scores
+    assert first.combo_scores == second.combo_scores
     assert first.generations == second.generations
 
 
@@ -225,13 +251,47 @@ def test_team_composition_benchmark_reports_requested_pairs():
 
     assert set(pair_scores) == {
         "trained_random_vs_random_random",
+        "random_trained_vs_random_random",
+        "mixed_trained_random_average_vs_random_random",
         "trained_trained_vs_random_random",
         "trained_trained_vs_trained_random",
+        "trained_trained_vs_random_trained",
+        "trained_trained_vs_mixed_trained_random_average",
         "random_random_vs_random_random",
         "trained_trained_vs_trained_trained",
     }
     assert pair_scores["random_random_vs_random_random"]["average_delta"] == 0
     assert pair_scores["trained_trained_vs_trained_trained"]["average_delta"] == 0
+    assert pair_scores["mixed_trained_random_average_vs_random_random"]["boards"] == (
+        pair_scores["trained_random_vs_random_random"]["boards"]
+        + pair_scores["random_trained_vs_random_random"]["boards"]
+    )
+
+
+def test_mixed_training_objective_includes_combo_components():
+    score = evaluate_training_candidate(
+        linear_policy_weights(),
+        linear_policy_weights(),
+        [101],
+        TrainingConfig(
+            seed=303,
+            mixed_training_boards_per_generation=1,
+            rollout_trials=4,
+        ),
+        generation=0,
+    )
+
+    assert set(score["components"]) == {
+        "self_play_champion",
+        "trained_trained_vs_random_random",
+        "trained_random_average_vs_random_random",
+        "trained_trained_vs_rule_based_rule_based",
+        "trained_trained_vs_rollout_rollout",
+    }
+    assert score["objective_average_delta"] == sum(
+        component["average_delta"]
+        for component in score["components"].values()
+    ) / len(score["components"])
 
 
 def test_linear_policy_can_be_scored_against_arbitrary_bot_baseline():
@@ -286,10 +346,22 @@ def test_self_play_saves_best_validated_champion(monkeypatch, tmp_path):
         "benchmark_team_compositions",
         lambda *_args: {
             "trained_random_vs_random_random": {"average_delta": 2.0, "total_delta": 2, "boards": 2, "passouts": 0},
+            "random_trained_vs_random_random": {"average_delta": 4.0, "total_delta": 4, "boards": 2, "passouts": 0},
+            "mixed_trained_random_average_vs_random_random": {"average_delta": 3.0, "total_delta": 6, "boards": 4, "passouts": 0},
             "trained_trained_vs_random_random": {"average_delta": 8.0, "total_delta": 8, "boards": 2, "passouts": 0},
             "trained_trained_vs_trained_random": {"average_delta": 1.0, "total_delta": 1, "boards": 2, "passouts": 0},
+            "trained_trained_vs_random_trained": {"average_delta": 5.0, "total_delta": 5, "boards": 2, "passouts": 0},
+            "trained_trained_vs_mixed_trained_random_average": {"average_delta": 3.0, "total_delta": 6, "boards": 4, "passouts": 0},
             "random_random_vs_random_random": {"average_delta": 0.0, "total_delta": 0, "boards": 2, "passouts": 0},
             "trained_trained_vs_trained_trained": {"average_delta": 0.0, "total_delta": 0, "boards": 2, "passouts": 0},
+        },
+    )
+    monkeypatch.setattr(
+        self_play,
+        "benchmark_model_combinations",
+        lambda *_args: {
+            "mixed_trained_random_average_vs_random_random": {"average_delta": 3.0, "total_delta": 6, "boards": 4, "passouts": 0},
+            "trained_trained_vs_random_random": {"average_delta": 8.0, "total_delta": 8, "boards": 2, "passouts": 0},
         },
     )
 

@@ -111,6 +111,12 @@ The default model artifact is
 `bridgebot/models/linear_policy_selfplay_history.json` so model weights and
 benchmark metrics can be compared across runs.
 
+For a longer mixed-opponent run:
+
+```bash
+.venv/bin/python -m bridgebot.training.self_play --generations 12 --population 10 --boards 16 --validation-boards 24 --benchmark-boards 64 --mixed-training-boards 4 --rollout-trials 8
+```
+
 ## Integration docs
 
 - `docs/source/web_app.rst` describes the web table, gameplay flow, and current
