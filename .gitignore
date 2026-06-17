@@ -4,6 +4,7 @@
 __pycache__
 build
 node_modules/
+.omx/
 .vinxi/
 .output/
 dist/
