@@ -1,4 +1,4 @@
-import { Bot, Eye, EyeOff, RotateCcw, StepForward, UserRound } from 'lucide-react'
+import { Bot, Database, Eye, EyeOff, RotateCcw, ShieldCheck, StepForward, UserRound } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { callLabel, contractCalls, isCallLegal } from '../game/auction'
@@ -20,10 +20,12 @@ import {
   vulnerabilityForBoard,
   visibleSeatCards,
 } from '../game/engine'
+import { isRecordableTrainingGame, submitTrainingRecord, trainingRecordFromGame } from '../game/trainingRecord'
 import type { Call, Card, GameState, Seat, SeatConfig } from '../game/types'
 
 const compassSeats: Seat[] = ['N', 'E', 'S', 'W']
 const BOT_DELAY_MS = 420
+type RecordingStatus = 'off' | 'ready' | 'saving' | 'saved' | 'failed'
 
 function nextSeed() {
   return Math.floor(Date.now() % 1_000_000)
@@ -37,6 +39,10 @@ export function BridgeApp() {
   const [readySeat, setReadySeat] = useState<Seat | null>(null)
   const [thinkingSeat, setThinkingSeat] = useState<Seat | null>(null)
   const mobileTableLayout = useMobileTableLayout()
+  const [shareTrainingGames, setShareTrainingGames] = useState(false)
+  const [recordingStatus, setRecordingStatus] = useState<RecordingStatus>('off')
+  const [recordRetryToken, setRecordRetryToken] = useState(0)
+  const recordedGameKey = useRef<string | null>(null)
   const [game, setGame] = useState(() => createGame({
     seats: defaultSeats,
     practice: false,
@@ -67,6 +73,25 @@ export function BridgeApp() {
       setReadySeat(null)
     }
   }, [humans.length, practice, game.turn])
+
+  useEffect(() => {
+    if (!shareTrainingGames) {
+      setRecordingStatus('off')
+      return
+    }
+    if (!isRecordableTrainingGame(game)) {
+      setRecordingStatus('ready')
+      return
+    }
+
+    const gameKey = `${game.seed}:${boardIndex}:${game.phase}:${game.auction.length}:${game.completedTricks.length}:${recordRetryToken}`
+    if (recordedGameKey.current === gameKey) return
+    recordedGameKey.current = gameKey
+    setRecordingStatus('saving')
+
+    void submitTrainingRecord(trainingRecordFromGame(game, boardIndex + 1))
+      .then((result) => setRecordingStatus(result.ok ? 'saved' : 'failed'))
+  }, [boardIndex, game, recordRetryToken, shareTrainingGames])
 
   function startDeal(next = seed, nextBoardIndex = boardIndex) {
     setSeed(next)
@@ -104,6 +129,12 @@ export function BridgeApp() {
     }))
   }
 
+  function retryRecording() {
+    if (!shareTrainingGames || !isRecordableTrainingGame(game) || recordingStatus === 'saving') return
+    recordedGameKey.current = null
+    setRecordRetryToken((current) => current + 1)
+  }
+
   function makeCall(call: Call) {
     setGame((current) => {
       if (current.phase !== 'auction' || !isCallLegal(current.auction, current.turn, call)) return current
@@ -129,7 +160,11 @@ export function BridgeApp() {
           practice={practice}
           boardNumber={boardIndex + 1}
           showHistory={!mobileTableLayout}
+          shareTrainingGames={shareTrainingGames}
+          recordingStatus={recordingStatus}
           onPractice={setPracticeMode}
+          onShareTrainingGames={setShareTrainingGames}
+          onRetryRecording={retryRecording}
           onNewDeal={() => startDeal(nextSeed(), boardIndex + 1)}
           onStep={() => setGame((current) => advanceBotOnce(current))}
         />
@@ -224,7 +259,11 @@ function ControlRail({
   practice,
   boardNumber,
   showHistory,
+  shareTrainingGames,
+  recordingStatus,
   onPractice,
+  onShareTrainingGames,
+  onRetryRecording,
   onNewDeal,
   onStep,
 }: {
@@ -233,10 +272,16 @@ function ControlRail({
   practice: boolean
   boardNumber: number
   showHistory: boolean
+  shareTrainingGames: boolean
+  recordingStatus: RecordingStatus
   onPractice: (enabled: boolean) => void
+  onShareTrainingGames: (enabled: boolean) => void
+  onRetryRecording: () => void
   onNewDeal: () => void
   onStep: () => void
 }) {
+  const showRecordingStatus = shareTrainingGames || recordingStatus === 'failed' || recordingStatus === 'saved'
+
   return (
     <aside className="control-rail" aria-label="Table controls">
       <div>
@@ -255,6 +300,34 @@ function ControlRail({
         <RotateCcw aria-hidden="true" />
         <span>New</span>
       </button>
+      <button
+        className={`record-toggle record-${recordingStatus}`}
+        type="button"
+        role="switch"
+        aria-checked={shareTrainingGames}
+        onClick={() => onShareTrainingGames(!shareTrainingGames)}
+      >
+        <Database aria-hidden="true" />
+        <span>
+          <strong>Share games</strong>
+          <small>{recordingStatusLabel(recordingStatus)}</small>
+        </span>
+      </button>
+      {showRecordingStatus && (
+        <div className={`record-status record-${recordingStatus}`} role="status" aria-live="polite">
+          <strong>{recordingStatusTitle(recordingStatus)}</strong>
+          <span>{recordingStatusMessage(recordingStatus)}</span>
+          {recordingStatus === 'failed' && (
+            <button type="button" onClick={onRetryRecording}>
+              Try again
+            </button>
+          )}
+        </div>
+      )}
+      <a className="privacy-link" href="/privacy">
+        <ShieldCheck aria-hidden="true" />
+        <span>Privacy</span>
+      </a>
       <div className="rail-status">
         <span>Board {boardNumber}</span>
         <span>{humans} human{humans === 1 ? '' : 's'}</span>
@@ -264,6 +337,28 @@ function ControlRail({
       {showHistory && <MoveHistory game={game} className="rail-history" />}
     </aside>
   )
+}
+
+function recordingStatusLabel(status: RecordingStatus) {
+  if (status === 'ready') return 'On after board'
+  if (status === 'saving') return 'Saving'
+  if (status === 'saved') return 'Saved'
+  if (status === 'failed') return 'Needs retry'
+  return 'Off'
+}
+
+function recordingStatusTitle(status: RecordingStatus) {
+  if (status === 'saving') return 'Sharing board'
+  if (status === 'saved') return 'Board shared'
+  if (status === 'failed') return 'Board not saved'
+  return 'Sharing is on'
+}
+
+function recordingStatusMessage(status: RecordingStatus) {
+  if (status === 'saving') return 'Sending this completed board now.'
+  if (status === 'saved') return 'This anonymous board was accepted by the training endpoint.'
+  if (status === 'failed') return 'Your board is still here. Check the connection and retry.'
+  return 'Completed boards will be shared anonymously after they finish.'
 }
 
 function automationStatus(game: GameState) {

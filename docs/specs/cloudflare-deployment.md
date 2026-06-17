@@ -7,6 +7,8 @@
   player work can evolve without coupling it to the web runtime.
 - Preserve the limited-information contract for external bridge services and
   physical-card integrations.
+- Store explicitly consented completed-game training records without collecting
+  player identifiers.
 
 ## Web Worker
 
@@ -24,9 +26,12 @@ Commands:
 ```bash
 pnpm --dir web dev
 pnpm --dir web build
-pnpm --dir web cf:dry-run
-pnpm --dir web cf:deploy
+VITE_BRIDGEBOT_API_URL=https://bridgebot-api.<your-account>.workers.dev pnpm --dir web cf:dry-run
+VITE_BRIDGEBOT_API_URL=https://bridgebot-api.<your-account>.workers.dev pnpm --dir web cf:deploy
 ```
+
+The API URL is optional only when `/api/*` routes to the backend on the same
+origin as the web Worker.
 
 ## Python Worker Backend
 
@@ -37,10 +42,14 @@ The backend worker lives in `workers/backend/` and deploys with pywrangler.
 - `workers/backend/src/entry.py` is the Cloudflare SDK entrypoint.
 - `workers/backend/src/bridgebot_api.py` contains the pure-Python request logic
   that local tests import directly.
+- `workers/backend/wrangler.jsonc` binds an R2 bucket named
+  `TRAINING_GAMES` for anonymous training-game records.
 
 Commands:
 
 ```bash
+pnpm --dir web exec wrangler r2 bucket create bridgebot-training-games
+pnpm --dir web exec wrangler r2 bucket create bridgebot-training-games-preview
 cd workers/backend
 uv run pywrangler dev
 uv run pywrangler deploy
@@ -69,6 +78,19 @@ The response must not echo `hand` or any complete deal state. Hidden-state keys
 such as `hands`, `allHands`, `deal`, and per-seat hand names must be rejected.
 Successful responses include `legalMoves.calls` during the auction or
 `legalMoves.cards` during play so clients can render only legal choices.
+
+`POST /api/training/games` accepts only records that:
+
+- use schema `bridgebot.training_game.v1`;
+- include `consent.shareForTraining: true`;
+- have final phase `complete` or `passedOut`;
+- include board context, final hands, auction, tricks, and score data;
+- omit personal-data keys including names, emails, account IDs, session IDs,
+  visitor IDs, IP addresses, user agents, browser details, and device details.
+
+Valid records are normalized, assigned a deterministic content hash ID, and
+stored under `training-games/v1/{recordId}.json` when the R2 binding is
+available.
 
 ## Verification
 
