@@ -160,3 +160,81 @@ def test_record_rejects_double_before_opening_bid():
 
     with pytest.raises(InvalidBidException):
         auction.get_new_bid(Bids.DOUBLE)
+
+
+def test_auction_rotates_from_dealer_clockwise():
+    auction = Auction(Players.EAST)
+
+    assert auction.player == Players.EAST
+    assert auction.get_new_bid(Bids.PASS) == AuctionStatus.CONTINUE
+    assert auction.player == Players.SOUTH
+    assert auction.get_new_bid(Bids.PASS) == AuctionStatus.CONTINUE
+    assert auction.player == Players.WEST
+    assert auction.get_new_bid(Bids.PASS) == AuctionStatus.CONTINUE
+    assert auction.player == Players.NORTH
+    assert auction.get_new_bid(Bids.PASS) == AuctionStatus.DONE
+
+
+def test_auction_allows_balancing_double_after_two_passes():
+    auction = Auction(Players.NORTH)
+    bids = [
+        Bids.ONE_HEART,
+        Bids.PASS,
+        Bids.PASS,
+        Bids.DOUBLE,
+        Bids.PASS,
+        Bids.PASS,
+        Bids.PASS,
+    ]
+
+    for bid in bids[:-1]:
+        assert auction.get_new_bid(bid) == AuctionStatus.CONTINUE
+    assert auction.get_new_bid(bids[-1]) == AuctionStatus.DONE
+
+    contract = auction.determine_full_contract()
+    assert contract.contract == Contracts.ONE_HEART
+    assert contract.doubled == Doubles.DOUBLE
+    assert contract.declarer == Players.NORTH
+
+
+def test_new_contract_bid_resets_previous_double_and_redouble():
+    auction = Auction(Players.NORTH)
+    for bid in [
+        Bids.ONE_HEART,
+        Bids.DOUBLE,
+        Bids.REDOUBLE,
+        Bids.TWO_CLUBS,
+    ]:
+        assert auction.get_new_bid(bid) == AuctionStatus.CONTINUE
+
+    assert Bids.DOUBLE in auction.legal_bids()
+    assert Bids.REDOUBLE not in auction.legal_bids()
+
+    for bid in [Bids.DOUBLE, Bids.PASS, Bids.PASS]:
+        assert auction.get_new_bid(bid) == AuctionStatus.CONTINUE
+    assert auction.get_new_bid(Bids.PASS) == AuctionStatus.DONE
+
+    contract = auction.determine_full_contract()
+    assert contract.contract == Contracts.TWO_CLUBS
+    assert contract.doubled == Doubles.DOUBLE
+    assert contract.declarer == Players.WEST
+
+
+def test_declarer_is_first_partnership_player_to_bid_final_strain():
+    auction = Auction(Players.NORTH)
+    bids = [
+        Bids.ONE_HEART,
+        Bids.PASS,
+        Bids.FOUR_HEARTS,
+        Bids.PASS,
+        Bids.PASS,
+        Bids.PASS,
+    ]
+
+    for bid in bids[:-1]:
+        assert auction.get_new_bid(bid) == AuctionStatus.CONTINUE
+    assert auction.get_new_bid(bids[-1]) == AuctionStatus.DONE
+
+    contract = auction.determine_full_contract()
+    assert contract.contract == Contracts.FOUR_HEARTS
+    assert contract.declarer == Players.NORTH
