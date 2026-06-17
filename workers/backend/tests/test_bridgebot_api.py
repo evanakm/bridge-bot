@@ -39,6 +39,12 @@ def test_auction_action_uses_limited_view_and_prefers_pass():
 
     assert response.status == 200
     assert body["action"] == {"kind": "call", "call": {"kind": "pass"}}
+    assert body["legalMoves"] == {
+        "calls": [
+            {"kind": "contract", "level": 1, "strain": "S"},
+            {"kind": "pass"},
+        ],
+    }
     assert body["view"] == {"phase": "auction", "seat": "N"}
     assert "hand" not in body
 
@@ -63,6 +69,12 @@ def test_play_action_selects_lowest_legal_card_without_echoing_hand():
 
     assert response.status == 200
     assert body["action"] == {"kind": "play", "cardId": "3C"}
+    assert body["legalMoves"] == {
+        "cards": [
+            {"id": "AS", "suit": "S", "rank": 14},
+            {"id": "3C", "suit": "C", "rank": 3},
+        ],
+    }
     assert body["view"] == {"phase": "play", "seat": "W"}
     assert "hand" not in body
 

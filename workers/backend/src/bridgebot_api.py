@@ -104,6 +104,9 @@ def _auction_action(payload: dict[str, Any]) -> ApiResponse:
             "kind": "call",
             "call": call,
         },
+        "legalMoves": {
+            "calls": legal_calls,
+        },
         "policy": "safe-baseline",
         "view": _view_summary(payload),
     })
@@ -123,6 +126,9 @@ def _play_action(payload: dict[str, Any]) -> ApiResponse:
         "action": {
             "kind": "play",
             "cardId": card_id,
+        },
+        "legalMoves": {
+            "cards": legal_cards,
         },
         "policy": "safe-baseline",
         "view": _view_summary(payload),

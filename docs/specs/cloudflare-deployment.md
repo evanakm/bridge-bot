@@ -67,6 +67,8 @@ uv run pywrangler deploy
 
 The response must not echo `hand` or any complete deal state. Hidden-state keys
 such as `hands`, `allHands`, `deal`, and per-seat hand names must be rejected.
+Successful responses include `legalMoves.calls` during the auction or
+`legalMoves.cards` during play so clients can render only legal choices.
 
 ## Verification
 

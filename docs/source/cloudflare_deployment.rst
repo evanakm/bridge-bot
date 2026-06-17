@@ -48,7 +48,9 @@ Backend API
    Returns the service name and runtime.
 
 ``POST /api/bot/action``
-   Accepts a limited public bot view and returns a baseline call/play action.
+   Accepts a limited public bot view and returns a baseline call/play action
+   plus ``legalMoves.calls`` or ``legalMoves.cards`` for clients to render only
+   legal choices.
 
 Hidden-state keys such as ``hands``, ``allHands``, ``deal``, or per-seat hand
 names are rejected. This is deliberate: integrations with online bridge tables
