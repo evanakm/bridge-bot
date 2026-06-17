@@ -1,7 +1,7 @@
-from game.enums import Strains, Players, Contracts, ContractNotFound, Team
+from bridgebot.game.enums import Strains, Players, Contracts, ContractNotFound, Team
 
-from game.bridgehand import Card
-from game.interface import User
+from bridgebot.game.bridgehand import Card
+from bridgebot.game.interface import User
 
 
 def determine_trick_winner(played_cards, strain):
@@ -18,19 +18,22 @@ def determine_trick_winner(played_cards, strain):
     if not isinstance(strain, Strains):
         raise TypeError("strain must be of type Strains")
 
-    highest_card = played_cards[0]
     suit_led = played_cards[0].suit
+    trump_cards = [
+        (index, card) for index, card in enumerate(played_cards)
+        if strain.compare_to_suit(card.suit)
+    ]
 
-    for card_counter in range(len(played_cards)):
-        if strain.compare_to_suit(played_cards[card_counter].suit) and not strain.compare_to_suit(highest_card.suit):
-            highest_card = played_cards[card_counter]
-        elif played_cards[card_counter].rank > highest_card.rank and (
-                played_cards[card_counter].suit == suit_led or
-                strain.compare_to_suit(played_cards[card_counter].suit)
-        ):
-            highest_card = played_cards[card_counter]
+    if len(trump_cards) > 0:
+        winner_index, _ = max(trump_cards, key=lambda indexed_card: indexed_card[1].rank)
+        return winner_index
 
-    return played_cards.index(highest_card)
+    led_cards = [
+        (index, card) for index, card in enumerate(played_cards)
+        if card.suit == suit_led
+    ]
+    winner_index, _ = max(led_cards, key=lambda indexed_card: indexed_card[1].rank)
+    return winner_index
 
 
 def play(users, hands, contract, declarer, bid_history):
@@ -121,4 +124,3 @@ def play(users, hands, contract, declarer, bid_history):
         return ns_tricks
     if Team.EW.is_player_in_team(declarer):
         return ew_tricks
-
