@@ -1,17 +1,12 @@
 import pytest
-import sys
-
-sys.path.insert(0,'../bridgebot')
-sys.path.insert(0,'..')
-
 from contextlib import contextmanager
 
-from game.deck import Deck
-from game.bridgehand import Card, BridgeHand, CardDoesntFollowSuitException, CardNotInHandException, RepeatedCardException, WrongSizeHandException
+from bridgebot.game.deck import Deck
+from bridgebot.game.bridgehand import Card, BridgeHand, CardDoesntFollowSuitException, CardNotInHandException, RepeatedCardException, WrongSizeHandException
 
-from game.card import InvalidSuitException, InvalidRankException
+from bridgebot.game.card import InvalidSuitException, InvalidRankException
 
-from game.enums import Ranks, Suits
+from bridgebot.game.enums import Contracts, Ranks, Suits
 
 deck = Deck()
 seven_of_hearts = Card(Suits.HEARTS, Ranks.SEVEN)
@@ -143,3 +138,6 @@ def test_legal_cards():
     legal = hand.legal_cards(Suits.DIAMONDS)
     assert Card(Suits.DIAMONDS, Ranks.ACE) in legal
 
+
+def test_no_trump_contract_has_no_suit():
+    assert Suits.determine_suit_from_contract(Contracts.ONE_NO_TRUMP) is None

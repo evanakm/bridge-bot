@@ -14,8 +14,8 @@ Welcome to bridgebot's documentation!
    limited_information_bots
    cloudflare_deployment
    privacy
+   ai_players
    specs
-
 
 
 Indices and tables
