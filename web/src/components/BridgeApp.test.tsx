@@ -1,7 +1,15 @@
 import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { BridgeApp } from './BridgeApp'
+import type { Card, GameState } from '../game/types'
+import { BridgeApp, SeatPanel } from './BridgeApp'
+
+function card(id: string): Card {
+  const suit = id[0] as Card['suit']
+  const label = id.slice(1)
+  const rank = ({ J: 11, Q: 12, K: 13, A: 14 } as Record<string, number>)[label] ?? Number(label)
+  return { id, suit, rank: rank as Card['rank'] }
+}
 
 describe('BridgeApp', () => {
   afterEach(() => {
@@ -148,5 +156,59 @@ describe('BridgeApp', () => {
     expect(screen.getAllByLabelText(/hand/i).length).toBe(4)
     expect(container.querySelectorAll('.playing-card')).toHaveLength(52)
     expect(screen.queryAllByRole('button', { name: /play /i })).toHaveLength(0)
+  })
+
+  it('keeps the full hand visible and disables cards that cannot follow suit', () => {
+    const ledHeart = card('H2')
+    const playableHeart = card('H3')
+    const blockedClub = card('C4')
+    const game: GameState = {
+      phase: 'play',
+      seats: { N: 'bot', E: 'bot', S: 'human', W: 'bot' },
+      practice: false,
+      seed: 1,
+      dealer: 'N',
+      vulnerability: 'None',
+      hands: {
+        N: [],
+        E: [],
+        S: [playableHeart, blockedClub],
+        W: [],
+      },
+      auction: [],
+      contract: { level: 1, strain: 'NT', declarer: 'N', bidder: 'N', doubled: 'none' },
+      turn: 'S',
+      leader: 'E',
+      currentTrick: [{ seat: 'E', card: ledHeart }],
+      completedTricks: [],
+      tricksWon: { NS: 0, EW: 0 },
+      score: null,
+    }
+    const onPlay = vi.fn()
+
+    render(
+      <SeatPanel
+        seat="S"
+        game={game}
+        visible
+        thinking={false}
+        canAct
+        onPlay={onPlay}
+      />,
+    )
+
+    const playable = screen.getByRole('button', { name: 'Play 3♥' }) as HTMLButtonElement
+    const blocked = screen.getByRole('button', { name: '4♣ cannot be played' }) as HTMLButtonElement
+
+    expect(screen.getByLabelText(/south hand/i).querySelectorAll('.playing-card')).toHaveLength(2)
+    expect(playable.disabled).toBe(false)
+    expect(blocked.disabled).toBe(true)
+    expect(blocked.className).toContain('blocked')
+
+    fireEvent.click(blocked)
+    expect(onPlay).not.toHaveBeenCalled()
+
+    fireEvent.click(playable)
+    expect(onPlay).toHaveBeenCalledWith('S', playableHeart)
   })
 })

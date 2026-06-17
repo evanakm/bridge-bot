@@ -442,8 +442,17 @@ input:focus-visible {
   transform: translateY(-6px);
 }
 
+.playing-card.blocked {
+  border-color: rgba(90, 96, 88, 0.38);
+  background: #d7d9d3;
+  color: #5a625b;
+  filter: grayscale(0.85) contrast(0.86);
+  opacity: 0.72;
+  box-shadow: none;
+}
+
 .playing-card:disabled {
-  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 .card-back {

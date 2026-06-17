@@ -389,7 +389,7 @@ function MoveHistory({ game, className = '' }: { game: GameState; className?: st
   )
 }
 
-function SeatPanel({
+export function SeatPanel({
   seat,
   game,
   visible,
@@ -406,7 +406,7 @@ function SeatPanel({
 }) {
   const hand = game.hands[seat]
   const legalActionCards = canAct ? legalCards(game, seat) : []
-  const visibleCards = canAct ? legalActionCards : hand
+  const legalActionCardIds = new Set(legalActionCards.map((card) => card.id))
   const isTurn = game.turn === seat
   const turnBadge = game.phase === 'auction' ? 'to bid' : game.phase === 'play' ? 'to play' : null
 
@@ -427,14 +427,16 @@ function SeatPanel({
       </div>
       <div className="hand" aria-label={`${seatName(seat)} hand`}>
         {visible
-          ? sortCards(visibleCards).map((card) => (
-            canAct ? (
+          ? sortCards(hand).map((card) => {
+            const legal = legalActionCardIds.has(card.id)
+            return canAct ? (
               <button
                 key={card.id}
-                className={`playing-card suit-${card.suit} legal`}
+                className={`playing-card suit-${card.suit} ${legal ? 'legal' : 'blocked'}`}
                 type="button"
+                disabled={!legal}
                 onClick={() => onPlay(seat, card)}
-                aria-label={`Play ${cardLabel(card)}`}
+                aria-label={legal ? `Play ${cardLabel(card)}` : `${cardLabel(card)} cannot be played`}
               >
                 <span>{cardLabel(card)}</span>
               </button>
@@ -447,7 +449,7 @@ function SeatPanel({
                 <span>{cardLabel(card)}</span>
               </span>
             )
-          ))
+          })
           : Array.from({ length: Math.min(hand.length, 13) }).map((_, index) => (
             <span key={index} className="card-back" aria-hidden="true" />
           ))}

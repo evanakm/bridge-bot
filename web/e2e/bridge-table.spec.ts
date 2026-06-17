@@ -38,6 +38,41 @@ test('shows only legal human choices and keeps other hands hidden outside practi
   expect(controls.map((control) => control.name)).not.toContain('1H')
 })
 
+test('keeps unplayable human cards visible and disabled during play', async ({ page }) => {
+  await page.goto('/')
+
+  for (let actionCount = 0; actionCount < 120; actionCount += 1) {
+    const dealText = await page.locator('.rail-status').innerText()
+    if (/Board complete|Board passed out|Complete|Passed out/.test(dealText)) break
+
+    const blockedCards = page.locator('.seat-S button.playing-card.blocked')
+    if (await blockedCards.count() > 0) {
+      const visibleCards = await page.locator('.seat-S .playing-card').count()
+      const playableCards = await page.locator('.seat-S button[aria-label^="Play "]:not([disabled])').count()
+      const blockedCard = blockedCards.first()
+
+      expect(visibleCards).toBeGreaterThan(playableCards)
+      await expect(blockedCard).toBeDisabled()
+      await expect(blockedCard).toHaveAttribute('aria-label', /cannot be played/)
+      return
+    }
+
+    if (await clickIfEnabled(page.getByRole('button', { name: 'Pass' }))) continue
+
+    const playableCard = page.locator('.seat-S button[aria-label^="Play "]:not([disabled])').first()
+    if (await playableCard.isVisible().catch(() => false)) {
+      await playableCard.click()
+      continue
+    }
+
+    if (await clickIfEnabled(page.getByRole('button', { name: 'Step' }))) continue
+
+    await page.waitForTimeout(80)
+  }
+
+  throw new Error('No human follow-suit turn with disabled cards appeared in the test deal.')
+})
+
 test('keeps move history scrollable instead of expanding the table', async ({ page }) => {
   await page.setViewportSize({ width: 1000, height: 700 })
 
