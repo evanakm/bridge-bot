@@ -17,6 +17,8 @@ pnpm --dir web dev
 
 Open http://127.0.0.1:3000/ after the dev server starts.
 
+Live Cloudflare app: https://bridge.masonbrothers.ca/
+
 Useful verification commands:
 
 ```bash
