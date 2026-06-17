@@ -112,6 +112,18 @@ def highest_card(cards):
     return max(cards, key=lambda card: (card_rank_index(card), Suits.suits().index(card.suit)))
 
 
+def ordered_legal_bids(legal_bids):
+    return sorted(legal_bids, key=lambda bid: Bids.bids().index(bid))
+
+
+def ordered_cards(cards):
+    return sorted(cards, key=lambda card: card.to_int())
+
+
+def card_tiebreak(card):
+    return (card_rank_index(card), card.to_int())
+
+
 def card_beats(card, incumbent, led_suit, trump_strain):
     trump_suit = trump_strain.determine_suit() if isinstance(trump_strain, Strains) else None
 
@@ -215,6 +227,27 @@ class RuleBasedBotUser(User):
         return lowest_card(legal_cards)
 
 
+class RandomBotUser(User):
+    def __init__(self, seed=0):
+        self.rng = random.Random(seed)
+
+    def bid(self, current_player, legal_bids, bid_history):
+        return self._random_bid(legal_bids)
+
+    def bid_with_hand(self, current_player, hand, legal_bids, bid_history):
+        return self._random_bid(legal_bids)
+
+    def play_card(self, current_player, dummy, dummy_hand, all_cards, legal_cards, bid_history, card_history, leader_history):
+        if len(legal_cards) == 0:
+            raise ValueError("legal_cards must not be empty")
+        return self.rng.choice(ordered_cards(legal_cards))
+
+    def _random_bid(self, legal_bids):
+        if len(legal_bids) == 0:
+            raise ValueError("legal_bids must not be empty")
+        return self.rng.choice(ordered_legal_bids(legal_bids))
+
+
 class LinearPolicyBotUser(User):
     def __init__(self, bid_weights=None, card_weights=None):
         self.bid_weights = bid_weights or {
@@ -252,9 +285,9 @@ class LinearPolicyBotUser(User):
         trick = current_trick(current_player, card_history, leader_history)
         scored = [
             (self._score_card(card, current_player, trick, trump_strain), card)
-            for card in legal_cards
+            for card in ordered_cards(legal_cards)
         ]
-        return max(scored, key=lambda item: (item[0], card_rank_index(item[1])))[1]
+        return max(scored, key=lambda item: (item[0], *card_tiebreak(item[1])))[1]
 
     def _score_bid(self, bid, hand, bid_history):
         points = high_card_points(hand)
@@ -335,9 +368,9 @@ class RolloutBotUser(User):
                 ),
                 card,
             )
-            for card in legal_cards
+            for card in ordered_cards(legal_cards)
         ]
-        return max(scored, key=lambda item: (item[0], -card_rank_index(item[1])))[1]
+        return max(scored, key=lambda item: (item[0], -card_rank_index(item[1]), -item[1].to_int()))[1]
 
     def _rollout_score(self, candidate, current_player, trick, trump_strain, hidden_cards, rng):
         wins = 0
@@ -348,8 +381,12 @@ class RolloutBotUser(User):
             while len(simulated_trick) < 4:
                 player = player.next_player()
                 legal_hidden = self._sample_legal_hidden_card(hidden_cards, used, simulated_trick, rng)
+                if legal_hidden is None:
+                    break
                 used.add(legal_hidden)
                 simulated_trick.append((player, legal_hidden))
+            if len(simulated_trick) < 4:
+                continue
             winner = current_winner(simulated_trick, trump_strain)
             if winner and winner[0] == current_player:
                 wins += 1
@@ -358,6 +395,8 @@ class RolloutBotUser(User):
     @staticmethod
     def _sample_legal_hidden_card(hidden_cards, used, trick, rng):
         available = [card for card in hidden_cards if card not in used]
+        if len(available) == 0:
+            return None
         if len(trick) == 0:
             return rng.choice(available)
         led_suit = trick[0][1].suit
@@ -390,4 +429,4 @@ class EnsembleBotUser(User):
             for bot in self.bots
         ]
         counts = Counter(votes)
-        return max(votes, key=lambda card: (counts[card], -card_rank_index(card)))
+        return max(votes, key=lambda card: (counts[card], -card_rank_index(card), -card.to_int()))
