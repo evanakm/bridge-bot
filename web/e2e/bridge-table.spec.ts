@@ -72,6 +72,46 @@ test('keeps move history scrollable instead of expanding the table', async ({ pa
   expect(layoutMetrics.historyHeight).toBeLessThanOrEqual(layoutMetrics.maxHeight + 1)
 })
 
+test('gives clear shared-game save feedback and lets users retry', async ({ page }) => {
+  let saveAttempts = 0
+  await page.route('**/api/training/games', async (route) => {
+    saveAttempts += 1
+    if (saveAttempts === 1) {
+      await route.fulfill({
+        status: 500,
+        contentType: 'application/json',
+        body: JSON.stringify({ error: 'temporarily_unavailable' }),
+      })
+      return
+    }
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        ok: true,
+        recordId: '0123456789abcdef01234567',
+        storage: 'test',
+        policyVersion: '2026-06-16',
+      }),
+    })
+  })
+
+  await page.goto('/')
+  await page.getByText('South to bid').waitFor()
+  await page.getByRole('switch', { name: /share games/i }).click()
+  await expect(page.getByRole('status')).toContainText('Completed boards will be shared anonymously')
+
+  await playCurrentDeal(page)
+
+  await expect(page.getByRole('status')).toContainText('Board not saved')
+  await expect(page.getByRole('status')).toContainText('Your board is still here')
+
+  await page.getByRole('button', { name: 'Try again' }).click()
+
+  await expect(page.getByRole('status')).toContainText('Board shared')
+  expect(saveAttempts).toBe(2)
+})
+
 test('keeps the table usable on mobile screens', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
 

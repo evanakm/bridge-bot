@@ -20,7 +20,7 @@ describe('BridgeApp', () => {
     expect(screen.getByText('Bot action')).not.toBeNull()
     expect(screen.getByText('Bidding')).not.toBeNull()
     expect(screen.getByText('Waiting')).not.toBeNull()
-    expect(screen.getByRole('checkbox', { name: /share games/i })).not.toBeNull()
+    expect(screen.getByRole('switch', { name: /share games/i })).not.toBeNull()
     expect(screen.getByRole('link', { name: /privacy/i }).getAttribute('href')).toBe('/privacy')
   })
 
@@ -151,6 +151,15 @@ describe('BridgeApp', () => {
     expect(screen.getAllByLabelText(/hand/i).length).toBe(4)
     expect(container.querySelectorAll('.playing-card')).toHaveLength(52)
     expect(screen.queryAllByRole('button', { name: /play /i })).toHaveLength(0)
+  })
+
+  it('explains what shared game recording will do after opt-in', () => {
+    render(<BridgeApp />)
+
+    fireEvent.click(screen.getByRole('switch', { name: /share games/i }))
+
+    expect(screen.getByRole('status').textContent).toContain('Completed boards will be shared anonymously')
+    expect(screen.getByText('On after board')).not.toBeNull()
   })
 
 })

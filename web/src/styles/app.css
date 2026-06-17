@@ -150,16 +150,11 @@ input:focus-visible {
 
 .record-toggle {
   display: grid;
-  grid-template-columns: auto auto minmax(0, 1fr);
+  grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
+  text-align: left;
   gap: 8px;
   padding: 8px;
-}
-
-.record-toggle input {
-  width: 16px;
-  height: 16px;
-  accent-color: #d6b15b;
 }
 
 .record-toggle span {
@@ -186,6 +181,55 @@ input:focus-visible {
 
 .record-failed {
   border-color: rgba(183, 47, 53, 0.72);
+}
+
+.record-status {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+  padding: 9px;
+  border: 1px solid rgba(232, 207, 139, 0.2);
+  background: rgba(255, 247, 224, 0.055);
+}
+
+.record-status strong {
+  color: #f5ecd8;
+  font-size: 0.82rem;
+  line-height: 1.1;
+}
+
+.record-status span {
+  color: #d9cbaa;
+  font-size: 0.74rem;
+  line-height: 1.3;
+}
+
+.record-status button {
+  justify-self: start;
+  min-height: 32px;
+  margin-top: 2px;
+  padding: 5px 8px;
+  border: 1px solid rgba(244, 207, 121, 0.46);
+  background: rgba(244, 207, 121, 0.14);
+  color: #f7ecd2;
+}
+
+.record-status button:hover {
+  border-color: rgba(244, 207, 121, 0.8);
+  background: rgba(244, 207, 121, 0.22);
+}
+
+.record-status.record-saving {
+  border-color: rgba(244, 207, 121, 0.42);
+}
+
+.record-status.record-saved {
+  border-color: rgba(141, 187, 141, 0.52);
+}
+
+.record-status.record-failed {
+  border-color: rgba(183, 47, 53, 0.7);
+  background: rgba(183, 47, 53, 0.12);
 }
 
 .privacy-link {
@@ -855,6 +899,7 @@ input:focus-visible {
 
   .control-rail > div:first-child,
   .record-toggle,
+  .record-status,
   .privacy-link,
   .rail-status {
     grid-column: 1 / -1;
@@ -874,6 +919,7 @@ input:focus-visible {
   .icon-button,
   .primary-action,
   .seat-toggle,
+  .record-status button,
   .bid-actions button,
   .bid-grid button {
     min-height: 44px;
