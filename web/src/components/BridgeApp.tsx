@@ -14,6 +14,7 @@ import {
   isCardLegal,
   isHumanTurn,
   handStrengthLabel,
+  legalCards,
   needsHotseatReady,
   playCard,
   vulnerabilityForBoard,
@@ -104,12 +105,18 @@ export function BridgeApp() {
   }
 
   function makeCall(call: Call) {
-    setGame((current) => applyCall(current, call))
+    setGame((current) => {
+      if (current.phase !== 'auction' || !isCallLegal(current.auction, current.turn, call)) return current
+      return applyCall(current, call)
+    })
     setReadySeat(null)
   }
 
   function play(seat: Seat, card: Card) {
-    setGame((current) => playCard(current, seat, card.id))
+    setGame((current) => {
+      if (current.phase !== 'play' || current.turn !== seat || !isCardLegal(current, seat, card.id)) return current
+      return playCard(current, seat, card.id)
+    })
     setReadySeat(null)
   }
 
@@ -398,6 +405,8 @@ function SeatPanel({
   onPlay: (seat: Seat, card: Card) => void
 }) {
   const hand = game.hands[seat]
+  const legalActionCards = canAct ? legalCards(game, seat) : []
+  const visibleCards = canAct ? legalActionCards : hand
   const isTurn = game.turn === seat
   const turnBadge = game.phase === 'auction' ? 'to bid' : game.phase === 'play' ? 'to play' : null
 
@@ -418,17 +427,26 @@ function SeatPanel({
       </div>
       <div className="hand" aria-label={`${seatName(seat)} hand`}>
         {visible
-          ? sortCards(hand).map((card) => (
-            <button
-              key={card.id}
-              className={`playing-card suit-${card.suit} ${canAct && isCardLegal(game, seat, card.id) ? 'legal' : ''}`}
-              type="button"
-              disabled={!canAct || !isCardLegal(game, seat, card.id)}
-              onClick={() => onPlay(seat, card)}
-              aria-label={`Play ${cardLabel(card)}`}
-            >
-              <span>{cardLabel(card)}</span>
-            </button>
+          ? sortCards(visibleCards).map((card) => (
+            canAct ? (
+              <button
+                key={card.id}
+                className={`playing-card suit-${card.suit} legal`}
+                type="button"
+                onClick={() => onPlay(seat, card)}
+                aria-label={`Play ${cardLabel(card)}`}
+              >
+                <span>{cardLabel(card)}</span>
+              </button>
+            ) : (
+              <span
+                key={card.id}
+                className={`playing-card suit-${card.suit}`}
+                aria-label={`${cardLabel(card)} card`}
+              >
+                <span>{cardLabel(card)}</span>
+              </span>
+            )
           ))
           : Array.from({ length: Math.min(hand.length, 13) }).map((_, index) => (
             <span key={index} className="card-back" aria-hidden="true" />
@@ -531,7 +549,10 @@ function AuctionRecord({ game }: { game: GameState }) {
 
 function BiddingBox({ game, disabled, onCall }: { game: GameState; disabled: boolean; onCall: (call: Call) => void }) {
   const legal = allLegalCalls(game)
+  const legalLabels = new Set(legal.map(callLabel))
+  const legalContracts = contractCalls().filter((call) => legalLabels.has(callLabel(call)))
   const actionCalls: Call[] = [{ kind: 'pass' }, { kind: 'double' }, { kind: 'redouble' }]
+  const legalActions = actionCalls.filter((call) => legalLabels.has(callLabel(call)))
   return (
     <section className="bidding-box" aria-label="Bidding box">
       <header className="bid-header">
@@ -542,23 +563,24 @@ function BiddingBox({ game, disabled, onCall }: { game: GameState; disabled: boo
         <span>{disabled ? 'Waiting' : 'Your call'}</span>
       </header>
       <div className="bid-grid">
-        {contractCalls().map((call) => (
+        {legalContracts.map((call) => (
           <button
             key={`${call.level}-${call.strain}`}
             type="button"
-            disabled={disabled || !isCallLegal(game.auction, game.turn, call)}
+            disabled={disabled}
             onClick={() => onCall(call)}
+            aria-label={callLabel(call)}
           >
             {call.level}{call.strain === 'NT' ? 'NT' : suitLabel(call.strain)}
           </button>
         ))}
       </div>
       <div className="bid-actions">
-        {actionCalls.map((call) => (
+        {legalActions.map((call) => (
           <button
             key={call.kind}
             type="button"
-            disabled={disabled || !legal.some((legalCall) => callLabel(legalCall) === callLabel(call))}
+            disabled={disabled}
             onClick={() => onCall(call)}
           >
             {callLabel(call)}

@@ -13,6 +13,31 @@ test('plays through a bridge deal without browser errors', async ({ page }) => {
   expect(errors()).toEqual([])
 })
 
+test('shows only legal human choices and keeps other hands hidden outside practice', async ({ page }) => {
+  await page.goto('/')
+
+  await expect(page.locator('.playing-card')).toHaveCount(13)
+  await expect(page.getByRole('button', { name: /^Play / })).toHaveCount(0)
+  await expect(page.getByText('South to bid')).toBeVisible()
+
+  const biddingBox = page.getByRole('region', { name: 'Bidding box' })
+
+  await expect(biddingBox.getByRole('button', { name: '1C' })).toHaveCount(0)
+  await expect(biddingBox.getByRole('button', { name: '1D' })).toHaveCount(0)
+  await expect(biddingBox.getByRole('button', { name: 'Redouble' })).toHaveCount(0)
+  await expect(biddingBox.getByRole('button', { name: 'Pass' })).toBeEnabled()
+
+  const controls = await biddingBox.getByRole('button').evaluateAll((buttons) =>
+    buttons.map((button) => ({
+      name: button.getAttribute('aria-label') ?? button.textContent?.trim(),
+      disabled: button.hasAttribute('disabled'),
+    })),
+  )
+  expect(controls.length).toBeGreaterThan(0)
+  expect(controls.every((control) => !control.disabled)).toBe(true)
+  expect(controls.map((control) => control.name)).not.toContain('1H')
+})
+
 test('keeps move history scrollable instead of expanding the table', async ({ page }) => {
   await page.setViewportSize({ width: 1000, height: 700 })
 

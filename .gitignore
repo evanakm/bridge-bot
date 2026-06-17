@@ -6,6 +6,7 @@ build
 node_modules/
 .omx/
 .vinxi/
+.wrangler/
 .output/
 dist/
 coverage/

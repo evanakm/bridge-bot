@@ -129,6 +129,27 @@ describe('game engine', () => {
     expect(isHumanTurn(playState)).toBe(true)
   })
 
+  it('does not reveal dummy as a visible hand outside practice unless that hand is the current human-controlled action', () => {
+    const state = createGame({ seats: { N: 'bot', E: 'bot', S: 'human', W: 'bot' }, practice: false, seed: 4 })
+    const contract: Contract = { level: 1, strain: 'C', declarer: 'S', bidder: 'S', doubled: 'none' }
+    const dummyActionState = {
+      ...state,
+      phase: 'play' as const,
+      contract,
+      leader: 'W' as const,
+      turn: 'N' as const,
+      currentTrick: [{ seat: 'W' as const, card: card('C2') }],
+    }
+    const opponentActionState = {
+      ...dummyActionState,
+      turn: 'E' as const,
+    }
+
+    expect(visibleSeatCards(dummyActionState, 'N', null)).toBe(true)
+    expect(visibleSeatCards(opponentActionState, 'N', null)).toBe(false)
+    expect(visibleSeatCards({ ...opponentActionState, practice: true }, 'N', null)).toBe(true)
+  })
+
   it('scores vulnerable doubled contracts and assigns partnership scores', () => {
     const contract: Contract = {
       level: 4,

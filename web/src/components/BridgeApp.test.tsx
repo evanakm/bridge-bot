@@ -66,6 +66,27 @@ describe('BridgeApp', () => {
     expect(within(history).queryByText(/^West /i)).toBeNull()
   })
 
+  it('renders only legal bid controls for the human turn', async () => {
+    vi.useFakeTimers()
+    render(<BridgeApp />)
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(420)
+    })
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(420)
+    })
+
+    const biddingBox = screen.getByRole('region', { name: /bidding box/i })
+
+    expect(screen.getByText('South to bid')).not.toBeNull()
+    expect(within(biddingBox).queryByRole('button', { name: '1C' })).toBeNull()
+    expect(within(biddingBox).queryByRole('button', { name: '1D' })).toBeNull()
+    expect(within(biddingBox).queryByRole('button', { name: /redouble/i })).toBeNull()
+    expect((within(biddingBox).getByRole('button', { name: /pass/i }) as HTMLButtonElement).disabled).toBe(false)
+    expect(within(biddingBox).getAllByRole('button').every((button) => !button.hasAttribute('disabled'))).toBe(true)
+  })
+
   it('supports 0 to 4 human seats from the setup controls', () => {
     render(<BridgeApp />)
     const seatControls = within(screen.getByRole('group', { name: /human seats/i }))
@@ -119,12 +140,13 @@ describe('BridgeApp', () => {
   })
 
   it('toggles practice mode to show all hands', () => {
-    render(<BridgeApp />)
+    const { container } = render(<BridgeApp />)
 
     fireEvent.click(screen.getByRole('button', { name: /practice/i }))
 
     expect(screen.getByRole('button', { name: /practice/i }).className).toContain('active')
     expect(screen.getAllByLabelText(/hand/i).length).toBe(4)
-    expect(screen.getAllByRole('button', { name: /play /i })).toHaveLength(52)
+    expect(container.querySelectorAll('.playing-card')).toHaveLength(52)
+    expect(screen.queryAllByRole('button', { name: /play /i })).toHaveLength(0)
   })
 })

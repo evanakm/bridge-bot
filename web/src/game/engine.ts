@@ -239,9 +239,7 @@ export function advanceBots(state: GameState, limit = 256): GameState {
 
 export function visibleSeatCards(state: GameState, seat: Seat, readySeat: Seat | null): boolean {
   if (state.practice) return true
-  if (state.phase === 'play' && state.contract && seat === partner(state.contract.declarer) && state.completedTricks.length + state.currentTrick.length > 0) {
-    return true
-  }
+  if (state.phase === 'play' && isHumanTurn(state) && seat === state.turn) return true
   if (state.seats[seat] === 'human') {
     if (humanSeats(state.seats).length <= 1) return true
     return readySeat === seat
